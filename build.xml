@@ -89,6 +89,18 @@
     <jar
       destfile="build/lib/wyona-org-security-core-${security.version}-r${subversion.revision}.jar"
       basedir="build/classes"
+      excludes="org/wyona/security/impl/**, org/wyona/security/test/**"
+    >
+    </jar>
+  </target>
+
+  <target name="jar-impl" description="Create a jar file of implementation" depends="init,compile-impl">
+    <mkdir dir="build/lib"/>
+
+    <jar
+      destfile="build/lib/wyona-org-security-impl-${security.version}-r${subversion.revision}.jar"
+      basedir="build/classes"
+      excludes="org/wyona/security/core/**, org/wyona/security/test/**"
     >
     </jar>
   </target>
