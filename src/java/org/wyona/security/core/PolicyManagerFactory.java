@@ -47,7 +47,7 @@ public abstract class PolicyManagerFactory {
     public static PolicyManagerFactory newInstance() {
         // TODO: See for implementation http://java.sun.com/j2se/1.4.2/docs/api/javax/xml/parsers/SAXParserFactory.html#newInstance()
         try {
-            return (PolicyManagerFactory) Class.forName("org.wyona.security.impl.yarep.PolicyManagerFactoryImpl").newInstance();
+            return (PolicyManagerFactory) Class.forName("org.wyona.security.impl.PolicyManagerFactoryImpl").newInstance();
         } catch (Exception e) {
             log.error(e);
         }
