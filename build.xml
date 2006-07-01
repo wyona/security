@@ -52,7 +52,6 @@
       </fileset>
       <pathelement path="${classes.dir}"/>
       <pathelement path="lib"/> <!-- log4j.properties -->
-      <pathelement path="build/repository"/> <!-- repository configs -->
       <pathelement path="${maven2.cp}"/>
     </path>
   </target>
@@ -92,5 +91,15 @@
       basedir="build/classes"
     >
     </jar>
+  </target>
+
+  <target name="clean" description="Clean Build" depends="init">
+    <delete dir="${build.dir}"/>
+  </target>
+
+  <target name="run-tests" description="Run Tests" depends="init, compile-test">
+    <java classname="org.wyona.security.test.HelloWorld">
+      <classpath refid="classpath.run"/>
+    </java>
   </target>
 </project>
