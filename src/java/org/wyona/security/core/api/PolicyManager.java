@@ -1,5 +1,7 @@
 package org.wyona.security.core.api;
 
+import org.wyona.commons.io.Path;
+
 /**
  *
  */
@@ -8,5 +10,5 @@ public interface PolicyManager {
     /**
      *
      */
-    public boolean authorize(String path, String idenitity, String role);
+    public boolean authorize(Path path, Identity idenitity, Role role);
 }
