@@ -17,6 +17,8 @@
       <remoteRepository refid="wyona.remote.repository"/>
       <dependency groupId="log4j" artifactId="log4j"
                   version="1.2.8"/>
+      <dependency groupId="wyona-org-commons" artifactId="wyona-org-commons"
+                  version="0.0.1-dev-r14847"/>
     </artifact:dependencies>
     <property name="maven2.cp" refid="maven2.classpath"/>
 
@@ -27,6 +29,14 @@
         <include name="*.jar"/>
       </fileset>
       <pathelement path="${maven2.cp}"/>
+    </path>
+
+    <path id="classpath.impl">
+      <fileset dir="lib">
+        <include name="*.jar"/>
+      </fileset>
+      <pathelement path="${maven2.cp}"/>
+      <pathelement path="${classes.dir}"/>
     </path>
 
     <path id="classpath.examples">
@@ -47,16 +57,25 @@
     </path>
   </target>
 
-  <target name="compile-core" description="Compile Java classes" depends="init">
+  <target name="compile-core" description="Compile Java classes of core/API" depends="init">
     <echo>${classes.dir}</echo>
     <mkdir dir="${classes.dir}"/>
-    <javac srcdir="src/java" destdir="${classes.dir}"
+    <javac srcdir="src/core/java" destdir="${classes.dir}"
            classpathref="classpath.core"
            debug="true"
     />
   </target>
 
-  <target name="core-jar" description="Create a jar file" depends="init,compile-core">
+  <target name="compile-impl" description="Compile Java classes of Implementation" depends="init">
+    <echo>${classes.dir}</echo>
+    <mkdir dir="${classes.dir}"/>
+    <javac srcdir="src/impl/java" destdir="${classes.dir}"
+           classpathref="classpath.impl"
+           debug="true"
+    />
+  </target>
+
+  <target name="jar-core" description="Create a jar file" depends="init,compile-core">
     <mkdir dir="build/lib"/>
 
     <jar
