@@ -3,5 +3,10 @@ package org.wyona.security.core.api;
 /**
  *
  */
-public class PolicyManager {
+public interface PolicyManager {
+
+    /**
+     *
+     */
+    public boolean authorize(String path, String idenitity, String role);
 }
