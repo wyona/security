@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<project name="security" default="usage" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+<project name="security" default="compile-test" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
 
   <target name="usage" description="How to see all the targets">
     <echo>USAGE: ant -projecthelp</echo>
@@ -66,10 +66,19 @@
     />
   </target>
 
-  <target name="compile-impl" description="Compile Java classes of Implementation" depends="init">
+  <target name="compile-impl" description="Compile Java classes of Implementation" depends="init, compile-core">
     <echo>${classes.dir}</echo>
     <mkdir dir="${classes.dir}"/>
     <javac srcdir="src/impl/java" destdir="${classes.dir}"
+           classpathref="classpath.impl"
+           debug="true"
+    />
+  </target>
+
+  <target name="compile-test" description="Compile Java classes of Tests" depends="init, compile-impl">
+    <echo>${classes.dir}</echo>
+    <mkdir dir="${classes.dir}"/>
+    <javac srcdir="src/test/java" destdir="${classes.dir}"
            classpathref="classpath.impl"
            debug="true"
     />
