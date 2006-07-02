@@ -25,5 +25,26 @@ public class HelloWorld {
         } else {
             System.out.println("Access denied: " + path);
         }
+
+        path = new Path("/");
+        if (pm.authorize(path, null, null)) {
+            System.out.println("Access granted: " + path);
+        } else {
+            System.out.println("Access denied: " + path);
+        }
+
+        path = new Path("/hello");
+        if (pm.authorize(path, null, null)) {
+            System.out.println("Access granted: " + path);
+        } else {
+            System.out.println("Access denied: " + path);
+        }
+
+        path = new Path("/hello/");
+        if (pm.authorize(path, null, null)) {
+            System.out.println("Access granted: " + path);
+        } else {
+            System.out.println("Access denied: " + path);
+        }
     }
 }

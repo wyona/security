@@ -32,6 +32,19 @@ public class PolicyManagerImpl implements PolicyManager {
      *
      */
     public boolean authorize(Path path, Identity idenitity, Role role) {
+        log.error(getPolicyPath(path));
         return true;
+    }
+
+    /**
+     *
+     */
+    public Path getPolicyPath(Path path) {
+        // Remove trailing slash except for ROOT ...
+        String p = path.toString();
+        if (p.length() > 1 && p.charAt(p.length() - 1) == '/') {
+            return new Path(p.substring(0, p.length() - 1) + ".policy");
+        }
+        return new Path(p + ".policy");
     }
 }
