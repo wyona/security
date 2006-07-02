@@ -38,16 +38,19 @@ public class PolicyManagerImpl implements PolicyManager {
     }
 
     /**
-     *
+     * TODO: Implement inherited policies (recursive authorize(path.getParent(), identity, role))
      */
     public boolean authorize(Path path, Identity identity, Role role) {
-        Path policyPath = getPolicyPath(path);
+        if(path == null || identity == null || role == null) {
+            log.warn("Path or identity or role was null!");
+            return false;
+        }
 
         try {
-            RepoPath rp = new YarepUtil().getRepositoryPath(new org.wyona.yarep.core.Path(policyPath.toString()), repoFactory);
+            RepoPath rp = new YarepUtil().getRepositoryPath(new org.wyona.yarep.core.Path(path.toString()), repoFactory);
             Repository repo = rp.getRepo();
 
-            Configuration config = configBuilder.build(repo.getInputStream(new org.wyona.yarep.core.Path(rp.getPath().toString())));
+            Configuration config = configBuilder.build(repo.getInputStream(new org.wyona.yarep.core.Path(getPolicyPath(new Path(rp.getPath().toString())).toString())));
             Configuration[] roles = config.getChildren("role");
             for (int i = 0; i < roles.length; i++) {
                 String roleName = roles[i].getAttribute("id", null);
@@ -67,10 +70,12 @@ public class PolicyManagerImpl implements PolicyManager {
                             if (permission.equals("true")) {
                                 String groupName = accreditableObjects[k].getAttribute("id", null);
                                 String[] groupnames = identity.getGroupnames();
-                                for (int j = 0; j < groupnames.length; j++) {
-                                    if (groupName.equals(groupnames[j])) {
-                                        log.error("DEBUG: Access granted: " + path);
-                                        return true;
+                                if (groupnames != null) {
+                                    for (int j = 0; j < groupnames.length; j++) {
+                                        if (groupName.equals(groupnames[j])) {
+                                            log.error("DEBUG: Access granted: " + path);
+                                            return true;
+                                        }
                                     }
                                 }
                             }
