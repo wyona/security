@@ -40,7 +40,7 @@ public class PolicyManagerImpl implements PolicyManager {
     /**
      *
      */
-    public boolean authorize(Path path, Identity idenitity, Role role) {
+    public boolean authorize(Path path, Identity identity, Role role) {
         Path policyPath = getPolicyPath(path);
 
         try {
@@ -66,16 +66,19 @@ public class PolicyManagerImpl implements PolicyManager {
                             String permission = accreditableObjects[k].getAttribute("permission", null);
                             if (permission.equals("true")) {
                                 String groupName = accreditableObjects[k].getAttribute("id", null);
-                                if (groupName.equals("hello")) {
-                                    log.error("DEBUG: Access granted: " + path);
-                                    return true;
+                                String[] groupnames = identity.getGroupnames();
+                                for (int j = 0; j < groupnames.length; j++) {
+                                    if (groupName.equals(groupnames[j])) {
+                                        log.error("DEBUG: Access granted: " + path);
+                                        return true;
+                                    }
                                 }
                             }
                         } else if (aObjectName.equals("user")) {
                             String permission = accreditableObjects[k].getAttribute("permission", null);
                             if (permission.equals("true")) {
                                 String userName = accreditableObjects[k].getAttribute("id", null);
-                                if (userName.equals("sugus")) {
+                                if (userName.equals(identity.getUsername())) {
                                     log.error("DEBUG: Access granted: " + path);
                                     return true;
                                 }
