@@ -19,6 +19,8 @@
                   version="1.2.8"/>
       <dependency groupId="wyona-org-commons" artifactId="wyona-org-commons"
                   version="0.0.1-dev-r14847"/>
+      <dependency groupId="yarep" artifactId="yarep"
+                  version="0.0.1-dev-r14296"/>
     </artifact:dependencies>
     <property name="maven2.cp" refid="maven2.classpath"/>
 
