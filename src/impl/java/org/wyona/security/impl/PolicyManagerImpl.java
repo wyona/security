@@ -52,8 +52,40 @@ public class PolicyManagerImpl implements PolicyManager {
             for (int i = 0; i < roles.length; i++) {
                 String roleName = roles[i].getAttribute("id", null);
                 if (roleName != null && roleName.equals(role.getName())) {
-                    log.error("DEBUG: Access granted: " + path);
-                    return true;
+                    Configuration[] accreditableObjects = roles[i].getChildren();
+                    for (int k = 0; k < accreditableObjects.length; k++) {
+                        String aObjectName = accreditableObjects[k].getName();
+                        log.error("DEBUG: Accreditable Object Name: " + aObjectName);
+                        if (aObjectName.equals("world")) {
+                            String permission = accreditableObjects[k].getAttribute("permission", null);
+                            if (permission.equals("true")) {
+                                log.error("DEBUG: Access granted: " + path);
+                                return true;
+                            }
+                        } else if (aObjectName.equals("group")) {
+                            String permission = accreditableObjects[k].getAttribute("permission", null);
+                            if (permission.equals("true")) {
+                                String groupName = accreditableObjects[k].getAttribute("id", null);
+                                if (groupName.equals("hello")) {
+                                    log.error("DEBUG: Access granted: " + path);
+                                    return true;
+                                }
+                            }
+                        } else if (aObjectName.equals("user")) {
+                            String permission = accreditableObjects[k].getAttribute("permission", null);
+                            if (permission.equals("true")) {
+                                String userName = accreditableObjects[k].getAttribute("id", null);
+                                if (userName.equals("sugus")) {
+                                    log.error("DEBUG: Access granted: " + path);
+                                    return true;
+                                }
+                            }
+                        } else if (aObjectName.equals("group")) {
+                            log.warn("IP Range not implemented yet!");
+                        } else {
+                            log.warn("No such accreditable object implemented: " + aObjectName);
+                        }
+                    }
                 }
             }
         } catch(NoSuchNodeException e) {
