@@ -21,6 +21,16 @@
                   version="0.0.1-dev-r14847"/>
       <dependency groupId="yarep" artifactId="yarep"
                   version="0.0.1-dev-r14296"/>
+
+      <!-- Runtime libraries -->
+      <dependency groupId="avalon-framework" artifactId="avalon-framework-api"
+                  version="4.1.5"/>
+      <dependency groupId="avalon-framework" artifactId="avalon-framework-impl"
+                  version="4.1.5"/>
+      <dependency groupId="xerces" artifactId="xercesImpl"
+                  version="2.7.1"/>
+      <dependency groupId="xml-apis" artifactId="xml-apis"
+                  version="1.3.02"/>
     </artifact:dependencies>
     <property name="maven2.cp" refid="maven2.classpath"/>
 
