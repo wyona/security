@@ -51,7 +51,7 @@ public class PolicyManagerImpl implements PolicyManager {
             Configuration[] roles = config.getChildren("role");
             for (int i = 0; i < roles.length; i++) {
                 String roleName = roles[i].getAttribute("id", null);
-                if (roleName != null && roleName.equals("view")) {
+                if (roleName != null && roleName.equals(role.getName())) {
                     log.error("DEBUG: Access granted: " + path);
                     return true;
                 }
