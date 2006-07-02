@@ -2,6 +2,17 @@
 
 <policy xmlns="http://www.wyona.org/security/1.0">
 
+  <role id="view">
+    <world permission="false"/>
+    <group id="hello" permission="true"/>
+  </role>
+
+  <role id="read">
+    <user id="lenya" permission="true"/>
+  </role>
+
+<!-- TODO: Or the other way around ... -->
+<!--
   <world>
     <role id="view" permission="false"/>
   </world>
@@ -13,17 +24,6 @@
   <user id="lenya">
     <role id="edit" permission="true"/>
   </user>
-
-<!-- TODO: Or the other way around ... -->
-<!--
-  <role id="view">
-    <world permission="false"/>
-    <group id="hello" permission="true"/>
-  </role>
-
-  <role id="read">
-    <user id="lenya" permission="true"/>
-  </role>
 -->
 
 </policy>
