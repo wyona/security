@@ -19,12 +19,15 @@ public class HelloWorld {
         PolicyManagerFactory pmf = PolicyManagerFactory.newInstance();
         PolicyManager pm = pmf.newPolicyManager();
 
-        Path path = new Path("/hello/world.html");
+        Path path = null;
+/*
+        path = new Path("/hello/world.html");
         if (pm.authorize(path, null, null)) {
             System.out.println("Access granted: " + path);
         } else {
             System.out.println("Access denied: " + path);
         }
+*/
 
         path = new Path("/");
         if (pm.authorize(path, null, null)) {
@@ -40,11 +43,13 @@ public class HelloWorld {
             System.out.println("Access denied: " + path);
         }
 
+/*
         path = new Path("/hello/");
         if (pm.authorize(path, null, null)) {
             System.out.println("Access granted: " + path);
         } else {
             System.out.println("Access denied: " + path);
         }
+*/
     }
 }

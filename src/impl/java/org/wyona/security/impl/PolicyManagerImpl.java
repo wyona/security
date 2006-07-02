@@ -4,7 +4,11 @@ import org.wyona.commons.io.Path;
 import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.PolicyManager;
 import org.wyona.security.core.api.Role;
+import org.wyona.yarep.core.NoSuchNodeException;
+import org.wyona.yarep.core.Repository;
 import org.wyona.yarep.core.RepositoryFactory;
+import org.wyona.yarep.util.RepoPath;
+import org.wyona.yarep.util.YarepUtil;
 
 import org.apache.log4j.Category;
 
@@ -32,7 +36,22 @@ public class PolicyManagerImpl implements PolicyManager {
      *
      */
     public boolean authorize(Path path, Identity idenitity, Role role) {
-        log.error(getPolicyPath(path));
+        Path policyPath = getPolicyPath(path);
+        log.error("DEBUG: " + policyPath);
+
+        try {
+            RepoPath rp = new YarepUtil().getRepositoryPath(new org.wyona.yarep.core.Path(policyPath.toString()), repoFactory);
+            Repository repo = rp.getRepo();
+            log.debug("Repo Name: " + repo.getName());
+            log.debug("New path: " + rp.getPath());
+
+            java.io.BufferedReader br = new java.io.BufferedReader(repo.getReader(new org.wyona.yarep.core.Path(rp.getPath().toString())));
+            log.error("DEBUG: " + br.readLine());
+        } catch(NoSuchNodeException e) {
+            log.warn(e.getMessage());
+        } catch(Exception e) {
+            log.error(e.getMessage(), e);
+        }
         return true;
     }
 

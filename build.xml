@@ -31,6 +31,12 @@
                   version="2.7.1"/>
       <dependency groupId="xml-apis" artifactId="xml-apis"
                   version="1.3.02"/>
+      <dependency groupId="apache-jakarta-commons" artifactId="apache-jakarta-commons-discovery"
+                  version="0.2"/>
+      <dependency groupId="apache-jakarta-commons" artifactId="apache-jakarta-commons-id"
+                  version="0.1-dev-lcr357257"/>
+      <dependency groupId="apache-jakarta-commons" artifactId="apache-jakarta-commons-logging"
+                  version="1.0.4"/>
     </artifact:dependencies>
     <property name="maven2.cp" refid="maven2.classpath"/>
 
