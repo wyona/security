@@ -9,6 +9,14 @@ public class Identity {
     protected String[] groupnames;
 
     /**
+     * Identity is WORLD
+     */
+    public Identity() {
+        username = null;
+        groupnames = null;
+    }
+
+    /**
      *
      */
     public Identity(String username, String[] groupnames) {

@@ -59,13 +59,14 @@ public class PolicyManagerImpl implements PolicyManager {
                     for (int k = 0; k < accreditableObjects.length; k++) {
                         String aObjectName = accreditableObjects[k].getName();
                         log.error("DEBUG: Accreditable Object Name: " + aObjectName);
+
                         if (aObjectName.equals("world")) {
                             String permission = accreditableObjects[k].getAttribute("permission", null);
                             if (permission.equals("true")) {
                                 log.error("DEBUG: Access granted: " + path);
                                 return true;
                             }
-                        } else if (aObjectName.equals("group")) {
+                        } else if (aObjectName.equals("group") && identity.getGroupnames() != null) {
                             String permission = accreditableObjects[k].getAttribute("permission", null);
                             if (permission.equals("true")) {
                                 String groupName = accreditableObjects[k].getAttribute("id", null);
@@ -79,7 +80,7 @@ public class PolicyManagerImpl implements PolicyManager {
                                     }
                                 }
                             }
-                        } else if (aObjectName.equals("user")) {
+                        } else if (aObjectName.equals("user") && identity.getUsername() != null) {
                             String permission = accreditableObjects[k].getAttribute("permission", null);
                             if (permission.equals("true")) {
                                 String userName = accreditableObjects[k].getAttribute("id", null);
@@ -88,8 +89,8 @@ public class PolicyManagerImpl implements PolicyManager {
                                     return true;
                                 }
                             }
-                        } else if (aObjectName.equals("group")) {
-                            log.warn("IP Range not implemented yet!");
+                        } else if (aObjectName.equals("iprange")) {
+                            log.warn("Credential IP Range not implemented yet!");
                         } else {
                             log.warn("No such accreditable object implemented: " + aObjectName);
                         }
