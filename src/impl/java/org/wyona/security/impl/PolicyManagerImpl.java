@@ -65,6 +65,9 @@ public class PolicyManagerImpl implements PolicyManager {
                             if (permission.equals("true")) {
                                 log.error("DEBUG: Access granted: " + path);
                                 return true;
+                            } else {
+                                //debug(path, identity, role, new Credential(roleName, "world", null));
+                                return false;
                             }
                         } else if (aObjectName.equals("group") && identity.getGroupnames() != null) {
                             String permission = accreditableObjects[k].getAttribute("permission", null);
@@ -79,6 +82,8 @@ public class PolicyManagerImpl implements PolicyManager {
                                         }
                                     }
                                 }
+                            } else {
+                                return false;
                             }
                         } else if (aObjectName.equals("user") && identity.getUsername() != null) {
                             String permission = accreditableObjects[k].getAttribute("permission", null);
@@ -88,11 +93,15 @@ public class PolicyManagerImpl implements PolicyManager {
                                     log.error("DEBUG: Access granted: " + path);
                                     return true;
                                 }
+                            } else {
+                                return false;
                             }
                         } else if (aObjectName.equals("iprange")) {
                             log.warn("Credential IP Range not implemented yet!");
+                            return false;
                         } else {
                             log.warn("No such accreditable object implemented: " + aObjectName);
+                            return false;
                         }
                     }
                 }
@@ -102,8 +111,14 @@ public class PolicyManagerImpl implements PolicyManager {
         } catch(Exception e) {
             log.error(e.getMessage(), e);
         }
-        log.error("DEBUG: Access denied: " + path);
-        return false;
+        if (path.getParent() != null) {
+            // TODO: Call policy of parent in order to inherit credentials ...
+            log.error("DEBUG: Access denied: " + path);
+            return false;
+        } else {
+            log.error("DEBUG: Access denied: " + path);
+            return false;
+        }
     }
 
     /**
