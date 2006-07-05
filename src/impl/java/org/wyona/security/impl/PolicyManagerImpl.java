@@ -65,36 +65,38 @@ public class PolicyManagerImpl implements PolicyManager {
                             if (permission.equals("true")) {
                                 log.error("DEBUG: Access granted: " + path);
                                 return true;
-                            } else {
+                            } else if (identity.getGroupnames() == null && identity.getUsername() == null) {
                                 //debug(path, identity, role, new Credential(roleName, "world", null));
                                 return false;
                             }
                         } else if (aObjectName.equals("group") && identity.getGroupnames() != null) {
-                            String permission = accreditableObjects[k].getAttribute("permission", null);
-                            if (permission.equals("true")) {
-                                String groupName = accreditableObjects[k].getAttribute("id", null);
-                                String[] groupnames = identity.getGroupnames();
-                                if (groupnames != null) {
-                                    for (int j = 0; j < groupnames.length; j++) {
-                                        if (groupName.equals(groupnames[j])) {
-                                            log.error("DEBUG: Access granted: " + path);
+                            String groupName = accreditableObjects[k].getAttribute("id", null);
+                            String[] groupnames = identity.getGroupnames();
+                            if (groupnames != null) {
+                                for (int j = 0; j < groupnames.length; j++) {
+                                    if (groupName.equals(groupnames[j])) {
+                                        String permission = accreditableObjects[k].getAttribute("permission", null);
+                                        if (permission.equals("true")) {
+                                            log.error("DEBUG: Access granted: Path = " + path + ", Group = " + groupName);
                                             return true;
+                                        } else {
+                                            log.error("DEBUG: Access denied: Path = " + path + ", Group = " + groupName);
+                                            return false;
                                         }
                                     }
                                 }
-                            } else {
-                                return false;
                             }
                         } else if (aObjectName.equals("user") && identity.getUsername() != null) {
-                            String permission = accreditableObjects[k].getAttribute("permission", null);
-                            if (permission.equals("true")) {
-                                String userName = accreditableObjects[k].getAttribute("id", null);
-                                if (userName.equals(identity.getUsername())) {
-                                    log.error("DEBUG: Access granted: " + path);
+                            String userName = accreditableObjects[k].getAttribute("id", null);
+                            if (userName.equals(identity.getUsername())) {
+                                String permission = accreditableObjects[k].getAttribute("permission", null);
+                                if (permission.equals("true")) {
+                                    log.error("DEBUG: Access granted: Path = " + path + ", User = " + userName);
                                     return true;
+                                } else {
+                                    log.error("DEBUG: Access denied: Path = " + path + ", User = " + userName);
+                                    return false;
                                 }
-                            } else {
-                                return false;
                             }
                         } else if (aObjectName.equals("iprange")) {
                             log.warn("Credential IP Range not implemented yet!");
@@ -113,7 +115,8 @@ public class PolicyManagerImpl implements PolicyManager {
         }
         if (path.getParent() != null) {
             // TODO: Call policy of parent in order to inherit credentials ...
-            log.error("DEBUG: Access denied: " + path);
+            log.error("DEBUG: Try to read parent policy: " + path.getParent() + " ..., Access denied: " + path);
+            //return authorize(path.getParent(), identity, role);
             return false;
         } else {
             log.error("DEBUG: Access denied: " + path);

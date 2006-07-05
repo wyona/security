@@ -39,7 +39,7 @@ public class HelloWorld {
         }
 
         path = new Path("/hello");
-        if (pm.authorize(path, null, null)) {
+        if (pm.authorize(path, new Identity("lenya", null), new Role("read"))) {
             System.out.println("Access granted: " + path);
         } else {
             System.out.println("Access denied: " + path);

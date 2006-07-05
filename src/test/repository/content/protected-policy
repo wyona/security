@@ -8,22 +8,6 @@
   </role>
 
   <role id="read">
-    <user id="lenya" permission="true"/>
+    <user id="lenya" permission="false"/>
   </role>
-
-<!-- TODO: Or the other way around ... -->
-<!--
-  <world>
-    <role id="view" permission="false"/>
-  </world>
-
-  <group id="hello">
-    <role id="view" permission="true"/>
-  </group>
-
-  <user id="lenya">
-    <role id="edit" permission="true"/>
-  </user>
--->
-
 </policy>
