@@ -45,8 +45,8 @@ public class HelloWorld {
             System.out.println("Access denied: " + path);
         }
 
-        path = new Path("/hello/");
-        if (pm.authorize(path, null, null)) {
+        path = new Path("/hello/sugus.txt");
+        if (pm.authorize(path, new Identity("alice", null), new Role("touch"))) {
             System.out.println("Access granted: " + path);
         } else {
             System.out.println("Access denied: " + path);
