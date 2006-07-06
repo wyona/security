@@ -18,7 +18,7 @@
       <dependency groupId="log4j" artifactId="log4j"
                   version="1.2.8"/>
       <dependency groupId="wyona-org-commons" artifactId="wyona-org-commons"
-                  version="0.0.1-dev-r15004"/>
+                  version="0.0.1-dev-r15041"/>
       <dependency groupId="yarep" artifactId="yarep"
                   version="0.0.1-dev-r14296"/>
 

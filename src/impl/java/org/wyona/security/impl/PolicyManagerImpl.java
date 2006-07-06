@@ -113,11 +113,12 @@ public class PolicyManagerImpl implements PolicyManager {
         } catch(Exception e) {
             log.error(e.getMessage(), e);
         }
-        if (path.getParent() != null) {
-            // TODO: Call policy of parent in order to inherit credentials ...
-            log.error("DEBUG: Try to read parent policy: " + path.getParent() + " ..., Access denied: " + path);
-            //return authorize(path.getParent(), identity, role);
-            return false;
+
+        Path parent = path.getParent();
+        if (parent != null) {
+            // Check policy of parent in order to inherit credentials ...
+            log.debug("Check parent policy: " + parent + " ... (Current path: " + path + ")");
+            return authorize(parent, identity, role);
         } else {
             log.error("DEBUG: Access denied: " + path);
             return false;
