@@ -120,7 +120,6 @@ public class PolicyManagerImpl implements PolicyManager {
         if (parent != null) {
             // Check policy of parent in order to inherit credentials ...
             log.debug("Check parent policy: " + parent + " ... (Current path: " + path + ")");
-            // TODO: I think one needs to add the repo prefix ... resp. something seems to be wrong when multiple repos are being used ...
             return authorize(parent, identity, role);
         } else {
             log.error("DEBUG: Access denied: " + path);
