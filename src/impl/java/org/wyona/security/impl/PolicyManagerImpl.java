@@ -50,7 +50,9 @@ public class PolicyManagerImpl implements PolicyManager {
             RepoPath rp = new YarepUtil().getRepositoryPath(new org.wyona.yarep.core.Path(path.toString()), repoFactory);
             Repository repo = rp.getRepo();
 
-            Configuration config = configBuilder.build(repo.getInputStream(new org.wyona.yarep.core.Path(getPolicyPath(new Path(rp.getPath().toString())).toString())));
+            org.wyona.yarep.core.Path yarepPath = new org.wyona.yarep.core.Path(getPolicyPath(new Path(rp.getPath().toString())).toString());
+            log.error("DEBUG: Yarep Path: " + yarepPath + ", Original Path: " + path + ", Repo: " + rp.getRepo());
+            Configuration config = configBuilder.build(repo.getInputStream(yarepPath));
             Configuration[] roles = config.getChildren("role");
             for (int i = 0; i < roles.length; i++) {
                 String roleName = roles[i].getAttribute("id", null);
@@ -118,6 +120,7 @@ public class PolicyManagerImpl implements PolicyManager {
         if (parent != null) {
             // Check policy of parent in order to inherit credentials ...
             log.debug("Check parent policy: " + parent + " ... (Current path: " + path + ")");
+            // TODO: I think one needs to add the repo prefix ... resp. something seems to be wrong when multiple repos are being used ...
             return authorize(parent, identity, role);
         } else {
             log.error("DEBUG: Access denied: " + path);
