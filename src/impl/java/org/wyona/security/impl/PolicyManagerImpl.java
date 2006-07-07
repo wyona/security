@@ -38,7 +38,7 @@ public class PolicyManagerImpl implements PolicyManager {
     }
 
     /**
-     * TODO: Implement inherited policies (recursive authorize(path.getParent(), identity, role))
+     *
      */
     public boolean authorize(Path path, Identity identity, Role role) {
         if(path == null || identity == null || role == null) {
@@ -48,10 +48,33 @@ public class PolicyManagerImpl implements PolicyManager {
 
         try {
             RepoPath rp = new YarepUtil().getRepositoryPath(new org.wyona.yarep.core.Path(path.toString()), repoFactory);
+            return authorize(rp.getRepo(), rp.getPath(), identity, role);
+        } catch(Exception e) {
+            log.error(e.getMessage(), e);
+        }
+        return false;
+    }
+
+    /**
+     *
+     */
+    private boolean authorize(Repository repo, org.wyona.yarep.core.Path path, Identity identity, Role role) {
+        if(repo == null || path == null || identity == null || role == null) {
+            log.warn("Path or identity or role was null!");
+            return false;
+        }
+
+        try {
+/*
+            RepoPath rp = new YarepUtil().getRepositoryPath(new org.wyona.yarep.core.Path(path.toString()), repoFactory);
             Repository repo = rp.getRepo();
 
             org.wyona.yarep.core.Path yarepPath = new org.wyona.yarep.core.Path(getPolicyPath(new Path(rp.getPath().toString())).toString());
             log.error("DEBUG: Yarep Path: " + yarepPath + ", Original Path: " + path + ", Repo: " + rp.getRepo());
+*/
+
+            org.wyona.yarep.core.Path yarepPath = new org.wyona.yarep.core.Path(getPolicyPath(new Path(path.toString())).toString());
+            log.error("DEBUG: Policy Yarep Path: " + yarepPath + ", Original Path: " + path + ", Repo: " + repo);
             Configuration config = configBuilder.build(repo.getInputStream(yarepPath));
             Configuration[] roles = config.getChildren("role");
             for (int i = 0; i < roles.length; i++) {
@@ -116,11 +139,11 @@ public class PolicyManagerImpl implements PolicyManager {
             log.error(e.getMessage(), e);
         }
 
-        Path parent = path.getParent();
+        Path parent = new Path(path.toString()).getParent();
         if (parent != null) {
             // Check policy of parent in order to inherit credentials ...
             log.debug("Check parent policy: " + parent + " ... (Current path: " + path + ")");
-            return authorize(parent, identity, role);
+            return authorize(repo, new org.wyona.yarep.core.Path(parent.toString()), identity, role);
         } else {
             log.error("DEBUG: Access denied: " + path);
             return false;
