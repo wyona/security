@@ -81,18 +81,22 @@ public class PolicyManagerImpl implements PolicyManager {
                 String roleName = roles[i].getAttribute("id", null);
                 if (roleName != null && roleName.equals(role.getName())) {
                     Configuration[] accreditableObjects = roles[i].getChildren();
+
+                    boolean worldCredentialExists = false;
+                    boolean worldIsNotAuthorized = true;
                     for (int k = 0; k < accreditableObjects.length; k++) {
                         String aObjectName = accreditableObjects[k].getName();
                         log.error("DEBUG: Accreditable Object Name: " + aObjectName);
 
                         if (aObjectName.equals("world")) {
+                            worldCredentialExists = true;
                             String permission = accreditableObjects[k].getAttribute("permission", null);
                             if (permission.equals("true")) {
                                 log.error("DEBUG: Access granted: " + path);
+                                worldIsNotAuthorized = false;
                                 return true;
-                            } else if (identity.getGroupnames() == null && identity.getUsername() == null) {
-                                //debug(path, identity, role, new Credential(roleName, "world", null));
-                                return false;
+                            } else {
+                                worldIsNotAuthorized = true;
                             }
                         } else if (aObjectName.equals("group") && identity.getGroupnames() != null) {
                             String groupName = accreditableObjects[k].getAttribute("id", null);
@@ -130,6 +134,10 @@ public class PolicyManagerImpl implements PolicyManager {
                             log.warn("No such accreditable object implemented: " + aObjectName);
                             return false;
                         }
+                    }
+                    if (worldCredentialExists && worldIsNotAuthorized) {
+                       log.error("DEBUG: Access for world denied: " + path);
+                        return false;
                     }
                 }
             }
