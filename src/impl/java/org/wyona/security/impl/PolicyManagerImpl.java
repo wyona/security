@@ -70,11 +70,11 @@ public class PolicyManagerImpl implements PolicyManager {
             Repository repo = rp.getRepo();
 
             org.wyona.yarep.core.Path yarepPath = new org.wyona.yarep.core.Path(getPolicyPath(new Path(rp.getPath().toString())).toString());
-            log.error("DEBUG: Yarep Path: " + yarepPath + ", Original Path: " + path + ", Repo: " + rp.getRepo());
+            log.debug("Yarep Path: " + yarepPath + ", Original Path: " + path + ", Repo: " + rp.getRepo());
 */
 
             org.wyona.yarep.core.Path yarepPath = new org.wyona.yarep.core.Path(getPolicyPath(new Path(path.toString())).toString());
-            log.error("DEBUG: Policy Yarep Path: " + yarepPath + ", Original Path: " + path + ", Repo: " + repo);
+            log.debug("Policy Yarep Path: " + yarepPath + ", Original Path: " + path + ", Repo: " + repo);
             Configuration config = configBuilder.build(repo.getInputStream(yarepPath));
             Configuration[] roles = config.getChildren("role");
             for (int i = 0; i < roles.length; i++) {
@@ -86,13 +86,13 @@ public class PolicyManagerImpl implements PolicyManager {
                     boolean worldIsNotAuthorized = true;
                     for (int k = 0; k < accreditableObjects.length; k++) {
                         String aObjectName = accreditableObjects[k].getName();
-                        log.error("DEBUG: Accreditable Object Name: " + aObjectName);
+                        log.debug("Accreditable Object Name: " + aObjectName);
 
                         if (aObjectName.equals("world")) {
                             worldCredentialExists = true;
                             String permission = accreditableObjects[k].getAttribute("permission", null);
                             if (permission.equals("true")) {
-                                log.error("DEBUG: Access granted: " + path);
+                                log.debug("Access granted: " + path);
                                 worldIsNotAuthorized = false;
                                 return true;
                             } else {
@@ -106,10 +106,10 @@ public class PolicyManagerImpl implements PolicyManager {
                                     if (groupName.equals(groupnames[j])) {
                                         String permission = accreditableObjects[k].getAttribute("permission", null);
                                         if (permission.equals("true")) {
-                                            log.error("DEBUG: Access granted: Path = " + path + ", Group = " + groupName);
+                                            log.debug("Access granted: Path = " + path + ", Group = " + groupName);
                                             return true;
                                         } else {
-                                            log.error("DEBUG: Access denied: Path = " + path + ", Group = " + groupName);
+                                            log.debug("Access denied: Path = " + path + ", Group = " + groupName);
                                             return false;
                                         }
                                     }
@@ -120,10 +120,10 @@ public class PolicyManagerImpl implements PolicyManager {
                             if (userName.equals(identity.getUsername())) {
                                 String permission = accreditableObjects[k].getAttribute("permission", null);
                                 if (permission.equals("true")) {
-                                    log.error("DEBUG: Access granted: Path = " + path + ", User = " + userName);
+                                    log.debug("Access granted: Path = " + path + ", User = " + userName);
                                     return true;
                                 } else {
-                                    log.error("DEBUG: Access denied: Path = " + path + ", User = " + userName);
+                                    log.debug("Access denied: Path = " + path + ", User = " + userName);
                                     return false;
                                 }
                             }
@@ -136,8 +136,8 @@ public class PolicyManagerImpl implements PolicyManager {
                         }
                     }
                     if (worldCredentialExists && worldIsNotAuthorized) {
-                       log.error("DEBUG: Access for world denied: " + path);
-                        return false;
+                       log.debug("Access for world denied: " + path);
+                       return false;
                     }
                 }
             }
@@ -153,7 +153,7 @@ public class PolicyManagerImpl implements PolicyManager {
             log.debug("Check parent policy: " + parent + " ... (Current path: " + path + ")");
             return authorize(repo, new org.wyona.yarep.core.Path(parent.toString()), identity, role);
         } else {
-            log.error("DEBUG: Access denied: " + path);
+            log.debug("Access denied: " + path);
             return false;
         }
     }
