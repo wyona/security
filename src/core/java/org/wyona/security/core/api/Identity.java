@@ -35,7 +35,16 @@ public class Identity implements java.io.Serializable {
      *
      */
     public String[] getGroupnames() {
-        return groupnames;
+        // For security reasons a copy instead the reference is being returned
+        if (groupnames != null) {
+            String[] copy = new String[groupnames.length];
+            for (int i = 0; i < groupnames.length; i++) {
+                copy[i] = groupnames[i];
+            }
+            return copy;
+        } else {
+            return null;
+        }
     }
 
     /**
