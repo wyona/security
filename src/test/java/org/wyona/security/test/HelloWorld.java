@@ -84,7 +84,7 @@ public class HelloWorld {
                 return;
             }
             System.out.println("The following value has been entered: " + value);
-            if (im.authenticate(identity)) {
+            if (im.authenticate(identity.getUsername(), value, null)) {
                 System.out.println("Authentication successful!");
             } else {
                 System.err.println("Authentication failed!");

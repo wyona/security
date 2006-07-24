@@ -37,10 +37,14 @@ public class IdentityManagerImpl implements IdentityManager {
     /**
      *
      */
-    public boolean authenticate(Identity identity) {
-        if(identity == null) {
-            log.warn("Identity is null!");
+    public boolean authenticate(String username, String password, String realmID) {
+        if(username == null || password == null) {
+            log.warn("Username or password is null!");
             return false;
+        }
+
+        if(username.equals(password)) {
+            return true;
         }
 
         return false;

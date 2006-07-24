@@ -8,5 +8,5 @@ public interface IdentityManager {
     /**
      *
      */
-    public boolean authenticate(Identity idenitity);
+    public boolean authenticate(String username, String password, String realmID);
 }
