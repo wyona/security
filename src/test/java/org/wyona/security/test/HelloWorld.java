@@ -1,5 +1,7 @@
 package org.wyona.security.test;
 
+import org.wyona.security.core.IdentityManagerFactory;
+import org.wyona.security.core.api.IdentityManager;
 import org.wyona.security.core.PolicyManagerFactory;
 import org.wyona.security.core.api.PolicyManager;
 import org.wyona.security.core.api.Role;
@@ -20,6 +22,9 @@ public class HelloWorld {
 
         PolicyManagerFactory pmf = PolicyManagerFactory.newInstance();
         PolicyManager pm = pmf.newPolicyManager();
+
+        IdentityManagerFactory imf = IdentityManagerFactory.newInstance();
+        IdentityManager im = imf.newIdentityManager();
 
         Path path = null;
 
@@ -71,6 +76,20 @@ public class HelloWorld {
             }
             System.out.println("The following value has been entered: " + value);
             Identity identity = new Identity(value, null);
+
+            System.out.println("Please enter a password (e.g. levi):");
+            value = br.readLine();
+            if (value.equals("")) {
+                System.out.println("No password has been specified!");
+                return;
+            }
+            System.out.println("The following value has been entered: " + value);
+            if (im.authenticate(identity)) {
+                System.out.println("Authentication successful!");
+            } else {
+                System.err.println("Authentication failed!");
+                return;
+            }
 
             System.out.println("Please enter a role (e.g. view):");
             value = br.readLine();
