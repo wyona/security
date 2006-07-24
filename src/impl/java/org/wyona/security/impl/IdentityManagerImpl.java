@@ -2,6 +2,7 @@ package org.wyona.security.impl;
 
 import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.IdentityManager;
+import org.wyona.yarep.core.Path;
 import org.wyona.yarep.core.Repository;
 import org.wyona.yarep.core.RepositoryFactory;
 import org.wyona.yarep.util.RepoPath;
@@ -43,8 +44,23 @@ public class IdentityManagerImpl implements IdentityManager {
             return false;
         }
 
-        if(username.equals(password)) {
-            return true;
+        Repository repo = null;
+        if (realmID != null) {
+            repo = repoFactory.newRepository(realmID);
+        } else {
+            repo = repoFactory.firstRepository();
+        }
+
+        if (repo != null) {
+            log.error("DEBUG: " + repo);
+            try {
+                Configuration config = configBuilder.build(repo.getInputStream(new Path("/" + username + ".iml")));
+                if(username.equals(password)) {
+                    return true;
+                }
+            } catch(Exception e) {
+                log.error(e);
+            }
         }
 
         return false;
