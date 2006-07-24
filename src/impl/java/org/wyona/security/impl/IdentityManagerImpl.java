@@ -52,10 +52,10 @@ public class IdentityManagerImpl implements IdentityManager {
         }
 
         if (repo != null) {
-            log.error("DEBUG: " + repo);
             try {
                 Configuration config = configBuilder.build(repo.getInputStream(new Path("/" + username + ".iml")));
-                if(username.equals(password)) {
+                Configuration passwdConfig = config.getChild("password");
+                if(passwdConfig.getValue().equals(Password.getMD5(password))) {
                     return true;
                 }
             } catch(Exception e) {
