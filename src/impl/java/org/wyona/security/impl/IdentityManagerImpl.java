@@ -61,6 +61,8 @@ public class IdentityManagerImpl implements IdentityManager {
             } catch(Exception e) {
                 log.error(e);
             }
+        } else {
+            log.warn("No such realm resp. repository: " + realmID + " (" + repoFactory.getPropertiesURL() + ")");
         }
 
         return false;
