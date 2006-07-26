@@ -5,6 +5,7 @@
   <role id="view">
     <world permission="false"/>
     <group id="hello" permission="true"/>
+    <user id="lenya" permission="false"/>
   </role>
 
   <role id="read">
