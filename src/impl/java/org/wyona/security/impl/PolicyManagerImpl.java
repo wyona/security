@@ -98,41 +98,45 @@ public class PolicyManagerImpl implements PolicyManager {
                             } else {
                                 worldIsNotAuthorized = true;
                             }
-                        } else if (aObjectName.equals("group") && identity.getGroupnames() != null) {
-                            String groupName = accreditableObjects[k].getAttribute("id", null);
-                            String[] groupnames = identity.getGroupnames();
-                            if (groupnames != null) {
-                                for (int j = 0; j < groupnames.length; j++) {
-                                    if (groupName.equals(groupnames[j])) {
-                                        String permission = accreditableObjects[k].getAttribute("permission", null);
-                                        if (permission.equals("true")) {
-                                            log.debug("Access granted: Path = " + path + ", Group = " + groupName);
-                                            return true;
-                                        } else {
-                                            log.debug("Access denied: Path = " + path + ", Group = " + groupName);
-                                            return false;
+                        } else if (aObjectName.equals("group")) {
+                            if (identity.getGroupnames() != null) {
+                                String groupName = accreditableObjects[k].getAttribute("id", null);
+                                String[] groupnames = identity.getGroupnames();
+                                if (groupnames != null) {
+                                    for (int j = 0; j < groupnames.length; j++) {
+                                        if (groupName.equals(groupnames[j])) {
+                                            String permission = accreditableObjects[k].getAttribute("permission", null);
+                                            if (permission.equals("true")) {
+                                                log.debug("Access granted: Path = " + path + ", Group = " + groupName);
+                                                return true;
+                                            } else {
+                                                log.debug("Access denied: Path = " + path + ", Group = " + groupName);
+                                                return false;
+                                            }
                                         }
                                     }
                                 }
                             }
-                        } else if (aObjectName.equals("user") && identity.getUsername() != null) {
-                            String userName = accreditableObjects[k].getAttribute("id", null);
-                            if (userName.equals(identity.getUsername())) {
-                                String permission = accreditableObjects[k].getAttribute("permission", null);
-                                if (permission.equals("true")) {
-                                    log.debug("Access granted: Path = " + path + ", User = " + userName);
-                                    return true;
-                                } else {
-                                    log.debug("Access denied: Path = " + path + ", User = " + userName);
-                                    return false;
+                        } else if (aObjectName.equals("user")) {
+                            if (identity.getUsername() != null) {
+                                String userName = accreditableObjects[k].getAttribute("id", null);
+                                if (userName.equals(identity.getUsername())) {
+                                    String permission = accreditableObjects[k].getAttribute("permission", null);
+                                    if (permission.equals("true")) {
+                                        log.debug("Access granted: Path = " + path + ", User = " + userName);
+                                        return true;
+                                    } else {
+                                        log.debug("Access denied: Path = " + path + ", User = " + userName);
+                                        return false;
+                                    }
                                 }
                             }
                         } else if (aObjectName.equals("iprange")) {
                             log.warn("Credential IP Range not implemented yet!");
-                            return false;
+                            //return false;
                         } else {
                             log.warn("No such accreditable object implemented: " + aObjectName);
-                            return false;
+                            //return false;
                         }
                     }
                     if (worldCredentialExists && worldIsNotAuthorized) {
