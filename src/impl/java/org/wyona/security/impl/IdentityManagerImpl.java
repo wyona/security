@@ -46,10 +46,13 @@ public class IdentityManagerImpl implements IdentityManager {
 
         Repository repo = null;
         if (realmID != null) {
+            log.debug("Realm ID: " + realmID);
             repo = repoFactory.newRepository(realmID);
         } else {
             repo = repoFactory.firstRepository();
+            log.debug("Realm ID is null and hence first repository will be used!");
         }
+        log.debug("Repository: " + repo);
 
         if (repo != null) {
             try {
