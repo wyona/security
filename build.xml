@@ -20,7 +20,7 @@
       <dependency groupId="wyona-org-commons" artifactId="wyona-org-commons"
                   version="0.0.1-dev-r15048"/>
       <dependency groupId="yarep" artifactId="yarep"
-                  version="0.0.1-dev-r14296"/>
+                  version="0.0.1-dev-r15774"/>
 
       <!-- Runtime libraries -->
       <dependency groupId="avalon-framework" artifactId="avalon-framework-api"
