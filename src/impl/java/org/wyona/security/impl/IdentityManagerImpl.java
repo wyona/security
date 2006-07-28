@@ -23,12 +23,14 @@ public class IdentityManagerImpl implements IdentityManager {
     private RepositoryFactory repoFactory;
     private DefaultConfigurationBuilder configBuilder;
 
+    private static String CONFIG= "ac-identities-yarep.properties";
+
     /**
      *
      */
     public IdentityManagerImpl() {
         try {
-            repoFactory = new RepositoryFactory("ac-identities-yarep.properties");
+            repoFactory = new RepositoryFactory(CONFIG);
             configBuilder = new DefaultConfigurationBuilder();
         } catch(Exception e) {
             log.error(e.getMessage(), e);
@@ -47,9 +49,17 @@ public class IdentityManagerImpl implements IdentityManager {
         Repository repo = null;
         if (realmID != null) {
             log.debug("Realm ID: " + realmID);
-            repo = repoFactory.newRepository(realmID);
+            if (repoFactory != null) {
+                repo = repoFactory.newRepository(realmID);
+            } else {
+                log.warn("Repository Factory is null! Check configuration: " + CONFIG);
+            }
         } else {
-            repo = repoFactory.firstRepository();
+            if (repoFactory != null) {
+                repo = repoFactory.firstRepository();
+            } else {
+                log.warn("Repository Factory is null! Check configuration: " + CONFIG);
+            }
             log.debug("Realm ID is null and hence first repository will be used!");
         }
         log.debug("Repository: " + repo);
@@ -65,7 +75,7 @@ public class IdentityManagerImpl implements IdentityManager {
                 log.error(e);
             }
         } else {
-            log.warn("No such realm resp. repository: " + realmID + " (" + repoFactory.getPropertiesURL() + ")");
+            log.warn("No such realm resp. repository: " + realmID + " (" + CONFIG + ")");
         }
 
         return false;
