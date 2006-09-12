@@ -146,7 +146,7 @@ public class PolicyManagerImpl implements PolicyManager {
                 }
             }
         } catch(NoSuchNodeException e) {
-            log.warn(e.getMessage());
+            log.info(e.getMessage());
         } catch(Exception e) {
             log.error(e.getMessage(), e);
         }
