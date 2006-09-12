@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+
+<project>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>wyona-org-security</groupId>
+  <artifactId>wyona-org-security-impl</artifactId>
+  <version>@VERSION@</version>
+</project>
