@@ -132,4 +132,17 @@
       <classpath refid="classpath.run"/>
     </java>
   </target>
+
+  <target name="install-jar" description="Place jar into local maven repository" depends="init,jar-impl">
+    <copy file="pom-impl.xml" todir="build/lib"/>
+    <replace file="build/lib/pom-impl.xml" value="${security.version}-r${subversion.revision}">
+      <replacetoken>@VERSION@</replacetoken>
+    </replace>
+
+    <artifact:pom id="maven.project" file="build/lib/pom-impl.xml"/>
+
+    <artifact:install file="build/lib/wyona-org-security-impl-${security.version}-r${subversion.revision}.jar">
+      <pom refid="maven.project"/>
+    </artifact:install>
+  </target>
 </project>
