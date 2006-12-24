@@ -1,5 +1,8 @@
 package org.wyona.security.impl;
 
+import java.util.Hashtable;
+
+import org.wyona.security.core.AuthenticationException;
 import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.IdentityManager;
 import org.wyona.yarep.core.Path;
@@ -20,7 +23,7 @@ public class IdentityManagerImpl implements IdentityManager {
 
     private static Category log = Category.getInstance(IdentityManagerImpl.class);
 
-    private RepositoryFactory repoFactory;
+    private Repository identitiesRepository;
     private DefaultConfigurationBuilder configBuilder;
 
     private static String CONFIG= "ac-identities-yarep.properties";
@@ -28,27 +31,23 @@ public class IdentityManagerImpl implements IdentityManager {
     /**
      *
      */
-    public IdentityManagerImpl() {
-        try {
-            repoFactory = new RepositoryFactory(CONFIG);
-            configBuilder = new DefaultConfigurationBuilder();
-        } catch(Exception e) {
-            log.error(e.getMessage(), e);
-        }
+    public IdentityManagerImpl(Repository identitiesRepository) {
+        this.identitiesRepository = identitiesRepository;
+        configBuilder = new DefaultConfigurationBuilder();
     }
 
+    
     /**
      *
      */
-    public boolean authenticate(String username, String password, String realmID) {
+    public boolean authenticate(String username, String password) throws AuthenticationException {
         if(username == null || password == null) {
             log.warn("Username or password is null!");
             return false;
         }
 
-        Repository repo = null;
-        if (realmID != null) {
-            log.debug("Realm ID: " + realmID);
+        /*if (repoID != null) {
+            log.debug("Repository ID: " + repoID);
             if (repoFactory != null) {
                 repo = repoFactory.newRepository(realmID);
             } else {
@@ -61,21 +60,18 @@ public class IdentityManagerImpl implements IdentityManager {
                 log.error("Repository Factory is null! Check configuration: " + CONFIG);
             }
             log.debug("Realm ID is null and hence first repository will be used!");
-        }
-        log.debug("Repository: " + repo);
+        }*/
+        log.debug("Repository: " + identitiesRepository);
 
-        if (repo != null) {
-            try {
-                Configuration config = configBuilder.build(repo.getInputStream(new Path("/" + username + ".iml")));
-                Configuration passwdConfig = config.getChild("password");
-                if(passwdConfig.getValue().equals(Password.getMD5(password))) {
-                    return true;
-                }
-            } catch(Exception e) {
-                log.error(e);
+        try {
+            Configuration config = configBuilder.build(identitiesRepository.getInputStream(new Path("/" + username + ".iml")));
+            Configuration passwdConfig = config.getChild("password");
+            if(passwdConfig.getValue().equals(Password.getMD5(password))) {
+                return true;
             }
-        } else {
-            log.warn("No such realm resp. repository: " + realmID + " (" + CONFIG + ")");
+        } catch(Exception e) {
+            log.error(e.getMessage(), e);
+            throw new AuthenticationException("Error authenticating " + identitiesRepository.getID() + ", " + username, e);
         }
 
         return false;

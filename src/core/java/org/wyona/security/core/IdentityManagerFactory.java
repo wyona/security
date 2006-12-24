@@ -17,6 +17,7 @@
 package org.wyona.security.core;
 
 import org.wyona.security.core.api.IdentityManager;
+import org.wyona.yarep.core.Repository;
 
 import org.apache.log4j.Category;
 
@@ -57,5 +58,5 @@ public abstract class IdentityManagerFactory {
     /**
      *
      */
-    public abstract IdentityManager newIdentityManager();
+    public abstract IdentityManager newIdentityManager(Repository identitiesRepository);
 }

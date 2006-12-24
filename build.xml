@@ -20,7 +20,7 @@
       <dependency groupId="wyona-org-commons" artifactId="wyona-org-commons"
                   version="0.0.1-dev-r15048"/>
       <dependency groupId="yarep" artifactId="yarep"
-                  version="0.0.1-dev-r15774"/>
+                  version="0.0.1-dev-r21033"/>
 
       <!-- Runtime libraries -->
       <dependency groupId="avalon-framework" artifactId="avalon-framework-api"
@@ -133,16 +133,37 @@
     </java>
   </target>
 
-  <target name="install-jar" description="Place jar into local maven repository" depends="init,jar-impl">
+  <target name="install-jars" description="Place core and impl jars into local maven repository">
+    <antcall target="install-jar-core"/>
+    <antcall target="install-jar-impl"/>
+  </target>
+  
+  <target name="install-jar-core" description="Place core jar into local maven repository" depends="init,jar-core">
+    <copy file="pom-core.xml" todir="build/lib"/>
+    <replace file="build/lib/pom-core.xml" value="${security.version}-r${subversion.revision}">
+      <replacetoken>@VERSION@</replacetoken>
+    </replace>
+
+    <artifact:pom id="maven.project.core" file="build/lib/pom-core.xml"/>
+
+    <artifact:install file="build/lib/wyona-org-security-core-${security.version}-r${subversion.revision}.jar">
+      <pom refid="maven.project.core"/>
+    </artifact:install>
+
+  </target>
+
+  <target name="install-jar-impl" description="Place impl jar into local maven repository" depends="init,jar-impl">
     <copy file="pom-impl.xml" todir="build/lib"/>
     <replace file="build/lib/pom-impl.xml" value="${security.version}-r${subversion.revision}">
       <replacetoken>@VERSION@</replacetoken>
     </replace>
 
-    <artifact:pom id="maven.project" file="build/lib/pom-impl.xml"/>
+    <artifact:pom id="maven.project.impl" file="build/lib/pom-impl.xml"/>
 
     <artifact:install file="build/lib/wyona-org-security-impl-${security.version}-r${subversion.revision}.jar">
-      <pom refid="maven.project"/>
+      <pom refid="maven.project.impl"/>
     </artifact:install>
+
   </target>
+
 </project>

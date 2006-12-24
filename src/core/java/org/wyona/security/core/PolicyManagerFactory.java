@@ -17,6 +17,7 @@
 package org.wyona.security.core;
 
 import org.wyona.security.core.api.PolicyManager;
+import org.wyona.yarep.core.Repository;
 
 import org.apache.log4j.Category;
 
@@ -57,5 +58,5 @@ public abstract class PolicyManagerFactory {
     /**
      *
      */
-    public abstract PolicyManager newPolicyManager();
+    public abstract PolicyManager newPolicyManager(Repository policiesRepository);
 }
