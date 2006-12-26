@@ -41,14 +41,11 @@ public class PolicyManagerImpl implements PolicyManager {
      */
     public boolean authorize(Path path, Identity identity, Role role) throws AuthorizationException {
         if(path == null || identity == null || role == null) {
-            log.warn("Path or identity or role was null! [" + path + 
-                    ", " + identity + ", " + role + "]");
-            return false;
+            log.error("Path or identity or role is null! [" + path + ", " + identity + ", " + role + "]");
+            throw new AuthorizationException("Path or identity or role is null! [" + path + ", " + identity + ", " + role + "]");
         }
 
         try {
-            //RepoPath rp = new YarepUtil().getRepositoryPath(new org.wyona.yarep.core.Path(path.toString()), repoFactory);
-            //return authorize(rp.getRepo(), rp.getPath(), identity, role);
             return authorize(policiesRepository, path, identity, role);
         } catch(Exception e) {
             log.error(e.getMessage(), e);
@@ -61,20 +58,21 @@ public class PolicyManagerImpl implements PolicyManager {
      *
      */
     private boolean authorize(Repository repo, Path path, Identity identity, Role role) throws Exception {
-        if(repo == null || path == null || identity == null || role == null) {
-            log.warn("Path or identity or role was null!");
-            return false;
+        if(repo == null) {
+            log.error("Repo is null!");
+            throw new Exception("Repo is null!");
+        } else if(path == null) {
+            log.error("Path is null!");
+            throw new Exception("Path is null!");
+        } else if(identity == null) {
+            log.error("Identity is null!");
+            throw new Exception("Identity is null!");
+        } else if(role == null) {
+            log.error("Role is null!");
+            throw new Exception("Role is null!");
         }
 
         try {
-/*
-            RepoPath rp = new YarepUtil().getRepositoryPath(new org.wyona.yarep.core.Path(path.toString()), repoFactory);
-            Repository repo = rp.getRepo();
-
-            org.wyona.yarep.core.Path yarepPath = new org.wyona.yarep.core.Path(getPolicyPath(new Path(rp.getPath().toString())).toString());
-            log.debug("Yarep Path: " + yarepPath + ", Original Path: " + path + ", Repo: " + rp.getRepo());
-*/
-
             org.wyona.yarep.core.Path yarepPath = new org.wyona.yarep.core.Path(getPolicyPath(path).toString());
             log.debug("Policy Yarep Path: " + yarepPath + ", Original Path: " + path + ", Repo: " + repo);
             Configuration config = configBuilder.build(repo.getInputStream(yarepPath));
