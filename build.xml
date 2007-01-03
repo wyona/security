@@ -82,6 +82,8 @@
     <javac srcdir="src/core/java" destdir="${classes.dir}"
            classpathref="classpath.core"
            debug="true"
+           source="${source.java.version}"
+           target="${target.java.version}"
     />
   </target>
 
@@ -91,6 +93,8 @@
     <javac srcdir="src/impl/java" destdir="${classes.dir}"
            classpathref="classpath.impl"
            debug="true"
+           source="${source.java.version}"
+           target="${target.java.version}"
     />
   </target>
 
@@ -100,6 +104,8 @@
     <javac srcdir="src/test/java" destdir="${classes.dir}"
            classpathref="classpath.impl"
            debug="true"
+           source="${source.java.version}"
+           target="${target.java.version}"
     />
   </target>
 
