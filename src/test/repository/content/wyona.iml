@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<identity id="wyona" xmlns="http://www.wyona.org/security/1.2">
+  <name>Wyona</name>
+  <description>Wyona</description>
+  <email>michi@apache.org</email>
+  <password type="md5">d90c8a926c7da064a3fdd2eb91795c24</password>
+  <salt>398rewoi</salt>
+
+  <groups>
+    <group>editor</group>
+    <group>admin</group>
+  </groups>
+</identity>
