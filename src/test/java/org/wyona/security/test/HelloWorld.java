@@ -50,11 +50,16 @@ public class HelloWorld {
                 System.out.println("Access denied: " + path);
             }
     
-            path = new Path("/");
-            if (pm.authorize(path, null, null)) {
-                System.out.println("Access granted: " + path);
-            } else {
-                System.out.println("Access denied: " + path);
+            try {
+                path = new Path("/");
+                if (pm.authorize(path, null, null)) {
+                    System.out.println("Access granted: " + path);
+                } else {
+                    System.out.println("Access denied: " + path);
+                }
+            } catch (Exception e) {
+            //} catch (org.wyona.security.core.AuthenticationException e) {
+                System.err.println("EXCEPTION: " + e);
             }
     
             path = new Path("/hello");
@@ -81,7 +86,7 @@ public class HelloWorld {
             System.out.println("The following value has been entered: " + value);
             path = new Path(value);
 
-            System.out.println("Please enter a username (e.g. lenya):");
+            System.out.println("Please enter a username (e.g. lenya or alice or wyona):");
             value = br.readLine();
             if (value.equals("")) {
                 System.out.println("No username has been specified!");

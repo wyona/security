@@ -33,7 +33,7 @@ public class IdentityManagerImpl implements IdentityManager {
      */
     public IdentityManagerImpl(Repository identitiesRepository) {
         this.identitiesRepository = identitiesRepository;
-        configBuilder = new DefaultConfigurationBuilder();
+        configBuilder = new DefaultConfigurationBuilder(true);
     }
 
     
@@ -65,9 +65,18 @@ public class IdentityManagerImpl implements IdentityManager {
 
         try {
             Configuration config = configBuilder.build(identitiesRepository.getInputStream(new Path("/" + username + ".iml")));
-            Configuration passwdConfig = config.getChild("password");
-            if(passwdConfig.getValue().equals(Password.getMD5(password))) {
-                return true;
+            
+            String idVersion = config.getChild("password").getNamespace();
+            if (idVersion.equals("http://www.wyona.org/security/1.0")) {
+                Configuration passwdConfig = config.getChild("password");
+                if (passwdConfig.getValue().equals(Password.getMD5(password))) return true;
+            } else if (idVersion.equals("http://www.wyona.org/security/1.1")) {
+                Configuration passwdConfig = config.getChild("password");
+                String salt = config.getChild("salt").getValue();
+                if(passwdConfig.getValue().equals(Password.getMD5(password,salt))) return true;
+            } else {
+                log.error("No such version implemented: " + idVersion);
+                throw new AuthenticationException("Error authenticating " + identitiesRepository.getID() + ", " + username + ". No such version implemented: " + idVersion);
             }
         } catch(Exception e) {
             log.error(e.getMessage(), e);
