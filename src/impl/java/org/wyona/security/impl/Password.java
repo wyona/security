@@ -32,6 +32,23 @@ public class Password {
         }
         return stringify(md.digest(plain.getBytes()));
     }
+    
+    /**
+     * Returns the MD5 representation of a string plain and string salt.
+     * @param plain The plain string.
+     * @param salt The salt string.
+     * @return A string.
+     */
+    public static String getMD5(String plain, String salt) {
+        MessageDigest md = null;
+        String saltNplain = plain+salt;
+        try {
+            md = MessageDigest.getInstance("MD5");
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        return stringify(md.digest(saltNplain.getBytes()));
+    }
 
     /**
      * Converts a byte buffer to a string.
