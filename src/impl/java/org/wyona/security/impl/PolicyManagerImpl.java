@@ -3,6 +3,7 @@ package org.wyona.security.impl;
 import java.util.Hashtable;
 
 import org.wyona.commons.io.Path;
+import org.wyona.commons.io.PathUtil;
 import org.wyona.security.core.AuthorizationException;
 import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.PolicyManager;
@@ -37,9 +38,17 @@ public class PolicyManagerImpl implements PolicyManager {
     }
 
     /**
-     *
+     * @deprecated
      */
     public boolean authorize(Path path, Identity identity, Role role) throws AuthorizationException {
+        return authorize(path.toString(), identity, role);
+       
+    }
+   
+    /**
+     *
+     */
+    public boolean authorize(String path, Identity identity, Role role) throws AuthorizationException {
         if(path == null || identity == null || role == null) {
             log.error("Path or identity or role is null! [" + path + ", " + identity + ", " + role + "]");
             throw new AuthorizationException("Path or identity or role is null! [" + path + ", " + identity + ", " + role + "]");
@@ -57,7 +66,7 @@ public class PolicyManagerImpl implements PolicyManager {
     /**
      *
      */
-    private boolean authorize(Repository repo, Path path, Identity identity, Role role) throws Exception {
+    private boolean authorize(Repository repo, String path, Identity identity, Role role) throws Exception {
         if(repo == null) {
             log.error("Repo is null!");
             throw new Exception("Repo is null!");
@@ -73,9 +82,9 @@ public class PolicyManagerImpl implements PolicyManager {
         }
 
         try {
-            org.wyona.yarep.core.Path yarepPath = new org.wyona.yarep.core.Path(getPolicyPath(path).toString());
+            String yarepPath = getPolicyPath(path); 
             log.debug("Policy Yarep Path: " + yarepPath + ", Original Path: " + path + ", Repo: " + repo);
-            Configuration config = configBuilder.build(repo.getInputStream(yarepPath));
+            Configuration config = configBuilder.build(repo.getInputStream(new org.wyona.yarep.core.Path(yarepPath)));
             Configuration[] roles = config.getChildren("role");
             for (int i = 0; i < roles.length; i++) {
                 String roleName = roles[i].getAttribute("id", null);
@@ -149,11 +158,11 @@ public class PolicyManagerImpl implements PolicyManager {
             log.info(e.getMessage());
         }
 
-        Path parent = path.getParent();
+        String parent = PathUtil.getParent(path);
         if (parent != null) {
             // Check policy of parent in order to inherit credentials ...
             log.debug("Check parent policy: " + parent + " ... (Current path: " + path + ")");
-            return authorize(repo, new org.wyona.yarep.core.Path(parent.toString()), identity, role);
+            return authorize(repo, parent, identity, role);
         } else {
             log.debug("Access denied: " + path);
             return false;
@@ -163,12 +172,11 @@ public class PolicyManagerImpl implements PolicyManager {
     /**
      *
      */
-    public Path getPolicyPath(Path path) {
+    public String getPolicyPath(String path) {
         // Remove trailing slash except for ROOT ...
-        String p = path.toString();
-        if (p.length() > 1 && p.charAt(p.length() - 1) == '/') {
-            return new Path(p.substring(0, p.length() - 1) + ".policy");
+        if (path.length() > 1 && path.charAt(path.length() - 1) == '/') {
+            return path.substring(0, path.length() - 1) + ".policy";
         }
-        return new Path(p + ".policy");
+        return path + ".policy";
     }
 }

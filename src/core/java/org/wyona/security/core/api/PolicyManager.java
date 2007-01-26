@@ -10,8 +10,13 @@ import org.wyona.yarep.core.Repository;
 public interface PolicyManager {
 
     /**
-     *
+     * @deprecated
      */
     public boolean authorize(Path path, Identity idenitity, Role role) throws AuthorizationException;
     
+    /**
+     *
+     */
+    public boolean authorize(String path, Identity idenitity, Role role) throws AuthorizationException;
+   
 }
