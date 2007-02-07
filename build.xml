@@ -20,7 +20,7 @@
       <dependency groupId="wyona-org-commons" artifactId="wyona-org-commons"
                   version="0.0.1-dev-r22019"/>
       <dependency groupId="yarep" artifactId="yarep-core"
-                  version="0.0.1-dev-r22097"/>
+                  version="0.0.1-dev-r22480"/>
 
       <!-- Runtime libraries -->
       <dependency groupId="yarep" artifactId="yarep-impl"
