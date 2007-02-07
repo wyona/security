@@ -174,4 +174,14 @@
 
   </target>
 
+  <target name="javadoc" description="Generate Javadoc" depends="init">
+    <javadoc
+      packagenames="org.*"
+      sourcepath="src/core/java"
+      destdir="build/javadoc"
+      classpathref="classpath.core"
+    >
+    </javadoc>
+  </target>
+
 </project>
