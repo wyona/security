@@ -1,6 +1,15 @@
 <?xml version="1.0"?>
 
 <identity id="lenya" xmlns="http://www.wyona.org/security/1.0">
+  <authenticator class="foo.bar.LDAPAuthenticator">
+    <ldap:id xmlns:ldap="http://foo.bar/ldap/1.0">lenya1</ldap:id>
+  </authenticator>
+<!--
+  <authenticator class="foo.bar.OpenIdAuthenticator">
+    <openid:id xmlns:ldap="http://foo.bar/openid/1.0">lenya1</openid:id>
+  </authenticator>
+-->
+
   <name>Michael Wechner</name>
   <description></description>
   <email>michi@wyona.org</email>
