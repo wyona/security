@@ -31,8 +31,8 @@ public class HelloWorld {
         
         try {
             repoFactory = new RepositoryFactory();
-            policiesRepo = repoFactory.newRepository("policies", new File("src/test/repository/config/repository.xml").getAbsoluteFile());
-            identitiesRepo = repoFactory.newRepository("identities", new File("src/test/repository/config/repository-identities.xml").getAbsoluteFile());
+            policiesRepo = repoFactory.newRepository("policies", new File("src/test/repository/repository1/config/repository.xml").getAbsoluteFile());
+            identitiesRepo = repoFactory.newRepository("identities", new File("src/test/repository/repository1/config/repository-identities.xml").getAbsoluteFile());
         
             PolicyManagerFactory pmf = PolicyManagerFactory.newInstance();
             PolicyManager pm = pmf.newPolicyManager(policiesRepo);

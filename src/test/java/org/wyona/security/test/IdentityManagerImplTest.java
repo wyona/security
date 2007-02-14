@@ -21,7 +21,7 @@ public class IdentityManagerImplTest extends TestCase {
     public void setUp() throws Exception {
         RepositoryFactory repoFactory = new RepositoryFactory();
         repo = repoFactory.newRepository("identities-repository", new File(
-                "config/repository-identities.xml"));
+                "repository1/config/repository-identities.xml"));
         identityManager = new IdentityManagerImpl(repo);
     }
     
