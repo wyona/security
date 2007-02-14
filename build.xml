@@ -72,6 +72,7 @@
       </fileset>
       <pathelement path="${classes.dir}"/>
       <pathelement path="lib"/> <!-- log4j.properties -->
+      <pathelement path="build/repository"/> <!-- repository configs -->
       <pathelement path="${maven2.cp}"/>
     </path>
   </target>
@@ -107,6 +108,12 @@
            source="${source.java.version}"
            target="${target.java.version}"
     />
+  </target>
+  
+  <target name="build-test" description="Build Tests" depends="init, compile-test">
+    <copy todir="${build.dir}/repository">
+      <fileset dir="src/test/repository"/>
+    </copy>
   </target>
 
   <target name="jar-core" description="Create a jar file" depends="init,compile-core">
@@ -172,6 +179,22 @@
       <pom refid="maven.project.impl"/>
     </artifact:install>
 
+  </target>
+
+  <!-- the test target executes all tests in the test directory, or alternatively
+       it executes a single test which is specified by the test.class.name property -->
+  <target name="test" description="Run Tests" depends="init, build-test">
+    <mkdir dir="build/log"/>
+    <junit fork="yes" printsummary="yes" haltonfailure="no" showoutput="yes" failureproperty="tests.failed">
+      <formatter type="plain" usefile="false" />
+      <formatter type="xml"/>
+      <classpath refid="classpath.run" />
+      <batchtest todir="build/log" unless="test.class.name">
+        <fileset dir="${classes.dir}" includes="**/*Test.class" excludes="**/Abstract*.class"/>
+      </batchtest>
+      <test todir="build/log" name="${test.class.name}" if="test.class.name"/>
+    </junit>
+    <fail if="tests.failed"  message="One or more junit tests failed. Please check the log (build/log)."/>
   </target>
 
   <target name="javadoc" description="Generate Javadoc" depends="init">
