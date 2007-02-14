@@ -35,7 +35,7 @@ public interface User extends Item {
      * 
      * @param password
      *            as cleartext
-     * @return
+     * @return true if authentication was successful, false otherwise.
      * @throws AccessManagementException
      */
     boolean authenticate(String password) throws AccessManagementException;
