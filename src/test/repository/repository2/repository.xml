@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<repository>
+  <name>Sample Repository for identities</name>
+
+  <paths class="org.wyona.yarep.impl.VFileSystemMapImpl" src="content">
+    <ignore pattern=".*\.svn"/>
+  </paths>
+
+  <storage class="org.wyona.yarep.core.impl.fs.FileSystemStorage">
+    <content src="content"/>
+  </storage>
+</repository>
