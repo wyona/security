@@ -1,13 +1,20 @@
 package org.wyona.security.core.api;
 
+import org.apache.log4j.Category;
+import org.wyona.security.impl.yarep.YarepUserManager;
+
 /**
  *
  */
 public class Identity implements java.io.Serializable {
 
+    private static Category log = Category.getInstance(Identity.class);
+    
     protected String username;
     protected String[] groupnames;
 
+    protected User user;
+    
     /**
      * Identity is WORLD
      */
@@ -17,22 +24,45 @@ public class Identity implements java.io.Serializable {
     }
 
     /**
-     *
+     * @deprecated
      */
     public Identity(String username, String[] groupnames) {
         this.username = username;
         this.groupnames = groupnames;
     }
-
-    /**
-     *
-     */
-    public String getUsername() {
-        return username;
+    
+    public Identity(User user) {
+        this.user = user;
     }
 
     /**
-     *
+     * @deprecated
+     * use getUser() instead
+     */
+    public String getUsername() {
+        if (username != null) {
+            return username;
+        } else {
+            try {
+                if (this.user == null) {
+                    return null;
+                } else {
+                    return this.user.getID();
+                }
+            } catch (AccessManagementException e) {
+                log.error(e.getMessage(), e);
+                throw new RuntimeException(e.getMessage(), e); //FIXME
+            }
+        }
+    }
+    
+    public User getUser() {
+        return this.user;
+    }
+
+    /**
+     * @deprecated
+     * use getGroups() instead
      */
     public String[] getGroupnames() {
         // For security reasons a copy instead the reference is being returned
@@ -45,6 +75,10 @@ public class Identity implements java.io.Serializable {
         } else {
             return null;
         }
+    }
+    
+    public Group[] getGroups() throws AccessManagementException {
+        return this.user.getGroups();
     }
 
     /**
