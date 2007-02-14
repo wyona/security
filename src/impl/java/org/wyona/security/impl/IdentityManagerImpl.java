@@ -3,8 +3,13 @@ package org.wyona.security.impl;
 import java.util.Hashtable;
 
 import org.wyona.security.core.AuthenticationException;
+import org.wyona.security.core.api.AccessManagementException;
+import org.wyona.security.core.api.GroupManager;
 import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.IdentityManager;
+import org.wyona.security.core.api.UserManager;
+import org.wyona.security.impl.yarep.YarepGroupManager;
+import org.wyona.security.impl.yarep.YarepUserManager;
 import org.wyona.yarep.core.Path;
 import org.wyona.yarep.core.Repository;
 import org.wyona.yarep.core.RepositoryFactory;
@@ -25,6 +30,8 @@ public class IdentityManagerImpl implements IdentityManager {
 
     private Repository identitiesRepository;
     private DefaultConfigurationBuilder configBuilder;
+    private UserManager userManager;
+    private GroupManager groupManager;
 
     private static String CONFIG= "ac-identities-yarep.properties";
 
@@ -34,6 +41,14 @@ public class IdentityManagerImpl implements IdentityManager {
     public IdentityManagerImpl(Repository identitiesRepository) {
         this.identitiesRepository = identitiesRepository;
         configBuilder = new DefaultConfigurationBuilder(true);
+        try {
+            // TODO: make implementation configurable:
+            userManager = new YarepUserManager(this, this.identitiesRepository);
+            groupManager = new YarepGroupManager(this, this.identitiesRepository);
+        } catch (AccessManagementException e) {
+            log.error(e.getMessage(), e);
+            throw new RuntimeException(e.getMessage(), e); // FIXME
+        }
     }
 
     
@@ -84,5 +99,15 @@ public class IdentityManagerImpl implements IdentityManager {
         }
 
         return false;
+    }
+
+
+    public GroupManager getGroupManager() {
+        return this.groupManager;
+    }
+
+
+    public UserManager getUserManager() {
+        return this.userManager;
     }
 }
