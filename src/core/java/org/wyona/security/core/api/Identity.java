@@ -1,7 +1,6 @@
 package org.wyona.security.core.api;
 
 import org.apache.log4j.Category;
-import org.wyona.security.impl.yarep.YarepUserManager;
 
 /**
  *
