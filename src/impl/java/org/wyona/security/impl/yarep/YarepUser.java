@@ -43,7 +43,7 @@ public class YarepUser extends YarepItem implements User {
      */
     public YarepUser(IdentityManager identityManager, Node parentNode, String id, String name,
             String email, String password) throws AccessManagementException {
-        super(identityManager, parentNode, id, name, id + ".uml");
+        super(identityManager, parentNode, id, name, id + ".xml");
         setEmail(email);
         setPassword(password);
     }

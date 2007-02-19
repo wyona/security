@@ -43,7 +43,7 @@ public class YarepGroup extends YarepItem implements Group {
      */
     public YarepGroup(IdentityManager identityManager, Node parentNode, String id, String name)
             throws AccessManagementException {
-        super(identityManager, parentNode, id, name, id + ".gml");
+        super(identityManager, parentNode, id, name, id + ".xml");
         this.members = new HashMap();
 
     }
