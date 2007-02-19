@@ -48,6 +48,9 @@ public class YarepUser extends YarepItem implements User {
         setPassword(password);
     }
 
+    /**
+     * @see org.wyona.security.impl.yarep.YarepItem#configure(org.apache.avalon.framework.configuration.Configuration)
+     */
     protected void configure(Configuration config) throws ConfigurationException,
             AccessManagementException {
         setID(config.getAttribute(ID));
@@ -56,6 +59,9 @@ public class YarepUser extends YarepItem implements User {
         this.password = config.getChild(PASSWORD, false).getValue();
     }
 
+    /**
+     * @see org.wyona.security.impl.yarep.YarepItem#createConfiguration()
+     */
     protected Configuration createConfiguration() throws AccessManagementException {
         DefaultConfiguration config = new DefaultConfiguration(USER);
         config.setAttribute(ID, getID());
@@ -72,14 +78,23 @@ public class YarepUser extends YarepItem implements User {
         return config;
     }
 
+    /**
+     * @see org.wyona.security.core.api.User#authenticate(java.lang.String)
+     */
     public boolean authenticate(String password) throws AccessManagementException {
         return getPassword().equals(Password.getMD5(password));
     }
 
+    /**
+     * @see org.wyona.security.core.api.User#getEmail()
+     */
     public String getEmail() throws AccessManagementException {
         return this.email;
     }
 
+    /**
+     * @see org.wyona.security.core.api.User#getGroups()
+     */
     public Group[] getGroups() throws AccessManagementException {
         Group[] allGroups = getIdentityManager().getGroupManager().getGroups();
         ArrayList groups = new ArrayList();
@@ -91,15 +106,26 @@ public class YarepUser extends YarepItem implements User {
         return (Group[]) groups.toArray(new Group[groups.size()]);
     }
 
+    /**
+     * @see org.wyona.security.core.api.User#setEmail(java.lang.String)
+     */
     public void setEmail(String email) throws AccessManagementException {
         this.email = email;
 
     }
 
+    /**
+     * @see org.wyona.security.core.api.User#setPassword(java.lang.String)
+     */
     public void setPassword(String password) throws AccessManagementException {
         this.password = Password.getMD5(password);
     }
 
+    /**
+     * Gets the password hash.
+     * @return
+     * @throws AccessManagementException
+     */
     protected String getPassword() throws AccessManagementException {
         return this.password;
     }

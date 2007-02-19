@@ -15,6 +15,13 @@ import org.wyona.yarep.core.Node;
 import org.wyona.yarep.core.Repository;
 import org.wyona.yarep.core.RepositoryException;
 
+/**
+ * The YarepUserManager expects to find all existing users under the node /users.
+ * If the node /users does not exist, it will look under the root node.
+ * All files which have &lt;user&gt; as root element will be recognized as a user
+ * configuration. &lt;identity&gt; is also recognized as a user for backwards 
+ * compatibility.
+ */
 public class YarepUserManager implements UserManager {
 
     private static Category log = Category.getInstance(YarepUserManager.class);
@@ -25,6 +32,12 @@ public class YarepUserManager implements UserManager {
 
     private HashMap users;
 
+    /**
+     * Constructor.
+     * @param identityManager
+     * @param identitiesRepository
+     * @throws AccessManagementException
+     */
     public YarepUserManager(IdentityManager identityManager, Repository identitiesRepository)
             throws AccessManagementException {
         this.identityManager = identityManager;
@@ -33,6 +46,10 @@ public class YarepUserManager implements UserManager {
         init();
     }
 
+    /**
+     * Finds all user nodes in the repository and instantiates the users. 
+     * @throws AccessManagementException
+     */
     protected void init() throws AccessManagementException {
         try {
             Node usersParentNode = getUsersParentNode();

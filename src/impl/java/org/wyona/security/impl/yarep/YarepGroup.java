@@ -27,7 +27,9 @@ public class YarepGroup extends YarepItem implements Group {
     /**
      * Instantiates an existing YarepGroup from a repository node.
      * 
+     * @param identityManager
      * @param node
+     * @throws AccessManagementException
      */
     public YarepGroup(IdentityManager identityManager, Node node) throws AccessManagementException {
         super(identityManager, node); // this will call configure()
@@ -37,8 +39,10 @@ public class YarepGroup extends YarepItem implements Group {
      * Creates a new YarepGroup with the given id as a child of the given parent
      * node. The user is not saved.
      * 
+     * @param identityManager
      * @param parentNode
      * @param id
+     * @param name
      * @throws AccessManagementException
      */
     public YarepGroup(IdentityManager identityManager, Node parentNode, String id, String name)
@@ -48,6 +52,9 @@ public class YarepGroup extends YarepItem implements Group {
 
     }
 
+    /**
+     * @see org.wyona.security.impl.yarep.YarepItem#configure(org.apache.avalon.framework.configuration.Configuration)
+     */
     protected void configure(Configuration config) throws ConfigurationException,
             AccessManagementException {
         setID(config.getAttribute(ID));
@@ -63,6 +70,9 @@ public class YarepGroup extends YarepItem implements Group {
         }
     }
 
+    /**
+     * @see org.wyona.security.impl.yarep.YarepItem#createConfiguration()
+     */
     protected Configuration createConfiguration() throws AccessManagementException {
         DefaultConfiguration config = new DefaultConfiguration(GROUP);
         config.setAttribute(ID, getID());
@@ -84,18 +94,30 @@ public class YarepGroup extends YarepItem implements Group {
         return config;
     }
 
+    /**
+     * @see org.wyona.security.core.api.Group#addMember(org.wyona.security.core.api.Item)
+     */
     public void addMember(Item item) throws AccessManagementException {
         this.members.put(item.getID(), item);
     }
 
+    /**
+     * @see org.wyona.security.core.api.Group#getMembers()
+     */
     public Item[] getMembers() throws AccessManagementException {
         return (Item[]) this.members.values().toArray(new Item[this.members.size()]);
     }
 
+    /**
+     * @see org.wyona.security.core.api.Group#isMember(org.wyona.security.core.api.Item)
+     */
     public boolean isMember(Item item) throws AccessManagementException {
         return this.members.containsKey(item.getID());
     }
 
+    /**
+     * @see org.wyona.security.core.api.Group#removeMember(org.wyona.security.core.api.Item)
+     */
     public void removeMember(Item item) throws AccessManagementException {
         this.members.remove(item.getID());
     }

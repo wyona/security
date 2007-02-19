@@ -14,6 +14,12 @@ import org.wyona.yarep.core.Node;
 import org.wyona.yarep.core.Repository;
 import org.wyona.yarep.core.RepositoryException;
 
+/**
+ * The YarepGroupManager expects to find all existing groups under the node /groups.
+ * If the node /groups does not exist, it will look under the root node.
+ * All files which have &lt;group&gt; as root element will be recognized as a group
+ * configuration. 
+ */
 public class YarepGroupManager implements GroupManager {
 
     private static Category log = Category.getInstance(YarepGroupManager.class);
@@ -24,6 +30,12 @@ public class YarepGroupManager implements GroupManager {
 
     private HashMap groups;
 
+    /**
+     * Constructor.
+     * @param identityManager
+     * @param identitiesRepository
+     * @throws AccessManagementException
+     */
     public YarepGroupManager(IdentityManager identityManager, Repository identitiesRepository)
             throws AccessManagementException {
         this.identityManager = identityManager;
@@ -32,6 +44,10 @@ public class YarepGroupManager implements GroupManager {
         init();
     }
 
+    /**
+     * Finds all group nodes in the repository and instantiates the groups. 
+     * @throws AccessManagementException
+     */
     protected void init() throws AccessManagementException {
         try {
             Node groupsParentNode = getGroupsParentNode();
