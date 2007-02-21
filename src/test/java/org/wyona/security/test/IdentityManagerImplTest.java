@@ -49,6 +49,18 @@ public class IdentityManagerImplTest extends TestCase {
         assertEquals("lenya@wyona.org", user.getEmail());
     }
 
+    public void testGetUserGroups() throws Exception {
+        String userID = "lenya";
+        String groupID = "editors";
+        User user = identityManager.getUserManager().getUser(userID);
+        assertNotNull(user);   
+        Group group = identityManager.getGroupManager().getGroup(groupID);        
+        assertTrue(group.isMember(user));     
+        Group[] userGroups = user.getGroups();
+        assertEquals(1,userGroups.length);
+        assertEquals(groupID , userGroups[0].getID());
+    }
+
     public void testAddUser() throws Exception {
         UserManager userManager = identityManager.getUserManager(); 
         String id = "testuser";
