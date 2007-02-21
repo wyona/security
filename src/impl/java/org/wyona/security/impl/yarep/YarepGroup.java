@@ -61,7 +61,7 @@ public class YarepGroup extends YarepItem implements Group {
         setName(config.getChild(NAME, false).getValue());
 
         this.members = new HashMap();
-        Configuration[] memberNodes = config.getChild(MEMBERS).getChildren("MEMBER");
+        Configuration[] memberNodes = config.getChild(MEMBERS).getChildren(MEMBER);
 
         for (int i = 0; i < memberNodes.length; i++) {
             String id = memberNodes[i].getAttribute(MEMBER_ID);
