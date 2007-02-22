@@ -107,7 +107,7 @@ public class YarepUserManager implements UserManager {
      */
     public User getUser(String id) throws AccessManagementException {
         if (!existsUser(id)) {
-            throw new AccessManagementException("User " + id + " does not exist.");
+            return null;
         }
         return (User) this.users.get(id);
     }

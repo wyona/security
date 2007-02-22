@@ -102,7 +102,7 @@ public class YarepGroupManager implements GroupManager {
      */
     public Group getGroup(String id) throws AccessManagementException {
         if (!existsGroup(id)) {
-            throw new AccessManagementException("Group " + id + " does not exist.");
+            return null;
         }
         return (Group) this.groups.get(id);
     }

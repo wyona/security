@@ -16,10 +16,8 @@ public interface GroupManager {
      * Gets the group with the given id.
      * 
      * @param id
-     * @return group
+     * @return group or null if no group with the given id exists 
      * @throws AccessManagementException
-     *             if no group with the given id exists or something else goes
-     *             wrong.
      */
     Group getGroup(String id) throws AccessManagementException;
 

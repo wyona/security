@@ -16,10 +16,8 @@ public interface UserManager {
      * Gets the user with the given id.
      * 
      * @param id
-     * @return user
+     * @return user or null if no user with the given id exists 
      * @throws AccessManagementException
-     *             if no user with the given id exists or if something else goes
-     *             wrong.
      */
     User getUser(String id) throws AccessManagementException;
 
