@@ -36,7 +36,15 @@ public class PolicyManagerImpl implements PolicyManager {
         this.policiesRepository = policiesRepository;
         configBuilder = new DefaultConfigurationBuilder();
     }
-
+    
+    /**
+     * Get policies repository of realm
+     */
+     public Repository getPoliciesRepository() {
+           return policiesRepository;
+     }
+         
+     
     /**
      * @deprecated
      */
