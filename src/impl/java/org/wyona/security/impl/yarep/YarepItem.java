@@ -110,6 +110,7 @@ public abstract class YarepItem implements Item {
         try {
             DefaultConfigurationSerializer serializer = new DefaultConfigurationSerializer();
             Configuration config = createConfiguration();
+            serializer.setIndent(true);
             serializer.serialize(getNode().getOutputStream(), config);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
