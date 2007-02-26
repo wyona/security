@@ -55,19 +55,24 @@ public class YarepGroupManager implements GroupManager {
             DefaultConfigurationBuilder configBuilder = new DefaultConfigurationBuilder(true);
             for (int i = 0; i < groupNodes.length; i++) {
                 if (groupNodes[i].isResource()) {
-                    Configuration config = configBuilder.build(groupNodes[i].getInputStream());
-                    if (config.getName().equals(YarepGroup.GROUP)) {
-                        YarepGroup group = new YarepGroup(this.identityManager, groupNodes[i]);
-                        this.groups.put(group.getID(), group);
+                    try {
+                        Configuration config = configBuilder.build(groupNodes[i].getInputStream());
+                        if (config.getName().equals(YarepGroup.GROUP)) {
+                            YarepGroup group = new YarepGroup(this.identityManager, groupNodes[i]);
+                            this.groups.put(group.getID(), group);
+                        }
+                    } catch (Exception e) {
+                        String errorMsg = "Could not create group from repository node: " 
+                            + groupNodes[i].getPath() + ": " + e;
+                        log.error(errorMsg, e);
+                        throw new AccessManagementException(errorMsg, e);
                     }
                 }
             }
-        } catch (NoSuchNodeException e) {
-            log.error("Node /users not found in repository" + e.getMessage(), e);
-            // ignore error
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new AccessManagementException(e.getMessage(), e);
+        } catch (RepositoryException e) {
+            String errorMsg = "Could not read groups from repository: " + e;
+            log.error(errorMsg, e);
+            throw new AccessManagementException(errorMsg, e);
         }
     }
 

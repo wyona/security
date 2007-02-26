@@ -57,20 +57,25 @@ public class YarepUserManager implements UserManager {
             DefaultConfigurationBuilder configBuilder = new DefaultConfigurationBuilder(true);
             for (int i = 0; i < userNodes.length; i++) {
                 if (userNodes[i].isResource()) {
-                    Configuration config = configBuilder.build(userNodes[i].getInputStream());
-                    // also support identity for backwards compatibility
-                    if (config.getName().equals(YarepUser.USER) || config.getName().equals("identity")) {
-                        YarepUser user = new YarepUser(this.identityManager, userNodes[i]);
-                        this.users.put(user.getID(), user);
+                    try {
+                        Configuration config = configBuilder.build(userNodes[i].getInputStream());
+                        // also support identity for backwards compatibility
+                        if (config.getName().equals(YarepUser.USER) || config.getName().equals("identity")) {
+                            YarepUser user = new YarepUser(this.identityManager, userNodes[i]);
+                            this.users.put(user.getID(), user);
+                        }
+                    } catch (Exception e) {
+                        String errorMsg = "Could not create user from repository node: " 
+                            + userNodes[i].getPath() + ": " + e.getMessage();
+                        log.error(errorMsg, e);
+                        throw new AccessManagementException(errorMsg, e);
                     }
                 }
             }
-        } catch (NoSuchNodeException e) {
-            log.error("Node /users not found in repository" + e.getMessage(), e);
-            // ignore error
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new AccessManagementException(e.getMessage(), e);
+        } catch (RepositoryException e) {
+            String errorMsg = "Could not read users from repository: " + e.getMessage();
+            log.error(errorMsg, e);
+            throw new AccessManagementException(errorMsg, e);
         }
     }
 
