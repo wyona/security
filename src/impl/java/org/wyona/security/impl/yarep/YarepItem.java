@@ -96,7 +96,7 @@ public abstract class YarepItem implements Item {
      */
     public void delete() throws AccessManagementException {
         try {
-            this.node.remove();
+            this.node.delete();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new AccessManagementException(e.getMessage(), e);
