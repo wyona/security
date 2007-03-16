@@ -30,6 +30,9 @@ public class IdentityManagerImplTest extends TestCase {
         identityManager = new IdentityManagerImpl(repo);
     }
     
+    /*
+     * Test simple authentication
+     */
     public void testAuthenticate1() throws Exception {
         RepositoryFactory repoFactory = new RepositoryFactory();
         repo = repoFactory.newRepository("identities-repository", new File(
@@ -41,6 +44,22 @@ public class IdentityManagerImplTest extends TestCase {
         assertTrue(identityManager.authenticate(user, rightPassword));
         assertFalse(identityManager.authenticate(user, wrongPassword));
     }
+    
+    /*
+     * Test salt authentication
+     */
+    public void testAuthenticate2() throws Exception {
+        RepositoryFactory repoFactory = new RepositoryFactory();
+        repo = repoFactory.newRepository("identities-repository", new File(
+        "repository1/config/repository-identities.xml"));
+        IdentityManager identityManager = new IdentityManagerImpl(repo);
+        String user = "alice";
+        String rightPassword = "levi";
+        String wrongPassword = "lala";
+        assertTrue(identityManager.authenticate(user, rightPassword));
+        assertFalse(identityManager.authenticate(user, wrongPassword));	
+    }
+    
     
     public void testGetUser() throws Exception {
         String userID = "lenya";
@@ -76,7 +95,7 @@ public class IdentityManagerImplTest extends TestCase {
         assertEquals(name, user.getName());
         assertTrue(user.authenticate(password));
     }
-
+   
     public void testGetGroups() throws Exception {
         String groupID = "editors";
         Group group = identityManager.getGroupManager().getGroup(groupID);

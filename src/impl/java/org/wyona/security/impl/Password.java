@@ -1,6 +1,7 @@
 package org.wyona.security.impl;
 
 import java.security.MessageDigest;
+import java.security.SecureRandom;
 
 /**
  * Encrypt plain text password
@@ -48,6 +49,24 @@ public class Password {
             throw new RuntimeException(e);
         }
         return stringify(md.digest(saltNplain.getBytes()));
+    }
+    
+    /**
+     * Generate random salt
+     * @return The salt string
+     */
+    public static String getSalt() {
+        byte[] bSalt = null;
+        String sSalt = null;
+        try {
+            SecureRandom sr = SecureRandom.getInstance("SHA1PRNG");
+            bSalt = new byte[8];	  
+            sr.nextBytes(bSalt);
+            sSalt = stringify(bSalt);
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        return sSalt;
     }
 
     /**
