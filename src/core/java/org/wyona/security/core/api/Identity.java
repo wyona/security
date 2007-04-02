@@ -12,8 +12,6 @@ public class Identity implements java.io.Serializable {
     protected String username;
     protected String[] groupnames;
 
-    protected User user;
-    
     /**
      * Identity is WORLD
      */
@@ -23,7 +21,7 @@ public class Identity implements java.io.Serializable {
     }
 
     /**
-     * @deprecated
+     *
      */
     public Identity(String username, String[] groupnames) {
         this.username = username;
@@ -31,37 +29,28 @@ public class Identity implements java.io.Serializable {
     }
     
     public Identity(User user) {
-        this.user = user;
-    }
-
-    /**
-     * @deprecated
-     * use getUser() instead
-     */
-    public String getUsername() {
-        if (username != null) {
-            return username;
-        } else {
-            try {
-                if (this.user == null) {
-                    return null;
-                } else {
-                    return this.user.getID();
-                }
-            } catch (AccessManagementException e) {
-                log.error(e.getMessage(), e);
-                throw new RuntimeException(e.getMessage(), e); //FIXME
+        try {
+            this.username = user.getID();
+            Group[] groups = user.getGroups();
+            groupnames = new String[groups.length];
+            for (int i=0; i<groups.length; i++) {
+                groupnames[i] = groups[i].getID();
             }
+        } catch (AccessManagementException e) {
+            log.error(e, e);
+            throw new RuntimeException(e.getMessage(), e);
         }
     }
-    
-    public User getUser() {
-        return this.user;
-    }
 
     /**
-     * @deprecated
-     * use getGroups() instead
+     * 
+     */
+    public String getUsername() {
+        return username;
+    }
+    
+    /**
+     * 
      */
     public String[] getGroupnames() {
         // For security reasons a copy instead the reference is being returned
@@ -76,10 +65,6 @@ public class Identity implements java.io.Serializable {
         }
     }
     
-    public Group[] getGroups() throws AccessManagementException {
-        return this.user.getGroups();
-    }
-
     /**
      *
      */
@@ -98,5 +83,9 @@ public class Identity implements java.io.Serializable {
         // TODO: Does this actually make sense?!
         //username = (String) in.readObject();
         //groupnames = (String[]) in.readObject();
+    }
+    
+    public String toString() {
+        return getUsername();
     }
 }
