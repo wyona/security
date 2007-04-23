@@ -93,10 +93,12 @@ public class PolicyManagerImpl implements PolicyManager {
             String yarepPath = getPolicyPath(path); 
             log.debug("Policy Yarep Path: " + yarepPath + ", Original Path: " + path + ", Repo: " + repo);
             Configuration config = configBuilder.build(repo.getInputStream(new org.wyona.yarep.core.Path(yarepPath)));
+            boolean useInheritedPolicies = config.getAttributeAsBoolean("use-inherited-policies", true);
             Configuration[] roles = config.getChildren("role");
             for (int i = 0; i < roles.length; i++) {
                 String roleName = roles[i].getAttribute("id", null);
                 if (roleName != null && roleName.equals(role.getName())) {
+                    boolean useInheritedRolePolicies = roles[i].getAttributeAsBoolean("use-inherited-policies", true);
                     Configuration[] accreditableObjects = roles[i].getChildren();
 
                     boolean worldCredentialExists = false;
@@ -160,7 +162,15 @@ public class PolicyManagerImpl implements PolicyManager {
                        log.debug("Access for world denied: " + path);
                        return false;
                     }
+                    if (!useInheritedRolePolicies){
+                        log.debug("Policy inheritance disabled for role:" + roleName + ". Access denied: "+ path);
+                        return false;
+                    }
                 }
+            }
+            if (!useInheritedPolicies) {
+                log.debug("Policy inheritance disabled. Access denied: "+ path);
+                return false;
             }
         } catch(NoSuchNodeException e) {
             log.info(e.getMessage());

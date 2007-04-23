@@ -61,7 +61,7 @@ public class HelloWorld {
             //} catch (org.wyona.security.core.AuthenticationException e) {
                 System.err.println("EXCEPTION: " + e);
             }
-    
+                            
             path = new Path("/hello");
             if (pm.authorize(path, new Identity("lenya", null), new Role("read"))) {
                 System.out.println("Access granted: " + path);
@@ -75,7 +75,42 @@ public class HelloWorld {
             } else {
                 System.out.println("Access denied: " + path);
             }
-    
+            
+            path = new Path("/hello/world2.html");
+            if (pm.authorize(path, new Identity("lenya",null), new Role("view"))){
+        	System.out.println("Access granted: " + path);
+            } else {
+                System.out.println("Access denied: " + path);
+            }
+            
+            path = new Path("/hello/world2.html");
+            if (pm.authorize(path, new Identity("alice",groupnames), new Role("view"))){
+        	System.out.println("Access granted: " + path);
+            } else {
+                System.out.println("Access denied: " + path);
+            }
+            
+            path = new Path("/hello/world2.html");
+            if (pm.authorize(path, new Identity("alice",null), new Role("view"))){
+        	System.out.println("Access granted: " + path);
+            } else {
+                System.out.println("Access denied: " + path);
+            }
+
+            path = new Path("/hello/world2.html");
+            if (pm.authorize(path, new Identity("lenya",null), new Role("read"))){
+        	System.out.println("Access granted: " + path);
+            } else {
+                System.out.println("Access denied: " + path);
+            }
+            
+            path = new Path("/hello/world2.html");
+            if (pm.authorize(path, new Identity("lenya",null), new Role("touch"))){
+        	System.out.println("Access granted: " + path);
+            } else {
+                System.out.println("Access denied: " + path);
+            }
+                
             java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
             System.out.println("Please enter a path (e.g. /hello/world.txt):");
             String value = br.readLine();
