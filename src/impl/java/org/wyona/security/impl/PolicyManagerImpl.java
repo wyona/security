@@ -89,11 +89,12 @@ public class PolicyManagerImpl implements PolicyManager {
             throw new Exception("Role is null!");
         }
 
-        try {
-            String yarepPath = getPolicyPath(path); 
-            log.debug("Policy Yarep Path: " + yarepPath + ", Original Path: " + path + ", Repo: " + repo);
-            Configuration config = configBuilder.build(repo.getInputStream(new org.wyona.yarep.core.Path(yarepPath)));
-            boolean useInheritedPolicies = config.getAttributeAsBoolean("use-inherited-policies", true);
+        String yarepPath = getPolicyPath(path); 
+        log.debug("Policy Yarep Path: " + yarepPath + ", Original Path: " + path + ", Repo: " + repo);
+        if (repo.existsNode(yarepPath)) {
+            try {
+                Configuration config = configBuilder.build(repo.getNode(yarepPath).getInputStream());
+                boolean useInheritedPolicies = config.getAttributeAsBoolean("use-inherited-policies", true);
             Configuration[] roles = config.getChildren("role");
             for (int i = 0; i < roles.length; i++) {
                 String roleName = roles[i].getAttribute("id", null);
@@ -168,12 +169,19 @@ public class PolicyManagerImpl implements PolicyManager {
                     }
                 }
             }
-            if (!useInheritedPolicies) {
-                log.debug("Policy inheritance disabled. Access denied: "+ path);
-                return false;
+                if (!useInheritedPolicies) {
+                    log.debug("Policy inheritance disabled. Access denied: "+ path);
+                    return false;
+                }
+            } catch(NoSuchNodeException e) {
+                log.error(e.getMessage(), e);
             }
-        } catch(NoSuchNodeException e) {
-            log.info(e.getMessage());
+        } else {
+            if (yarepPath.equals("/.policy")) {
+                log.warn("No such node: " + yarepPath + " (" + repo + ")");
+            } else {
+                if (log.isDebugEnabled()) log.debug("No such node: " + yarepPath + " (Fallback to parent policy ...)");
+            }
         }
 
         String parent = PathUtil.getParent(path);
@@ -182,7 +190,7 @@ public class PolicyManagerImpl implements PolicyManager {
             log.debug("Check parent policy: " + parent + " ... (Current path: " + path + ")");
             return authorize(repo, parent, identity, role);
         } else {
-            log.debug("Access denied: " + path);
+            log.warn("Trying to get parent of " + path + " (" + repo + ") failed. Access denied.");
             return false;
         }
     }
