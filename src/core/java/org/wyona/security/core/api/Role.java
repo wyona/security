@@ -1,7 +1,7 @@
 package org.wyona.security.core.api;
 
 /**
- *
+ * @deprecated Use Usecase instead
  */
 public class Role {
 
