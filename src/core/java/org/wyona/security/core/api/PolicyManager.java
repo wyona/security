@@ -15,9 +15,14 @@ public interface PolicyManager {
     public boolean authorize(Path path, Identity identity, Role role) throws AuthorizationException;
     
     /**
+     * @deprecated
+     */
+    public boolean authorize(String path, Identity identity, Role role) throws AuthorizationException;
+    
+    /**
      *
      */
-    public boolean authorize(String path, Identity idenitity, Role role) throws AuthorizationException;
+    public boolean authorize(String path, Identity identity, Usecase usecase) throws AuthorizationException;
    
     /**
      * Get policies repository of realm

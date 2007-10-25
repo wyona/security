@@ -8,6 +8,7 @@ import org.wyona.security.core.AuthorizationException;
 import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.PolicyManager;
 import org.wyona.security.core.api.Role;
+import org.wyona.security.core.api.Usecase;
 import org.wyona.yarep.core.NoSuchNodeException;
 import org.wyona.yarep.core.Repository;
 import org.wyona.yarep.core.RepositoryFactory;
@@ -52,9 +53,17 @@ public class PolicyManagerImpl implements PolicyManager {
         return authorize(path.toString(), identity, role);
        
     }
-   
+
     /**
      *
+     */
+    public boolean authorize(String path, Identity identity, Usecase usecase) throws AuthorizationException {
+        Role role = new Role(usecase.getName());
+        return authorize(path, identity, role);
+    }
+   
+    /**
+     * @deprecated
      */
     public boolean authorize(String path, Identity identity, Role role) throws AuthorizationException {
         if(path == null || identity == null || role == null) {
