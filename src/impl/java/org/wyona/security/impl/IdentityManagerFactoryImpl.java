@@ -15,4 +15,11 @@ public class IdentityManagerFactoryImpl extends IdentityManagerFactory {
     public IdentityManager newIdentityManager(Repository identitiesRepository) {
         return new IdentityManagerImpl(identitiesRepository);
     }
+
+    /**
+     *
+     */
+    public IdentityManager newIdentityManager(org.w3c.dom.Document configuration) {
+        return null;
+    }
 }

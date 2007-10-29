@@ -59,4 +59,16 @@ public abstract class IdentityManagerFactory {
      *
      */
     public abstract IdentityManager newIdentityManager(Repository identitiesRepository);
+
+    /**
+     * <identity-manager-config xmlns="http://www.wyona.org/security/1.0">...</im-config>
+     *
+     * e.g.
+     * <identity-manager-config xmlns="http://www.wyona.org/security/1.0">config/ac-identities-repository.xml</im-config>
+     *
+     * or
+     *
+     * <identity-manager-config xmlns="http://www.wyona.org/security/1.0"><foo:bar xmlns:foo="http://foo.bar/security/1.0">...</foo:bar></im-config>
+     */
+    public abstract IdentityManager newIdentityManager(org.w3c.dom.Document configuration);
 }
