@@ -19,7 +19,7 @@ public class IdentityManagerFactoryImpl extends IdentityManagerFactory {
     /**
      *
      */
-    public IdentityManager newIdentityManager(org.w3c.dom.Document configuration) {
+    public IdentityManager newIdentityManager(org.w3c.dom.Document configuration, javax.xml.transform.URIResolver resolver) {
         return null;
     }
 }
