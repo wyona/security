@@ -1,10 +1,13 @@
 package org.wyona.security.impl.yarep;
 
 import java.util.ArrayList;
+import java.util.Date;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.log4j.Category;
+
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
 import org.wyona.security.core.api.IdentityManager;
@@ -12,7 +15,12 @@ import org.wyona.security.core.api.User;
 import org.wyona.security.impl.Password;
 import org.wyona.yarep.core.Node;
 
+/**
+ *
+ */
 public class YarepUser extends YarepItem implements User {
+
+    private Category log = Category.getInstance(YarepUser.class);
 
     public static final String USER = "user";
 
@@ -162,4 +170,18 @@ public class YarepUser extends YarepItem implements User {
         return this.password;
     }
 
+    /**
+     *
+     */
+    public Date getExpirationDate() {
+        log.error("Not implemented yet!");
+        return null;
+    }
+
+    /**
+     *
+     */
+    public void setExpirationDate(Date date) {
+        log.error("Not implemented yet!");
+    }
 }

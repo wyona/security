@@ -1,5 +1,7 @@
 package org.wyona.security.core.api;
 
+import java.util.Date;
+
 /**
  * A user.
  */
@@ -47,4 +49,16 @@ public interface User extends Item {
      * @throws AccessManagementException
      */
     Group[] getGroups() throws AccessManagementException;
+
+    /**
+     * Get expiration date of this user
+     *
+     * @return expiration date
+     */
+    public Date getExpirationDate();
+
+    /**
+     * Set expiration date of this user
+     */
+    public void setExpirationDate(Date date);
 }
