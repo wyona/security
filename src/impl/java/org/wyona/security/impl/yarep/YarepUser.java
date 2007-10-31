@@ -8,6 +8,7 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.log4j.Category;
 
+import org.wyona.security.core.UserHistory;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
 import org.wyona.security.core.api.IdentityManager;
@@ -182,6 +183,21 @@ public class YarepUser extends YarepItem implements User {
      *
      */
     public void setExpirationDate(Date date) {
+        log.error("Not implemented yet!");
+    }
+
+    /**
+     *
+     */
+    public UserHistory getHistory() {
+        log.error("Not implemented yet!");
+        return null;
+    }
+
+    /**
+     *
+     */
+    public void setHistory(UserHistory history) {
         log.error("Not implemented yet!");
     }
 }

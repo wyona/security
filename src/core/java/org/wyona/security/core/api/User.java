@@ -2,6 +2,8 @@ package org.wyona.security.core.api;
 
 import java.util.Date;
 
+import org.wyona.security.core.UserHistory;
+
 /**
  * A user.
  */
@@ -61,4 +63,16 @@ public interface User extends Item {
      * Set expiration date of this user
      */
     public void setExpirationDate(Date date);
+
+    /**
+     * Get history (login/logout etc) of this user
+     *
+     * @return history
+     */
+    public UserHistory getHistory();
+
+    /**
+     * Set history of this user
+     */
+    public void setHistory(UserHistory history);
 }
