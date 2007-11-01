@@ -16,8 +16,95 @@
 
 package org.wyona.security.core;
 
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+
 /**
- * The user history is an array of history entries.
+ * The user history is a list of history entries.
  */
 public class UserHistory {
+
+    public class HistoryEntry {
+        /**
+         * The date the entry took place
+         */
+        private Date date;
+
+        /**
+         * The usecase / action
+         */
+        private String usecase;
+
+        /**
+         * The description of the history entry
+         */
+        private String description;
+
+        /**
+         * Constructor using all fields
+         * 
+         * @param date
+         * @param usecase
+         * @param description
+         */
+        public HistoryEntry(Date date, String usecase, String description) {
+            this.date = date;
+            this.usecase = usecase;
+            this.description = description;
+        }
+
+        /**
+         * Get a string representation for this entry
+         */
+        public String toString() {
+            StringBuffer sb = new StringBuffer();
+            sb.append(this.date.toString());
+            sb.append(" - ");
+            sb.append(this.usecase);
+            sb.append(" - ");
+            sb.append(this.description);
+            return sb.toString();
+        }
+    }
+
+    /**
+     * The history list
+     */
+    private List history;
+
+    /**
+     * Add a history entry
+     * 
+     * @param entry
+     */
+    public void addEntry(HistoryEntry entry) {
+        if (this.history == null) {
+            this.history = new ArrayList();
+        }
+        this.history.add(entry);
+    }
+
+    /**
+     * Returns the history
+     * 
+     * @return the history
+     */
+    public List getHistory() {
+        return history;
+    }
+
+    /**
+     * Returns a string representation of the history with each element separated by newline
+     */
+    public String toString() {
+        StringBuffer sb = new StringBuffer();
+        for (Iterator iterator = this.history.iterator(); iterator.hasNext();) {
+            sb.append(iterator.next());
+            sb.append("\n");
+        }
+        return sb.toString();
+    }
+
 }
