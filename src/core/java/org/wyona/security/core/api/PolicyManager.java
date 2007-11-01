@@ -25,7 +25,7 @@ public interface PolicyManager {
     public boolean authorize(String path, Identity identity, Usecase usecase) throws AuthorizationException;
    
     /**
-     * Get policies repository of realm
+     * Get policies repository
      */
      public Repository getPoliciesRepository();
 }
