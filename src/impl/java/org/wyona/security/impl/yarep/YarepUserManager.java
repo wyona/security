@@ -47,7 +47,10 @@ public class YarepUserManager implements UserManager {
     }
 
     /**
-     * Finds all user nodes in the repository and instantiates the users. 
+     * Finds all user nodes in the repository and instantiates the users.
+     *
+     * Note re caching: If the UserManager is being instantiated only once at the startup of a server for instance, then the users are basically being cached (see getUser) and changes within the repository by a third pary application will not be noticed.
+     *
      * @throws AccessManagementException
      */
     protected void init() throws AccessManagementException {
