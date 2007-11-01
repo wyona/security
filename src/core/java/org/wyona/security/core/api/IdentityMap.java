@@ -6,7 +6,7 @@ import java.util.Iterator;
 import org.apache.log4j.Category;
 
 /**
- *
+ * Identity map to get a nice toString() output
  */
 public class IdentityMap extends HashMap {
 
