@@ -41,7 +41,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
     }
     
     /**
-     * Get policies repository of realm
+     * Get policies repository
      */
      public Repository getPoliciesRepository() {
            return policiesRepository;
