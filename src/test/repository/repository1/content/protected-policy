@@ -4,6 +4,7 @@
 
   <role id="view">
     <world permission="false"/>
+    <group id="editors" permission="true"/>
     <group id="hello" permission="true"/>
     <user id="lenya" permission="false"/>
   </role>

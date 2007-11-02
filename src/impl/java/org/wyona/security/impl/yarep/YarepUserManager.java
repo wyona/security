@@ -113,12 +113,14 @@ public class YarepUserManager implements UserManager {
             try {
                 Node usersParentNode = getUsersParentNode();
 
+/*
 	        Node[] userNodes = usersParentNode.getNodes();
                 for (int i = 0; i < userNodes.length; i++) {
                     if (userNodes[i].isResource()) {
                         log.error("DEBUG: User node: " + userNodes[i].getName());
                     }
                 }
+*/
 
                 if (usersParentNode.hasNode(id + ".iml")) return true;
             } catch (Exception e) {
