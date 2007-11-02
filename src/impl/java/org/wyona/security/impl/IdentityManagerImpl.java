@@ -53,9 +53,17 @@ public class IdentityManagerImpl implements IdentityManager {
 
     
     /**
-     *
+     * @deprecated
      */
     public boolean authenticate(String username, String password) throws AuthenticationException {
+        try {
+            return this.userManager.getUser(username).authenticate(password);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            throw new AuthenticationException(e);
+        }
+
+/*
         if(username == null || password == null) {
             log.warn("Username or password is null!");
             return false;
@@ -81,6 +89,7 @@ public class IdentityManagerImpl implements IdentityManager {
         }
 
         return false;
+*/
     }
 
 
