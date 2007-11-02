@@ -16,6 +16,8 @@ import org.wyona.yarep.core.RepositoryFactory;
 
 import junit.framework.TestCase;
 
+import org.w3c.dom.Document;
+
 /**
  * Test for the PolicyManager.
  */
@@ -29,9 +31,14 @@ public class PolicyManagerImplTest extends TestCase {
      */
     public void setUp() throws Exception {
         RepositoryFactory repoFactory = new RepositoryFactory();
+
         repoPolicies = repoFactory.newRepository("policies-v2-repository", new File("repository-policies-version2/repository.xml"));
+        //policyManager = new PolicyManagerFactoryImplVersion2().newPolicyManager(repoPolicies);
+        Document config = getDocument("http://www.wyona.org/security/1.0", "policy-manager-config");
+        config.getDocumentElement().appendChild(config.createTextNode("repository-policies-version2/repository.xml"));
+        policyManager = new PolicyManagerFactoryImplVersion2().newPolicyManager(config, null);
+
         //repoPolicies = repoFactory.newRepository("policies-repository", new File("repository1/config/repository.xml"));
-        policyManager = new PolicyManagerFactoryImplVersion2().newPolicyManager(repoPolicies);
         //policyManager = new PolicyManagerImpl(repo);
     }
     
@@ -51,5 +58,17 @@ public class PolicyManagerImplTest extends TestCase {
 
         assertFalse(policyManager.authorize("/hello", new Identity(alice), new Usecase("read")));
         assertFalse(policyManager.authorize("/hello", new Identity(lenya), new Usecase("read")));
+    }
+
+    /**
+     * Create a DOM Document
+     */
+    private Document getDocument(String namespace, String localname) throws Exception {
+        javax.xml.parsers.DocumentBuilderFactory dbf= javax.xml.parsers.DocumentBuilderFactory.newInstance();
+        dbf.setNamespaceAware(true);
+        javax.xml.parsers.DocumentBuilder parser = dbf.newDocumentBuilder();
+        org.w3c.dom.DOMImplementation impl = parser.getDOMImplementation();
+        org.w3c.dom.DocumentType doctype = null;
+        return impl.createDocument(namespace, localname, doctype);
     }
 }

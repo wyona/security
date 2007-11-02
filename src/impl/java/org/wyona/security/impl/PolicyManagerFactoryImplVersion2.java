@@ -29,9 +29,9 @@ public class PolicyManagerFactoryImplVersion2 extends PolicyManagerFactory {
      *
      */
     public PolicyManager newPolicyManager(Document configuration, javax.xml.transform.URIResolver resolver) {
-        log.error("Not implemented yet!");
-        String repoPath = configuration.getDocumentElement().getNodeValue();
-        log.error("DEBUG: Configuration: " + repoPath);
+        if (log.isDebugEnabled()) log.debug("Configuration Root Name: " + configuration.getDocumentElement().getLocalName());
+        String repoPath = configuration.getDocumentElement().getFirstChild().getNodeValue();
+        if (log.isDebugEnabled()) log.debug("Repo path: " + repoPath);
         try {
             return new PolicyManagerImplVersion2(new RepositoryFactory().newRepository("hugo", new File(repoPath)));
         } catch (Exception e) {
