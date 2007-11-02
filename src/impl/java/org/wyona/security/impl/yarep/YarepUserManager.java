@@ -142,10 +142,26 @@ public class YarepUserManager implements UserManager {
     }
 
     /**
+     * @see org.wyona.security.core.api.UserManager#getUser(java.lang.String, boolean)
+     */
+    public User getUser(String id, boolean refresh) throws AccessManagementException {
+        log.warn("TODO: Refresh not implemented yet!");
+        return getUser(id);
+    }
+
+    /**
      * @see org.wyona.security.core.api.UserManager#getUsers()
      */
     public User[] getUsers() throws AccessManagementException {
         return (User[]) this.users.values().toArray(new User[this.users.size()]);
+    }
+
+    /**
+     * @see org.wyona.security.core.api.UserManager#getUsers(boolean)
+     */
+    public User[] getUsers(boolean refresh) throws AccessManagementException {
+        log.warn("TODO: Refresh not implemented yet!");
+        return getUsers();
     }
 
     /**

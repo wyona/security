@@ -13,6 +13,14 @@ public interface UserManager {
     User[] getUsers() throws AccessManagementException;
 
     /**
+     * Gets all users in no particular order, whereas provides a parameter to tell the implementation to refresh possibly cached entries
+     * 
+     * @return array of users, empty array if no users exist.
+     * @throws AccessManagementException
+     */
+    User[] getUsers(boolean refresh) throws AccessManagementException;
+
+    /**
      * Gets the user with the given id.
      * 
      * @param id
@@ -20,6 +28,16 @@ public interface UserManager {
      * @throws AccessManagementException
      */
     User getUser(String id) throws AccessManagementException;
+
+    /**
+     * Gets the user with the given id, whereas provides a parameter to tell the implementation to refresh a possible cached entry
+     * 
+     * @param id
+     * @param refresh
+     * @return user or null if no user with the given id exists 
+     * @throws AccessManagementException
+     */
+    User getUser(String id, boolean refresh) throws AccessManagementException;
 
     /**
      * Creates a new user. The new user will be saved automatically.
