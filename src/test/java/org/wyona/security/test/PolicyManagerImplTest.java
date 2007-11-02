@@ -24,7 +24,7 @@ public class PolicyManagerImplTest extends TestCase {
     protected PolicyManager policyManager;
     
     /**
-     *
+     * Note that the directory build/repository is added to the CLASSPATH by the build.xml file!
      */
     public void setUp() throws Exception {
         RepositoryFactory repoFactory = new RepositoryFactory();
