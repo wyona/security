@@ -8,7 +8,8 @@ import org.wyona.security.core.api.Usecase;
 import org.wyona.security.core.api.User;
 import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.IdentityManager;
-import org.wyona.security.impl.PolicyManagerImpl;
+import org.wyona.security.impl.PolicyManagerFactoryImplVersion2;
+//import org.wyona.security.impl.PolicyManagerImpl;
 import org.wyona.security.impl.yarep.YarepIdentityManagerImpl;
 import org.wyona.yarep.core.Repository;
 import org.wyona.yarep.core.RepositoryFactory;
@@ -20,7 +21,7 @@ import junit.framework.TestCase;
  */
 public class PolicyManagerImplTest extends TestCase {
 
-    protected Repository repo;
+    protected Repository repoPolicies;
     protected PolicyManager policyManager;
     
     /**
@@ -28,8 +29,10 @@ public class PolicyManagerImplTest extends TestCase {
      */
     public void setUp() throws Exception {
         RepositoryFactory repoFactory = new RepositoryFactory();
-        repo = repoFactory.newRepository("identities-repository", new File("repository1/config/repository.xml"));
-        policyManager = new PolicyManagerImpl(repo);
+        repoPolicies = repoFactory.newRepository("policies-v2-repository", new File("repository-policies-version2/repository.xml"));
+        //repoPolicies = repoFactory.newRepository("policies-repository", new File("repository1/config/repository.xml"));
+        policyManager = new PolicyManagerFactoryImplVersion2().newPolicyManager(repoPolicies);
+        //policyManager = new PolicyManagerImpl(repo);
     }
     
     /*
