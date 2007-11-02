@@ -9,7 +9,7 @@ import org.wyona.security.core.api.IdentityManager;
 import org.wyona.security.core.api.Item;
 import org.wyona.security.core.api.User;
 import org.wyona.security.core.api.UserManager;
-import org.wyona.security.impl.IdentityManagerImpl;
+import org.wyona.security.impl.yarep.YarepIdentityManagerImpl;
 import org.wyona.yarep.core.Repository;
 import org.wyona.yarep.core.RepositoryFactory;
 
@@ -27,7 +27,7 @@ public class IdentityManagerImplTest extends TestCase {
         RepositoryFactory repoFactory = new RepositoryFactory();
         repo = repoFactory.newRepository("identities-repository", new File(
                 "repository2/repository.xml"));
-        identityManager = new IdentityManagerImpl(repo);
+        identityManager = new YarepIdentityManagerImpl(repo);
     }
     
     /*
@@ -37,7 +37,7 @@ public class IdentityManagerImplTest extends TestCase {
         RepositoryFactory repoFactory = new RepositoryFactory();
         repo = repoFactory.newRepository("identities-repository", new File(
                 "repository1/config/repository-identities.xml"));
-        IdentityManager identityManager = new IdentityManagerImpl(repo);
+        IdentityManager identityManager = new YarepIdentityManagerImpl(repo);
         String user = "lenya";
         String rightPassword = "levi";
         String wrongPassword = "lala";
@@ -52,7 +52,7 @@ public class IdentityManagerImplTest extends TestCase {
         RepositoryFactory repoFactory = new RepositoryFactory();
         repo = repoFactory.newRepository("identities-repository", new File(
         "repository1/config/repository-identities.xml"));
-        IdentityManager identityManager = new IdentityManagerImpl(repo);
+        IdentityManager identityManager = new YarepIdentityManagerImpl(repo);
         String user = "alice";
         String rightPassword = "levi";
         String wrongPassword = "lala";

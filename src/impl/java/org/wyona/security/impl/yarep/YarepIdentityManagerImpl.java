@@ -1,4 +1,4 @@
-package org.wyona.security.impl;
+package org.wyona.security.impl.yarep;
 
 import java.util.Hashtable;
 
@@ -24,9 +24,9 @@ import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 /**
  *
  */
-public class IdentityManagerImpl implements IdentityManager {
+public class YarepIdentityManagerImpl implements IdentityManager {
 
-    private static Category log = Category.getInstance(IdentityManagerImpl.class);
+    private static Category log = Category.getInstance(YarepIdentityManagerImpl.class);
 
     private Repository identitiesRepository;
     private DefaultConfigurationBuilder configBuilder;
@@ -38,7 +38,7 @@ public class IdentityManagerImpl implements IdentityManager {
     /**
      *
      */
-    public IdentityManagerImpl(Repository identitiesRepository) {
+    public YarepIdentityManagerImpl(Repository identitiesRepository) {
         this.identitiesRepository = identitiesRepository;
         configBuilder = new DefaultConfigurationBuilder(true);
         try {
