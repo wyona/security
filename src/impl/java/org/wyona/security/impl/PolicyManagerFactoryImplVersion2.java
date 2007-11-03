@@ -32,8 +32,15 @@ public class PolicyManagerFactoryImplVersion2 extends PolicyManagerFactory {
         if (log.isDebugEnabled()) log.debug("Configuration Root Name: " + configuration.getDocumentElement().getLocalName());
         String repoPath = configuration.getDocumentElement().getFirstChild().getNodeValue();
         if (log.isDebugEnabled()) log.debug("Repo path: " + repoPath);
+
         try {
-            return new PolicyManagerImplVersion2(new RepositoryFactory().newRepository("hugo", new File(repoPath)));
+            String base = null;
+            String resolvedRepoPath = resolver.resolve(repoPath, base).getSystemId();
+            if (log.isDebugEnabled()) log.debug("Resolved repo path: " + resolvedRepoPath);
+            return new PolicyManagerImplVersion2(new RepositoryFactory().newRepository("policy-repo-v2", new File(resolvedRepoPath)));
+
+            // NOTE: Repo factory will automagically resolve a relative path with respect to the classpath, but this is not necessarily how it should be. In case of realm it should be relative to the realm configuration, hence the resolver!
+            //return new PolicyManagerImplVersion2(new RepositoryFactory().newRepository("policy-repo-v2", new File(repoPath)));
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return null;

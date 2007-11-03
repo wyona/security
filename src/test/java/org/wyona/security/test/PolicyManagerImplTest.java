@@ -18,10 +18,19 @@ import junit.framework.TestCase;
 
 import org.w3c.dom.Document;
 
+import org.apache.log4j.Category;
+
+import javax.xml.transform.Source;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.transform.URIResolver;
+
 /**
  * Test for the PolicyManager.
  */
 public class PolicyManagerImplTest extends TestCase {
+
+    private static Category log = Category.getInstance(PolicyManagerImplTest.class);
 
     protected Repository repoPolicies;
     protected PolicyManager policyManager;
@@ -33,10 +42,12 @@ public class PolicyManagerImplTest extends TestCase {
         RepositoryFactory repoFactory = new RepositoryFactory();
 
         repoPolicies = repoFactory.newRepository("policies-v2-repository", new File("repository-policies-version2/repository.xml"));
+        if (log.isDebugEnabled()) log.debug("Repo config file: " + repoPolicies.getConfigFile());
         //policyManager = new PolicyManagerFactoryImplVersion2().newPolicyManager(repoPolicies);
+
         Document config = getDocument("http://www.wyona.org/security/1.0", "policy-manager-config");
         config.getDocumentElement().appendChild(config.createTextNode("repository-policies-version2/repository.xml"));
-        policyManager = new PolicyManagerFactoryImplVersion2().newPolicyManager(config, null);
+        policyManager = new PolicyManagerFactoryImplVersion2().newPolicyManager(config, new RepositoryClasspathResolver());
 
         //repoPolicies = repoFactory.newRepository("policies-repository", new File("repository1/config/repository.xml"));
         //policyManager = new PolicyManagerImpl(repo);
@@ -70,5 +81,21 @@ public class PolicyManagerImplTest extends TestCase {
         org.w3c.dom.DOMImplementation impl = parser.getDOMImplementation();
         org.w3c.dom.DocumentType doctype = null;
         return impl.createDocument(namespace, localname, doctype);
+    }
+}
+
+/**
+ *
+ */
+class RepositoryClasspathResolver implements URIResolver {
+
+    /**
+     *
+     */
+    public Source resolve(String href, String base) throws TransformerException {
+        java.net.URL url = RepositoryClasspathResolver.class.getClassLoader().getResource(href);
+        Source source = new StreamSource();
+        source.setSystemId(url.getFile());
+        return source;
     }
 }
