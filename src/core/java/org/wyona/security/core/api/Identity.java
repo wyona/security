@@ -48,6 +48,12 @@ public class Identity implements java.io.Serializable {
     public String getUsername() {
         return username;
     }
+
+/* WARNING: This method leads to problems re serialization within a clustered environment!
+    public User getUser() {
+        return user;
+    }
+*/
     
     /**
      * 
