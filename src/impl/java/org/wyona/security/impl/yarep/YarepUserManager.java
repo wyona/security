@@ -42,7 +42,6 @@ public class YarepUserManager implements UserManager {
             throws AccessManagementException {
         this.identityManager = identityManager;
         this.identitiesRepository = identitiesRepository;
-        this.users = new HashMap();
         init();
     }
 
@@ -53,7 +52,8 @@ public class YarepUserManager implements UserManager {
      *
      * @throws AccessManagementException
      */
-    protected void init() throws AccessManagementException {
+    protected synchronized void init() throws AccessManagementException {
+        this.users = new HashMap();
         try {
             Node usersParentNode = getUsersParentNode();
             Node[] userNodes = usersParentNode.getNodes();
@@ -104,29 +104,42 @@ public class YarepUserManager implements UserManager {
     }
 
     /**
+     * Check if user exists within cache
+     */
+    private boolean existsWithinCache(String userId) {
+        if (this.users.containsKey(userId)) return true;
+        return false;
+    }
+
+    /**
+     * Check if user exists within access control repository
+     */
+    private boolean existsWithinRepository(String userId) {
+        try {
+            Node usersParentNode = getUsersParentNode();
+/*
+            Node[] userNodes = usersParentNode.getNodes();
+            for (int i = 0; i < userNodes.length; i++) {
+                if (userNodes[i].isResource()) {
+                    log.error("DEBUG: User node: " + userNodes[i].getName());
+                }
+            }
+*/
+            if (usersParentNode.hasNode(userId + ".iml")) return true;
+        } catch (Exception e) {
+            log.warn(e.getMessage(), e);
+        }
+        return false;
+    }
+
+    /**
      * @see org.wyona.security.core.api.UserManager#existsUser(java.lang.String)
      */
     public boolean existsUser(String id) throws AccessManagementException {
-        // Check the cache
-        if (!this.users.containsKey(id)) {
+        // Check the cache first
+        if (!existsWithinCache(id)) {
             // Also check the repository
-            try {
-                Node usersParentNode = getUsersParentNode();
-
-/*
-	        Node[] userNodes = usersParentNode.getNodes();
-                for (int i = 0; i < userNodes.length; i++) {
-                    if (userNodes[i].isResource()) {
-                        log.error("DEBUG: User node: " + userNodes[i].getName());
-                    }
-                }
-*/
-
-                if (usersParentNode.hasNode(id + ".iml")) return true;
-            } catch (Exception e) {
-                log.warn(e.getMessage(), e);
-            }
-            return false;
+            return existsWithinRepository(id);
         }
         return true;
     }
@@ -135,9 +148,11 @@ public class YarepUserManager implements UserManager {
      * @see org.wyona.security.core.api.UserManager#getUser(java.lang.String)
      */
     public User getUser(String id) throws AccessManagementException {
-        if (!existsUser(id)) {
-            // TODO: Check if user might have been created by third party application within repository
-            log.error("DEBUG: User should be tried to be received from repo instead from cache: " + id);
+        if (!existsWithinCache(id)) {
+            if (existsWithinRepository(id)) {
+                init();
+                return (User) this.users.get(id);
+            }
             return null;
         }
         return (User) this.users.get(id);
