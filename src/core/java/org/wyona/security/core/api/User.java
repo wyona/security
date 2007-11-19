@@ -10,7 +10,7 @@ import org.wyona.security.core.UserHistory;
 public interface User extends Item {
     /**
      * Gets the email address of this user.
-     * 
+     *
      * @return email address
      * @throws AccessManagementException
      */
@@ -18,7 +18,7 @@ public interface User extends Item {
 
     /**
      * Sets the email address of this user. The user is not saved automatically.
-     * 
+     *
      * @param email
      * @throws AccessManagementException
      */
@@ -27,7 +27,7 @@ public interface User extends Item {
     /**
      * Sets the password. The parameter may be passed in cleartext, the
      * implementation is reponsible for encrypting the password.
-     * 
+     *
      * @param password
      *            as cleartext
      * @throws AccessManagementException
@@ -36,7 +36,7 @@ public interface User extends Item {
 
     /**
      * Authenticates this user by verifying the password.
-     * 
+     *
      * @param password
      *            as cleartext
      * @return true if authentication was successful, false otherwise.
@@ -46,7 +46,7 @@ public interface User extends Item {
 
     /**
      * Gets all groups this user is a member of.
-     * 
+     *
      * @return array of groups, empty array if this user is not a member of any group.
      * @throws AccessManagementException
      */
@@ -75,4 +75,17 @@ public interface User extends Item {
      * Set history of this user
      */
     public void setHistory(UserHistory history);
+
+    /**
+     * Get Language of this user
+     *
+     * @return String language
+     */
+    public String getLanguage() throws AccessManagementException;;
+
+    /**
+     * Set Language of this user
+     * @param String language
+     */
+    public void setLanguage(String language) throws AccessManagementException;;
 }
