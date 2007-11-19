@@ -73,7 +73,9 @@ public class YarepUser extends YarepItem implements User {
         setID(config.getAttribute(ID));
         setName(config.getChild(NAME, false).getValue());
         setEmail(config.getChild(EMAIL, false).getValue());
-        setLanguage(config.getChild(LANGUAGE, false).getValue());
+        if(config.getChild(LANGUAGE, false) != null) {
+            setLanguage(config.getChild(LANGUAGE, false).getValue());
+        }
         this.password = config.getChild(PASSWORD, false).getValue();
         if(config.getChild(SALT,false) != null) {
             this.salt = config.getChild(SALT, false).getValue();
