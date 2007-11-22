@@ -71,14 +71,14 @@ public class YarepUser extends YarepItem implements User {
     protected void configure(Configuration config) throws ConfigurationException,
             AccessManagementException {
         setID(config.getAttribute(ID));
-        setName(config.getChild(NAME, false).getValue());
-        setEmail(config.getChild(EMAIL, false).getValue());
+        setName(config.getChild(NAME, false).getValue(null));
+        setEmail(config.getChild(EMAIL, false).getValue(null));
         if(config.getChild(LANGUAGE, false) != null) {
-            setLanguage(config.getChild(LANGUAGE, false).getValue());
+            setLanguage(config.getChild(LANGUAGE, false).getValue(null));
         }
-        this.password = config.getChild(PASSWORD, false).getValue();
+        this.password = config.getChild(PASSWORD, false).getValue(null);
         if(config.getChild(SALT,false) != null) {
-            this.salt = config.getChild(SALT, false).getValue();
+            this.salt = config.getChild(SALT, false).getValue(null);
         }
     }
 
