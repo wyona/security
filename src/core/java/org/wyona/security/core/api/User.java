@@ -25,6 +25,22 @@ public interface User extends Item {
     void setEmail(String email) throws AccessManagementException;
 
     /**
+     * Gets the description of this user.
+     *
+     * @return description
+     * @throws AccessManagementException
+     */
+    String getDescription() throws AccessManagementException;
+
+    /**
+     * Sets the description of this user. The user is not saved automatically.
+     *
+     * @param description
+     * @throws AccessManagementException
+     */
+    void setDescription(String description) throws AccessManagementException;
+
+    /**
      * Sets the password. The parameter may be passed in cleartext, the
      * implementation is reponsible for encrypting the password.
      *

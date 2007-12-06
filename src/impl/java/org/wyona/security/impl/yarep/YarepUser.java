@@ -7,7 +7,6 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.log4j.Category;
-
 import org.wyona.security.core.UserHistory;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
@@ -32,6 +31,8 @@ public class YarepUser extends YarepItem implements User {
     public static final String PASSWORD = "password";
 
     public static final String SALT = "salt";
+    
+    public static final String DESCRIPTION = "description";
 
     protected String email;
 
@@ -40,6 +41,8 @@ public class YarepUser extends YarepItem implements User {
     protected String password;
 
     protected String salt;
+    
+    protected String description = "";
 
     /**
      * Instantiates an existing YarepUser from a repository node.
@@ -80,6 +83,7 @@ public class YarepUser extends YarepItem implements User {
         if(config.getChild(SALT,false) != null) {
             this.salt = config.getChild(SALT, false).getValue(null);
         }
+        setDescription(config.getChild(DESCRIPTION, false).getValue(null));
     }
 
     /**
@@ -100,6 +104,9 @@ public class YarepUser extends YarepItem implements User {
         DefaultConfiguration passwordNode = new DefaultConfiguration(PASSWORD);
         passwordNode.setValue(getPassword());
         config.addChild(passwordNode);
+        DefaultConfiguration descriptionNode = new DefaultConfiguration(DESCRIPTION);
+        descriptionNode.setValue(getDescription());
+        config.addChild(descriptionNode);
 
         if(getSalt() != null) {
             DefaultConfiguration saltNode = new DefaultConfiguration(SALT);
@@ -119,6 +126,10 @@ public class YarepUser extends YarepItem implements User {
         } else {
             return getPassword().equals(Password.getMD5(password, getSalt()));
         }
+    }
+    
+    public String getDescription() {
+        return description;
     }
 
     /**
@@ -184,6 +195,10 @@ public class YarepUser extends YarepItem implements User {
     public void setSalt() throws AccessManagementException {
         this.salt = Password.getSalt();
 
+    }
+    
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**
