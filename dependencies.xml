@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+
+<project name="security- dependencies" xmlns:artifact="antlib:org.apache.maven.artifact.ant">
+
+  <target name="dependencies" description="Dependencies">
+    <artifact:remoteRepository id="wyona.remote.repository" url="http://maven2.wyona.org/"/>
+
+    <artifact:dependencies pathId="maven2.classpath" filesetId="maven2.fileset">
+      <remoteRepository refid="wyona.remote.repository"/>
+      <dependency groupId="log4j" artifactId="log4j"
+                  version="1.2.8"/>
+      <dependency groupId="wyona-org-commons" artifactId="wyona-org-commons"
+                  version="0.0.1-dev-r22019"/>
+      <dependency groupId="yarep" artifactId="yarep-core" version="0.0.1-dev-r24850"/>
+
+      <!-- Runtime libraries -->
+      <dependency groupId="yarep" artifactId="yarep-impl" version="0.0.1-dev-r24850"/>
+      <dependency groupId="avalon-framework" artifactId="avalon-framework-api" version="4.3"/>
+      <dependency groupId="avalon-framework" artifactId="avalon-framework-impl" version="4.3"/>
+      <dependency groupId="xerces" artifactId="xercesImpl"
+                  version="2.7.1"/>
+      <dependency groupId="xml-apis" artifactId="xml-apis"
+                  version="1.3.02"/>
+      <dependency groupId="apache-jakarta-commons" artifactId="apache-jakarta-commons-discovery"
+                  version="0.2"/>
+      <dependency groupId="apache-jakarta-commons" artifactId="apache-jakarta-commons-id"
+                  version="0.1-dev-lcr357257"/>
+      <dependency groupId="apache-jakarta-commons" artifactId="apache-jakarta-commons-logging"
+                  version="1.0.4"/>
+    </artifact:dependencies>
+    <property name="maven2.cp" refid="maven2.classpath"/>
+  </target>
+</project>
