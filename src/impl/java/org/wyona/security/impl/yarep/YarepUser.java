@@ -1,12 +1,18 @@
 package org.wyona.security.impl.yarep;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.wyona.security.core.UserHistory;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
@@ -20,7 +26,7 @@ import org.wyona.yarep.core.Node;
  */
 public class YarepUser extends YarepItem implements User {
 
-    private Category log = Category.getInstance(YarepUser.class);
+    private static Logger log = Logger.getLogger(YarepUser.class);
 
     public static final String USER = "user";
 
@@ -31,9 +37,16 @@ public class YarepUser extends YarepItem implements User {
     public static final String PASSWORD = "password";
 
     public static final String SALT = "salt";
+        
+    private static final String EXPIRE = "expire";
     
     public static final String DESCRIPTION = "description";
 
+    /**
+     * Date format used for the expired value
+     */
+    public static final String CONFIG_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    
     protected String email;
 
     protected String language;
@@ -42,8 +55,9 @@ public class YarepUser extends YarepItem implements User {
 
     protected String salt;
     
-    protected String description = "";
-
+    protected String description;
+    
+    protected Date expire;
     /**
      * Instantiates an existing YarepUser from a repository node.
      *
@@ -83,7 +97,28 @@ public class YarepUser extends YarepItem implements User {
         if(config.getChild(SALT,false) != null) {
             this.salt = config.getChild(SALT, false).getValue(null);
         }
-        setDescription(config.getChild(DESCRIPTION, false).getValue(null));
+        
+        if(config.getChild(DESCRIPTION, false) != null) {
+            setDescription(config.getChild(DESCRIPTION, false).getValue(null));
+        }
+        
+        if(config.getChild(EXPIRE, false) != null){
+            SimpleDateFormat sdf = new SimpleDateFormat(CONFIG_DATE_FORMAT);
+            try {
+                // Parse other formats as well
+                sdf.setLenient(true);
+                
+                String dateAsString = config.getChild(EXPIRE, false).getValue();
+                if(null != dateAsString){
+                    this.setExpirationDate(sdf.parse(dateAsString));
+                }
+            } catch (ParseException e) {
+                log.error(e.getMessage() + " (The user will be made expired)");
+                GregorianCalendar cal = new GregorianCalendar();
+                cal.add(Calendar.YEAR, -10);
+                this.setExpirationDate(cal.getTime());
+            }
+        }
     }
 
     /**
@@ -107,7 +142,13 @@ public class YarepUser extends YarepItem implements User {
         DefaultConfiguration descriptionNode = new DefaultConfiguration(DESCRIPTION);
         descriptionNode.setValue(getDescription());
         config.addChild(descriptionNode);
-
+        
+        if(getExpirationDate() != null){
+            DefaultConfiguration expireNode = new DefaultConfiguration(EXPIRE);
+            expireNode.setValue(new SimpleDateFormat(CONFIG_DATE_FORMAT).format(getExpirationDate()));
+            config.addChild(expireNode);
+        }
+        
         if(getSalt() != null) {
             DefaultConfiguration saltNode = new DefaultConfiguration(SALT);
             saltNode.setValue(getSalt());
@@ -214,22 +255,21 @@ public class YarepUser extends YarepItem implements User {
      *
      */
     public Date getExpirationDate() {
-        log.error("Not implemented yet!");
-        return null;
+        return expire;
     }
 
     /**
      *
      */
     public void setExpirationDate(Date date) {
-        log.error("Not implemented yet!");
+        this.expire = date;
     }
 
     /**
      *
      */
     public UserHistory getHistory() {
-        log.error("Not implemented yet!");
+        log.error("TODO: Not implemented yet!");
         return null;
     }
 
@@ -237,6 +277,6 @@ public class YarepUser extends YarepItem implements User {
      *
      */
     public void setHistory(UserHistory history) {
-        log.error("Not implemented yet!");
+        log.error("TODO: Not implemented yet!");
     }
 }
