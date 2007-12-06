@@ -7,6 +7,7 @@ import org.wyona.security.core.api.IdentityManager;
 import org.wyona.security.core.PolicyManagerFactory;
 import org.wyona.security.core.api.PolicyManager;
 import org.wyona.security.core.api.Role;
+import org.wyona.security.core.api.Usecase;
 import org.wyona.security.core.api.Identity;
 import org.wyona.yarep.core.Repository;
 import org.wyona.yarep.core.RepositoryException;
@@ -144,16 +145,16 @@ public class HelloWorld {
                 return;
             }
 
-            System.out.println("Please enter a role (e.g. view):");
+            System.out.println("Please enter a usecase (e.g. view):");
             value = br.readLine();
             if (value.equals("")) {
-                System.out.println("No role has been specified!");
+                System.out.println("No usecase has been specified!");
                 return;
             }
             System.out.println("The following value has been entered: " + value);
-            Role role = new Role(value);
+            Usecase usecase = new Usecase(value);
 
-            if (pm.authorize(path, identity, role)) {
+            if (pm.authorize(path.toString(), identity, usecase)) {
                 System.out.println("Access granted: " + path);
             } else {
                 System.out.println("Access denied: " + path);
