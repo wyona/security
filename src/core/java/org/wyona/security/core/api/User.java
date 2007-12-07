@@ -3,6 +3,7 @@ package org.wyona.security.core.api;
 import java.util.Date;
 
 import org.wyona.security.core.UserHistory;
+import org.wyona.security.core.ExpiredIdentityException;
 
 /**
  * A user.
@@ -57,8 +58,9 @@ public interface User extends Item {
      *            as cleartext
      * @return true if authentication was successful, false otherwise.
      * @throws AccessManagementException
+     * @throws ExpiredIdentityException when the identity expiration date is earlier than today
      */
-    boolean authenticate(String password) throws AccessManagementException;
+    boolean authenticate(String password) throws ExpiredIdentityException, AccessManagementException;
 
     /**
      * Gets all groups this user is a member of.

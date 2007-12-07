@@ -1,6 +1,5 @@
 package org.wyona.security.impl.yarep;
 
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -11,8 +10,7 @@ import java.util.GregorianCalendar;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
-import org.apache.log4j.Category;
-import org.apache.log4j.Logger;
+import org.wyona.security.core.ExpiredIdentityException;
 import org.wyona.security.core.UserHistory;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
@@ -25,9 +23,6 @@ import org.wyona.yarep.core.Node;
  *
  */
 public class YarepUser extends YarepItem implements User {
-
-    private static Logger log = Logger.getLogger(YarepUser.class);
-
     public static final String USER = "user";
 
     public static final String EMAIL = "email";
@@ -38,26 +33,32 @@ public class YarepUser extends YarepItem implements User {
 
     public static final String SALT = "salt";
         
-    private static final String EXPIRE = "expire";
+    public static final String EXPIRE = "expire";
     
     public static final String DESCRIPTION = "description";
 
     /**
      * Date format used for the expired value
      */
-    public static final String CONFIG_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+    public static final String DATE_FORMAT = "yyyy-MM-dd";
+    public static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
     
-    protected String email;
+    private String email;
 
-    protected String language;
+    private String language;
 
-    protected String password;
+    private String password;
 
-    protected String salt;
+    private String salt;
     
-    protected String description;
+    private String description;
     
-    protected Date expire;
+    private Date expire;
+    
+    protected YarepUser() {
+        super();
+    }
+    
     /**
      * Instantiates an existing YarepUser from a repository node.
      *
@@ -81,6 +82,16 @@ public class YarepUser extends YarepItem implements User {
         setEmail(email);
         setPassword(password);
     }
+    
+    /**
+     * Creates a new YarepUser with the given id as a child of the given parent
+     * node. The user is not saved.
+     * 
+     * @throws AccessManagementException
+     */
+    public YarepUser(IdentityManager identityManager, Node parentNode, String id, String name, String nodeName) throws AccessManagementException{
+        super(identityManager, parentNode, id, name, nodeName);
+    }
 
     /**
      * @see org.wyona.security.impl.yarep.YarepItem#configure(org.apache.avalon.framework.configuration.Configuration)
@@ -103,21 +114,32 @@ public class YarepUser extends YarepItem implements User {
         }
         
         if(config.getChild(EXPIRE, false) != null){
-            SimpleDateFormat sdf = new SimpleDateFormat(CONFIG_DATE_FORMAT);
-            try {
-                // Parse other formats as well
-                sdf.setLenient(true);
-                
+            SimpleDateFormat sdf1 = new SimpleDateFormat(DATE_TIME_FORMAT);
+            SimpleDateFormat sdf2 = new SimpleDateFormat(DATE_FORMAT);
                 String dateAsString = config.getChild(EXPIRE, false).getValue();
+                Date expire = null;
+                
                 if(null != dateAsString){
-                    this.setExpirationDate(sdf.parse(dateAsString));
+                    try {
+                        expire = sdf2.parse(dateAsString);
+                    } catch (ParseException e) {
+                        try {
+                            expire = sdf1.parse(dateAsString);
+                        } catch (ParseException e1) {
+                            log.error(e.getMessage() + " (The user will be made expired)");
+                        }finally{
+                            if(expire == null){
+                                GregorianCalendar cal = new GregorianCalendar();
+                                cal.add(Calendar.YEAR, -10);
+                                expire = cal.getTime();
+                            }else{
+                                // parsed correctly
+                            }
+                        }
+                    }finally{
+                        this.setExpirationDate(expire);
+                    }
                 }
-            } catch (ParseException e) {
-                log.error(e.getMessage() + " (The user will be made expired)");
-                GregorianCalendar cal = new GregorianCalendar();
-                cal.add(Calendar.YEAR, -10);
-                this.setExpirationDate(cal.getTime());
-            }
         }
     }
 
@@ -139,13 +161,16 @@ public class YarepUser extends YarepItem implements User {
         DefaultConfiguration passwordNode = new DefaultConfiguration(PASSWORD);
         passwordNode.setValue(getPassword());
         config.addChild(passwordNode);
-        DefaultConfiguration descriptionNode = new DefaultConfiguration(DESCRIPTION);
-        descriptionNode.setValue(getDescription());
-        config.addChild(descriptionNode);
+        
+        if(getDescription() != null){
+            DefaultConfiguration descriptionNode = new DefaultConfiguration(DESCRIPTION);
+            descriptionNode.setValue(getDescription());
+            config.addChild(descriptionNode);
+        }
         
         if(getExpirationDate() != null){
             DefaultConfiguration expireNode = new DefaultConfiguration(EXPIRE);
-            expireNode.setValue(new SimpleDateFormat(CONFIG_DATE_FORMAT).format(getExpirationDate()));
+            expireNode.setValue(new SimpleDateFormat(DATE_TIME_FORMAT).format(getExpirationDate()));
             config.addChild(expireNode);
         }
         
@@ -161,12 +186,28 @@ public class YarepUser extends YarepItem implements User {
     /**
      * @see org.wyona.security.core.api.User#authenticate(java.lang.String)
      */
-    public boolean authenticate(String password) throws AccessManagementException {
+    public boolean authenticate(String password) throws ExpiredIdentityException, AccessManagementException {
+        if(isExpired()){
+            SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_FORMAT);
+            throw new ExpiredIdentityException("Identity expired on "+sdf.format(getExpirationDate()));
+        }
+        
         if(getSalt() == null) {
             return getPassword().equals(Password.getMD5(password));
         } else {
             return getPassword().equals(Password.getMD5(password, getSalt()));
         }
+    }
+    
+    protected boolean isExpired(){
+        boolean expired = false;
+        if(getExpirationDate() != null){
+            expired = getExpirationDate().before(new Date()); 
+        }else{
+            // Never expires
+        }
+        
+        return expired;
     }
     
     public String getDescription() {

@@ -4,7 +4,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.avalon.framework.configuration.DefaultConfigurationSerializer;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.IdentityManager;
 import org.wyona.security.core.api.Item;
@@ -13,20 +13,27 @@ import org.wyona.yarep.core.NodeType;
 import org.wyona.yarep.core.RepositoryException;
 
 public abstract class YarepItem implements Item {
-    private static Category log = Category.getInstance(YarepItem.class);
-
+    protected static Logger log = Logger.getLogger(YarepItem.class);
+    
     public static final String NAME = "name";
 
     public static final String ID = "id";
 
-    protected String id;
+    private String id;
 
-    protected String name;
+    private String name;
 
-    protected Node node;
+    private Node node;
 
-    protected IdentityManager identityManager;
+    private IdentityManager identityManager;
 
+    /**
+     * Simply construct the object. This is useful to enable subclasses to initialize the objects on their own
+     * */
+    protected YarepItem(){
+        // Do nothing
+    }
+    
     /**
      * Instantiates an existing YarepItem from a repository node.
      *
@@ -132,6 +139,10 @@ public abstract class YarepItem implements Item {
      */
     protected Node getNode() {
         return this.node;
+    }
+    
+    protected void setNode(Node node){
+        this.node = node;
     }
 
     /**
