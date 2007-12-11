@@ -96,15 +96,25 @@ public class YarepUser extends YarepItem implements User {
     /**
      * @see org.wyona.security.impl.yarep.YarepItem#configure(org.apache.avalon.framework.configuration.Configuration)
      */
-    protected void configure(Configuration config) throws ConfigurationException,
-            AccessManagementException {
+    protected void configure(Configuration config) throws ConfigurationException, AccessManagementException {
+        // Compulsory fields
         setID(config.getAttribute(ID));
         setName(config.getChild(NAME, false).getValue(null));
-        setEmail(config.getChild(EMAIL, false).getValue(null));
+        
+        // Optional fields
+        if(config.getChild(EMAIL, false) != null){
+            setEmail(config.getChild(EMAIL, false).getValue(null));
+        }
+        
+        if(config.getChild(PASSWORD, false) != null){
+            // Do not use setter here because it does other things
+            this.password = config.getChild(PASSWORD, false).getValue(null);
+        }
+        
         if(config.getChild(LANGUAGE, false) != null) {
             setLanguage(config.getChild(LANGUAGE, false).getValue(null));
         }
-        this.password = config.getChild(PASSWORD, false).getValue(null);
+        
         if(config.getChild(SALT,false) != null) {
             this.salt = config.getChild(SALT, false).getValue(null);
         }
@@ -149,18 +159,28 @@ public class YarepUser extends YarepItem implements User {
     protected Configuration createConfiguration() throws AccessManagementException {
         DefaultConfiguration config = new DefaultConfiguration(USER);
         config.setAttribute(ID, getID());
+        
         DefaultConfiguration nameNode = new DefaultConfiguration(NAME);
         nameNode.setValue(getName());
         config.addChild(nameNode);
-        DefaultConfiguration emailNode = new DefaultConfiguration(EMAIL);
-        emailNode.setValue(getEmail());
-        config.addChild(emailNode);
-        DefaultConfiguration languageNode = new DefaultConfiguration(LANGUAGE);
-        languageNode.setValue(getLanguage());
-        config.addChild(languageNode);
-        DefaultConfiguration passwordNode = new DefaultConfiguration(PASSWORD);
-        passwordNode.setValue(getPassword());
-        config.addChild(passwordNode);
+        
+        if(getEmail() != null){
+            DefaultConfiguration emailNode = new DefaultConfiguration(EMAIL);
+            emailNode.setValue(getEmail());
+            config.addChild(emailNode);
+        }
+        
+        if(getLanguage() != null){
+            DefaultConfiguration languageNode = new DefaultConfiguration(LANGUAGE);
+            languageNode.setValue(getLanguage());
+            config.addChild(languageNode);
+        }
+        
+        if(getPassword() != null){
+            DefaultConfiguration passwordNode = new DefaultConfiguration(PASSWORD);
+            passwordNode.setValue(getPassword());
+            config.addChild(passwordNode);
+        }
         
         if(getDescription() != null){
             DefaultConfiguration descriptionNode = new DefaultConfiguration(DESCRIPTION);

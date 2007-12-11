@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
 import org.wyona.security.core.api.GroupManager;
@@ -21,14 +21,13 @@ import org.wyona.yarep.core.RepositoryException;
  * configuration. 
  */
 public class YarepGroupManager implements GroupManager {
-
-    private static Category log = Category.getInstance(YarepGroupManager.class);
+    protected static Logger log = Logger.getLogger(YarepGroupManager.class);
+    
+    public static final String GROUPS_PARENT_PATH = "/groups";
     
     private Repository identitiesRepository;
-
-    private IdentityManager identityManager;
-
-    private HashMap groups;
+    protected IdentityManager identityManager;
+    protected HashMap groups;
 
     /**
      * Constructor.
@@ -40,7 +39,6 @@ public class YarepGroupManager implements GroupManager {
             throws AccessManagementException {
         this.identityManager = identityManager;
         this.identitiesRepository = identitiesRepository;
-        this.groups = new HashMap();
         init();
     }
 
@@ -49,6 +47,7 @@ public class YarepGroupManager implements GroupManager {
      * @throws AccessManagementException
      */
     protected void init() throws AccessManagementException {
+        this.groups = new HashMap();
         try {
             Node groupsParentNode = getGroupsParentNode();
             Node[] groupNodes = groupsParentNode.getNodes();
@@ -58,14 +57,15 @@ public class YarepGroupManager implements GroupManager {
                     try {
                         Configuration config = configBuilder.build(groupNodes[i].getInputStream());
                         if (config.getName().equals(YarepGroup.GROUP)) {
-                            YarepGroup group = new YarepGroup(this.identityManager, groupNodes[i]);
+                            Group group = constructGroup(this.identityManager, groupNodes[i]);
                             this.groups.put(group.getID(), group);
                         }
                     } catch (Exception e) {
                         String errorMsg = "Could not create group from repository node: " 
                             + groupNodes[i].getPath() + ": " + e;
                         log.error(errorMsg, e);
-                        throw new AccessManagementException(errorMsg, e);
+                        // NOTE[et]: Do not fail here because other groups may still be ok
+                        //throw new AccessManagementException(errorMsg, e);
                     }
                 }
             }
@@ -93,6 +93,10 @@ public class YarepGroupManager implements GroupManager {
             log.error(e.getMessage(), e);
             throw new AccessManagementException(e.getMessage(), e);
         }
+    }
+    
+    protected Group constructGroup(IdentityManager identityManager, Node node) throws AccessManagementException{
+        return new YarepGroup(identityManager, node);
     }
 
     /**
@@ -138,8 +142,8 @@ public class YarepGroupManager implements GroupManager {
      * @throws RepositoryException
      */
     protected Node getGroupsParentNode() throws NoSuchNodeException, RepositoryException {
-        if (this.identitiesRepository.existsNode("/groups")) {
-            return this.identitiesRepository.getNode("/groups");
+        if (this.identitiesRepository.existsNode(GROUPS_PARENT_PATH)) {
+            return this.identitiesRepository.getNode(GROUPS_PARENT_PATH);
         }
         // fallback to root node for backwards compatibility:
         return this.identitiesRepository.getNode("/");    

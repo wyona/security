@@ -4,7 +4,7 @@ import java.util.HashMap;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
 import org.wyona.security.core.api.IdentityManager;
@@ -23,14 +23,13 @@ import org.wyona.yarep.core.RepositoryException;
  * compatibility.
  */
 public class YarepUserManager implements UserManager {
-
-    private static Category log = Category.getInstance(YarepUserManager.class);
+    protected static Logger log = Logger.getLogger(YarepUserManager.class);
     
     private Repository identitiesRepository;
 
-    private IdentityManager identityManager;
+    protected IdentityManager identityManager;
 
-    private HashMap users;
+    protected HashMap users;
 
     /**
      * Constructor.
@@ -64,14 +63,15 @@ public class YarepUserManager implements UserManager {
                         Configuration config = configBuilder.build(userNodes[i].getInputStream());
                         // also support identity for backwards compatibility
                         if (config.getName().equals(YarepUser.USER) || config.getName().equals("identity")) {
-                            YarepUser user = new YarepUser(this.identityManager, userNodes[i]);
+                            User user = constructUser(this.identityManager, userNodes[i]);
                             this.users.put(user.getID(), user);
                         }
                     } catch (Exception e) {
                         String errorMsg = "Could not create user from repository node: " 
                             + userNodes[i].getPath() + ": " + e.getMessage();
                         log.error(errorMsg, e);
-                        throw new AccessManagementException(errorMsg, e);
+                        // NOTE[et]: Do not fail here because other users may still be ok
+                        //throw new AccessManagementException(errorMsg, e);
                     }
                 }
             }
@@ -92,7 +92,7 @@ public class YarepUserManager implements UserManager {
         }
         try {
             Node usersParentNode = getUsersParentNode();
-            User user = new YarepUser(this.identityManager, usersParentNode, id, name, email,
+            User user = constructUser(this.identityManager, usersParentNode, id, name, email,
                     password);
             user.save();
             this.users.put(id, user);
@@ -162,7 +162,9 @@ public class YarepUserManager implements UserManager {
      * @see org.wyona.security.core.api.UserManager#getUser(java.lang.String, boolean)
      */
     public User getUser(String id, boolean refresh) throws AccessManagementException {
-        log.warn("TODO: Refresh not implemented yet!");
+        if(refresh){
+            refresh(id);
+        }
         return getUser(id);
     }
 
@@ -177,7 +179,9 @@ public class YarepUserManager implements UserManager {
      * @see org.wyona.security.core.api.UserManager#getUsers(boolean)
      */
     public User[] getUsers(boolean refresh) throws AccessManagementException {
-        log.warn("TODO: Refresh not implemented yet!");
+        if(refresh){
+            refresh(null);
+        }
         return getUsers();
     }
 
@@ -211,5 +215,21 @@ public class YarepUserManager implements UserManager {
         // fallback to root node for backwards compatibility:
         return this.identitiesRepository.getNode("/");
     }
-
+    
+    private void refresh(Object object) throws AccessManagementException {
+        log.info("Reloading users");
+        init();
+        ((YarepGroupManager)identityManager.getGroupManager()).init();
+    }
+    
+    /**
+     * Override in subclasses
+     * */
+    protected User constructUser(IdentityManager identityManager, Node node) throws AccessManagementException{
+        return new YarepUser(identityManager, node);
+    }
+    
+    protected User constructUser(IdentityManager identityManager, Node usersParentNode, String id, String name, String email, String password)throws AccessManagementException{
+        return new YarepUser(identityManager, usersParentNode, id, name, email, password);
+    }
 }

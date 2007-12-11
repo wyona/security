@@ -5,6 +5,7 @@ import java.util.HashMap;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.log4j.Logger;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
 import org.wyona.security.core.api.IdentityManager;
@@ -13,7 +14,8 @@ import org.wyona.security.core.api.User;
 import org.wyona.yarep.core.Node;
 
 public class YarepGroup extends YarepItem implements Group {
-
+    protected static final Logger log = Logger.getLogger(YarepGroup.class);
+    
     private HashMap members;
 
     public static final String MEMBERS = "members";
@@ -47,7 +49,11 @@ public class YarepGroup extends YarepItem implements Group {
      */
     public YarepGroup(IdentityManager identityManager, Node parentNode, String id, String name)
             throws AccessManagementException {
-        super(identityManager, parentNode, id, name, id + ".xml");
+        this(identityManager, parentNode, id, name, id + ".xml");
+    }
+    
+    public YarepGroup(IdentityManager identityManager, Node parentNode, String id, String name, String nodeName) throws AccessManagementException {
+        super(identityManager, parentNode, id, name, nodeName);
         this.members = new HashMap();
 
     }
