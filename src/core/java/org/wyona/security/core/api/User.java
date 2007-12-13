@@ -45,22 +45,22 @@ public interface User extends Item {
      * Sets the password. The parameter may be passed in cleartext, the
      * implementation is reponsible for encrypting the password.
      *
-     * @param password
+     * @param plainTextPassword
      *            as cleartext
      * @throws AccessManagementException
      */
-    void setPassword(String password) throws AccessManagementException;
+    void setPassword(String plainTextPassword) throws AccessManagementException;
 
     /**
      * Authenticates this user by verifying the password.
      *
-     * @param password
+     * @param plainTextPassword
      *            as cleartext
      * @return true if authentication was successful, false otherwise.
      * @throws AccessManagementException
      * @throws ExpiredIdentityException when the identity expiration date is earlier than today
      */
-    boolean authenticate(String password) throws ExpiredIdentityException, AccessManagementException;
+    boolean authenticate(String plainTextPassword) throws ExpiredIdentityException, AccessManagementException;
 
     /**
      * Gets all groups this user is a member of.
