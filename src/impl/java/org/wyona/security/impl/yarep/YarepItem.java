@@ -148,7 +148,7 @@ public abstract class YarepItem implements Item {
     /**
      * @see org.wyona.security.core.api.Item#getID()
      */
-    public String getID() {
+    public String getID() throws AccessManagementException{
         return this.id;
     }
 
@@ -156,21 +156,21 @@ public abstract class YarepItem implements Item {
      * Sets the id of this item.
      * @param id
      */
-    protected void setID(String id) {
+    protected void setID(String id) throws AccessManagementException{
         this.id = id;
     }
 
     /**
      * @see org.wyona.security.core.api.Item#getName()
      */
-    public String getName() {
+    public String getName() throws AccessManagementException{
         return this.name;
     }
 
     /**
      * @see org.wyona.security.core.api.Item#setName(java.lang.String)
      */
-    public void setName(String name) {
+    public void setName(String name) throws AccessManagementException{
         this.name = name;
     }
 
