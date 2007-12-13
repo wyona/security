@@ -47,7 +47,7 @@ public class YarepUser extends YarepItem implements User {
 
     private String language;
 
-    private String password;
+    private String encryptedPassword;
 
     private String salt;
     
@@ -74,13 +74,14 @@ public class YarepUser extends YarepItem implements User {
      *
      * @param parentNode
      * @param id
+     * @param plainTextPassword - password as a plain text, it will be encrypted locally
      * @throws AccessManagementException
      */
     public YarepUser(IdentityManager identityManager, Node parentNode, String id, String name,
-            String email, String password) throws AccessManagementException {
+            String email, String plainTextPassword) throws AccessManagementException {
         super(identityManager, parentNode, id, name, id + ".xml");
         setEmail(email);
-        setPassword(password);
+        setPassword(plainTextPassword);
     }
     
     /**
@@ -108,7 +109,7 @@ public class YarepUser extends YarepItem implements User {
         
         if(config.getChild(PASSWORD, false) != null){
             // Do not use setter here because it does other things
-            this.password = config.getChild(PASSWORD, false).getValue(null);
+            this.encryptedPassword = config.getChild(PASSWORD, false).getValue(null);
         }
         
         if(config.getChild(LANGUAGE, false) != null) {
@@ -126,7 +127,7 @@ public class YarepUser extends YarepItem implements User {
         if(config.getChild(EXPIRE, false) != null){
             SimpleDateFormat sdf1 = new SimpleDateFormat(DATE_TIME_FORMAT);
             SimpleDateFormat sdf2 = new SimpleDateFormat(DATE_FORMAT);
-                String dateAsString = config.getChild(EXPIRE, false).getValue();
+                String dateAsString = config.getChild(EXPIRE, false).getValue(null);
                 Date expire = null;
                 
                 if(null != dateAsString){
@@ -206,16 +207,16 @@ public class YarepUser extends YarepItem implements User {
     /**
      * @see org.wyona.security.core.api.User#authenticate(java.lang.String)
      */
-    public boolean authenticate(String password) throws ExpiredIdentityException, AccessManagementException {
+    public boolean authenticate(String plainTextPassword) throws ExpiredIdentityException, AccessManagementException {
         if(isExpired()){
             SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_FORMAT);
             throw new ExpiredIdentityException("Identity expired on "+sdf.format(getExpirationDate()));
         }
         
         if(getSalt() == null) {
-            return getPassword().equals(Password.getMD5(password));
+            return getPassword().equals(Password.getMD5(plainTextPassword));
         } else {
-            return getPassword().equals(Password.getMD5(password, getSalt()));
+            return getPassword().equals(Password.getMD5(plainTextPassword, getSalt()));
         }
     }
     
@@ -286,9 +287,9 @@ public class YarepUser extends YarepItem implements User {
     /**
      * @see org.wyona.security.core.api.User#setPassword(java.lang.String)
      */
-    public void setPassword(String password) throws AccessManagementException {
+    public void setPassword(String plainTextPassword) throws AccessManagementException {
         setSalt();
-        this.password = Password.getMD5(password, this.salt);
+        this.encryptedPassword = Password.getMD5(plainTextPassword, this.salt);
     }
 
     /**
@@ -304,12 +305,12 @@ public class YarepUser extends YarepItem implements User {
     }
 
     /**
-     * Gets the password hash.
-     * @return
+     * Gets the password hash
+     * @return encrypted password
      * @throws AccessManagementException
      */
     protected String getPassword() throws AccessManagementException {
-        return this.password;
+        return this.encryptedPassword;
     }
 
     /**
