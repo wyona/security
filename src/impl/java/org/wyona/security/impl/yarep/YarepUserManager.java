@@ -163,7 +163,7 @@ public class YarepUserManager implements UserManager {
      */
     public User getUser(String id, boolean refresh) throws AccessManagementException {
         if(refresh){
-            refresh(id);
+            refreshCache(id);
         }
         return getUser(id);
     }
@@ -180,7 +180,7 @@ public class YarepUserManager implements UserManager {
      */
     public User[] getUsers(boolean refresh) throws AccessManagementException {
         if(refresh){
-            refresh(null);
+            refreshCache(null);
         }
         return getUsers();
     }
@@ -216,8 +216,12 @@ public class YarepUserManager implements UserManager {
         return this.identitiesRepository.getNode("/");
     }
     
-    private void refresh(Object object) throws AccessManagementException {
-        log.info("Reloading users");
+    /**
+     * Refresh a particular user within cache
+     */
+    private void refreshCache(String userId) throws AccessManagementException {
+        // TODO: Only user with ID 'userId' actually would need to be refreshed!
+        log.warn("Reloading all users in order to refresh cache!");
         init();
         ((YarepGroupManager)identityManager.getGroupManager()).init();
     }
