@@ -104,10 +104,10 @@ public class YarepGroup extends YarepItem implements Group {
      * @see org.wyona.security.core.api.Group#addMember(org.wyona.security.core.api.Item)
      */
     public void addMember(Item item) throws AccessManagementException {
-        if(null != item){
+        if (null != item){
             this.members.put(item.getID(), item);
-        }else{
-            log.warn("null: Can't add the member to the group '"+getID()+"'");
+        } else {
+            log.warn("Item is null. Can't add item/user to the group '" + getID() + "'");
         }
     }
 
@@ -129,10 +129,10 @@ public class YarepGroup extends YarepItem implements Group {
      * @see org.wyona.security.core.api.Group#removeMember(org.wyona.security.core.api.Item)
      */
     public void removeMember(Item item) throws AccessManagementException {
-        if(null != item){
+        if (null != item) {
             this.members.remove(item.getID());
-        }else{
-            log.warn("null: Can't remove the member from the group '"+getID()+"'");
+        } else {
+            log.warn("Item is null. Can't remove item/user from the group '" + getID() + "'");
         }
     }
 
