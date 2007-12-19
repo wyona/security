@@ -104,7 +104,11 @@ public class YarepGroup extends YarepItem implements Group {
      * @see org.wyona.security.core.api.Group#addMember(org.wyona.security.core.api.Item)
      */
     public void addMember(Item item) throws AccessManagementException {
-        this.members.put(item.getID(), item);
+        if(null != item){
+            this.members.put(item.getID(), item);
+        }else{
+            log.warn("null: Can't add the member to the group '"+getID()+"'");
+        }
     }
 
     /**
@@ -118,14 +122,18 @@ public class YarepGroup extends YarepItem implements Group {
      * @see org.wyona.security.core.api.Group#isMember(org.wyona.security.core.api.Item)
      */
     public boolean isMember(Item item) throws AccessManagementException {
-        return this.members.containsKey(item.getID());
+        return item != null && this.members.containsKey(item.getID());
     }
 
     /**
      * @see org.wyona.security.core.api.Group#removeMember(org.wyona.security.core.api.Item)
      */
     public void removeMember(Item item) throws AccessManagementException {
-        this.members.remove(item.getID());
+        if(null != item){
+            this.members.remove(item.getID());
+        }else{
+            log.warn("null: Can't remove the member from the group '"+getID()+"'");
+        }
     }
 
 }
