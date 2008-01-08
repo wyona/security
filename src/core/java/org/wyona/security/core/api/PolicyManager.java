@@ -23,6 +23,11 @@ public interface PolicyManager {
      *
      */
     public boolean authorize(String path, Identity identity, Usecase usecase) throws AuthorizationException;
+    
+    /**
+     *
+     */
+    public boolean authorize(Policy policy, Identity identity, Usecase usecase) throws AuthorizationException;
    
     /**
      * Get policies repository
