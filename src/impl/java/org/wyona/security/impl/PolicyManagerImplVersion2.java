@@ -6,6 +6,7 @@ import org.wyona.commons.io.Path;
 import org.wyona.commons.io.PathUtil;
 import org.wyona.security.core.AuthorizationException;
 import org.wyona.security.core.api.Identity;
+import org.wyona.security.core.api.Policy;
 import org.wyona.security.core.api.PolicyManager;
 import org.wyona.security.core.api.Role;
 import org.wyona.security.core.api.Usecase;
@@ -61,6 +62,14 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      */
     public boolean authorize(String path, Identity identity, Role role) throws AuthorizationException {
         log.warn("Deprecated method and not implemented!");
+        return false;
+    }
+
+    /**
+     *
+     */
+    public boolean authorize(Policy policy, Identity identity, Usecase usecase) throws AuthorizationException {
+        log.error("Not implemented yet!");
         return false;
     }
    
