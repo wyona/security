@@ -92,6 +92,7 @@ public class Identity implements java.io.Serializable {
     }
     
     public String toString() {
+        if (getUsername() == null) return "WORLD";
         return getUsername();
     }
 }
