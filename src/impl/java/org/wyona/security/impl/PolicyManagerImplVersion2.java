@@ -217,13 +217,21 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
     }
 
     /**
-     *
+     * Append '.policy' to path as suffix
      */
-    public String getPolicyPath(String path) {
+    private String getPolicyPath(String path) {
         // Remove trailing slash except for ROOT ...
         if (path.length() > 1 && path.charAt(path.length() - 1) == '/') {
             return path.substring(0, path.length() - 1) + ".policy";
         }
         return path + ".policy";
+    }
+
+    /**
+     *
+     */
+    public Policy getPolicy(String path) throws AuthorizationException {
+        log.error("Not implemented yet!");
+        return null;
     }
 }
