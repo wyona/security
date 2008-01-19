@@ -33,4 +33,9 @@ public interface PolicyManager {
      * Get policies repository
      */
      public Repository getPoliciesRepository();
+
+    /**
+     *
+     */
+    public Policy getPolicy(String path) throws AuthorizationException;
 }
