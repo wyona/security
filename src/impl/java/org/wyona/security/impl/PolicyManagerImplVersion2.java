@@ -231,7 +231,14 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      *
      */
     public Policy getPolicy(String path) throws AuthorizationException {
-        log.error("Not implemented yet!");
-        return null;
+        try {
+            return new PolicyImplV2(getPoliciesRepository().getNode(getPolicyPath(path)).getInputStream());
+        } catch(NoSuchNodeException e) {
+            log.warn(e, e);
+            return null;
+        } catch(Exception e) {
+            log.error(e, e);
+            throw new AuthorizationException(e.getMessage());
+        }
     }
 }

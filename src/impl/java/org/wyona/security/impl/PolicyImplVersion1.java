@@ -15,11 +15,17 @@ import java.util.Vector;
 /**
  *
  */
-class PolicyImplVersion1 implements Policy {
+public class PolicyImplVersion1 implements Policy {
 
     private static Logger log = Logger.getLogger(PolicyImplVersion1.class);
-    private DefaultConfigurationBuilder builder = null;
-    private Vector usecasePolicies = null;
+    protected DefaultConfigurationBuilder builder = null;
+    protected Vector usecasePolicies = null;
+
+    /**
+     *
+     */
+    public PolicyImplVersion1() throws Exception {
+    }
 
     /**
      *
