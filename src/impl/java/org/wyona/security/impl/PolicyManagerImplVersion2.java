@@ -232,10 +232,11 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      */
     public Policy getPolicy(String path) throws AuthorizationException {
         try {
-            return new PolicyImplV2(getPoliciesRepository().getNode(getPolicyPath(path)).getInputStream());
-        } catch(NoSuchNodeException e) {
-            log.warn(e, e);
-            return null;
+            if (getPoliciesRepository().existsNode(getPolicyPath(path))) {
+                return new PolicyImplV2(getPoliciesRepository().getNode(getPolicyPath(path)).getInputStream());
+            } else {
+                return getPolicy(PathUtil.getParent(path));
+            }
         } catch(Exception e) {
             log.error(e, e);
             throw new AuthorizationException(e.getMessage());
