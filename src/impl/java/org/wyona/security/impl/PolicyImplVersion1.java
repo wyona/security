@@ -40,24 +40,7 @@ public class PolicyImplVersion1 implements Policy {
         Configuration[] upConfigs = config.getChildren("role");
         usecasePolicies = new Vector();
         for (int i = 0; i < upConfigs.length; i++) {
-            UsecasePolicy up = new UsecasePolicy(upConfigs[i].getAttribute("id"));
-            Configuration[] worldConfigs = upConfigs[i].getChildren("world");
-            if (worldConfigs.length > 1) log.warn("Usecase policy contains more than one WORLD entry!");
-            for (int j = 0; j < worldConfigs.length; j++) {
-                up.addIdentity(new Identity());
-            }
-            Configuration[] userConfigs = upConfigs[i].getChildren("user");
-            for (int j = 0; j < userConfigs.length; j++) {
-                up.addIdentity(new Identity(userConfigs[j].getAttribute("id"), null));
-            }
-/*
-            Configuration[] groupConfigs = upConfigs[i].getChildren("group");
-            for (int j = 0; j < groupConfigs.length; j++) {
-                up.addIdentity(new Identity());
-            }
-*/
-
-            usecasePolicies.add(up);
+            usecasePolicies.add(readUsecasePolicy(upConfigs[i]));
         }
     }
 
@@ -93,6 +76,29 @@ public class PolicyImplVersion1 implements Policy {
             }
         }
         return sb.toString();
+    }
+
+    /**
+     *
+     */
+    protected UsecasePolicy readUsecasePolicy(Configuration upConfig) throws Exception {
+            UsecasePolicy up = new UsecasePolicy(upConfig.getAttribute("id"));
+            Configuration[] worldConfigs = upConfig.getChildren("world");
+            if (worldConfigs.length > 1) log.warn("Usecase policy contains more than one WORLD entry!");
+            for (int j = 0; j < worldConfigs.length; j++) {
+                up.addIdentity(new Identity());
+            }
+            Configuration[] userConfigs = upConfig.getChildren("user");
+            for (int j = 0; j < userConfigs.length; j++) {
+                up.addIdentity(new Identity(userConfigs[j].getAttribute("id"), null));
+            }
+/*
+            Configuration[] groupConfigs = upConfig.getChildren("group");
+            for (int j = 0; j < groupConfigs.length; j++) {
+                up.addIdentity(new Identity());
+            }
+*/
+        return up;
     }
 }
 

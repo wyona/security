@@ -36,7 +36,7 @@ public class PolicyImplV2 extends PolicyImplVersion1 {
         Configuration[] upConfigs = config.getChildren("usecase");
         usecasePolicies = new Vector();
         for (int i = 0; i < upConfigs.length; i++) {
-            usecasePolicies.add(new UsecasePolicy(upConfigs[i].getAttribute("id")));
+            usecasePolicies.add(readUsecasePolicy(upConfigs[i]));
         }
     }
 }
