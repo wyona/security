@@ -169,6 +169,9 @@ public class HelloWorld {
             System.out.println("Test PolicyManagerImpl2:");
             pmf = new org.wyona.security.impl.PolicyManagerFactoryImplVersion2();
             pm = pmf.newPolicyManager(policiesRepoVersion2);
+
+            policy = pm.getPolicy(path.toString());
+            System.out.println(policy);
         } catch (Exception e) {
             System.err.println(e);
             e.printStackTrace();
