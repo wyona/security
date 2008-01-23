@@ -1,5 +1,7 @@
 package org.wyona.security.core.api;
 
+import org.wyona.security.core.UsecasePolicy;
+
 /**
  * A policy interface.
  */
@@ -9,7 +11,7 @@ public interface Policy {
      *
      * @return usecases declared within this policy
      */
-    public void getUsecases();
+    public UsecasePolicy[] getUsecasePolicies();
 
     /**
      * Adds a usecase to this policy. TBD: What if such a usecase already exists?
@@ -17,7 +19,7 @@ public interface Policy {
      * @param usecase Usecase
      * @throws AccessManagementException
      */
-    public void addUsecase(String usecase) throws AccessManagementException;
+    public void addUsecasePolicy(UsecasePolicy up) throws AccessManagementException;
 
     /**
      * Gets parent policy.

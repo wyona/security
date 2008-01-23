@@ -5,6 +5,7 @@ import java.io.File;
 import org.wyona.security.core.IdentityManagerFactory;
 import org.wyona.security.core.api.IdentityManager;
 import org.wyona.security.core.PolicyManagerFactory;
+import org.wyona.security.core.api.Policy;
 import org.wyona.security.core.api.PolicyManager;
 import org.wyona.security.core.api.Role;
 import org.wyona.security.core.api.Usecase;
@@ -24,7 +25,7 @@ public class HelloWorld {
      *
      */
     public static void main(String[] args) {
-        System.out.println("Hello World!");
+        System.out.println("Some security samples ...\n");
 
         RepositoryFactory repoFactory;
         Repository policiesRepo;
@@ -41,14 +42,18 @@ public class HelloWorld {
             IdentityManagerFactory imf = IdentityManagerFactory.newInstance();
             IdentityManager im = imf.newIdentityManager(identitiesRepo);
     
-            Path path = null;
-    
-            path = new Path("/hello/world.html");
+            Path path = new Path("/hello/world.html");
+
+/*
+            Policy policy = pm.getPolicy(path.toString());
+            System.out.println(policy);
+*/
+
             String[] groupnames = {"hello", "sugus"};
             if (pm.authorize(path, new Identity("lenya", groupnames), new Role("view"))) {
-                System.out.println("Access granted: " + path);
+                System.out.println("Access granted (T1): " + path);
             } else {
-                System.out.println("Access denied: " + path);
+                System.out.println("Access denied (T2): " + path);
             }
     
             try {
