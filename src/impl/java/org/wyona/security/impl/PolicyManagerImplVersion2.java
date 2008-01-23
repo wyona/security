@@ -235,7 +235,13 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
             if (getPoliciesRepository().existsNode(getPolicyPath(path))) {
                 return new PolicyImplV2(getPoliciesRepository().getNode(getPolicyPath(path)).getInputStream());
             } else {
-                return getPolicy(PathUtil.getParent(path));
+                if (!path.equals("/")) {
+                    log.warn("No policy found for '" + path + "'. Check for parent '" + PathUtil.getParent(path) + "'.");
+                    return getPolicy(PathUtil.getParent(path));
+                } else {
+                    log.warn("No policies found at all, not even a root policy!");
+                    return null;
+                }
             }
         } catch(Exception e) {
             log.error(e, e);
