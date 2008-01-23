@@ -12,12 +12,15 @@ public class Identity implements java.io.Serializable {
     protected String username;
     protected String[] groupnames;
 
+    private boolean isWorld = false;
+
     /**
      * Identity is WORLD
      */
     public Identity() {
         username = null;
         groupnames = null;
+        isWorld = true;
     }
 
     /**
@@ -94,5 +97,12 @@ public class Identity implements java.io.Serializable {
     public String toString() {
         if (getUsername() == null) return "WORLD";
         return getUsername();
+    }
+
+    /**
+     *
+     */
+    public boolean isWorld() {
+        return isWorld;
     }
 }
