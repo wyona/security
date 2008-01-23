@@ -44,10 +44,8 @@ public class HelloWorld {
     
             Path path = new Path("/hello/world.html");
 
-/*
             Policy policy = pm.getPolicy(path.toString());
             System.out.println(policy);
-*/
 
             String[] groupnames = {"hello", "sugus"};
             if (pm.authorize(path, new Identity("lenya", groupnames), new Role("view"))) {

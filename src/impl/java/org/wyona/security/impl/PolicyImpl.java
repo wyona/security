@@ -29,7 +29,8 @@ class PolicyImpl implements Policy {
         boolean enableNamespaces = true;
         builder = new DefaultConfigurationBuilder(enableNamespaces);
         Configuration config = builder.build(in);
-        Configuration[] upConfigs = config.getChildren("usecase");
+        Configuration[] upConfigs = config.getChildren("role");
+        //Configuration[] upConfigs = config.getChildren("usecase");
         usecasePolicies = new Vector();
         for (int i = 0; i < upConfigs.length; i++) {
             usecasePolicies.add(new UsecasePolicy(upConfigs[i].getAttribute("id")));
