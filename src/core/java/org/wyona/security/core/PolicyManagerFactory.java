@@ -48,8 +48,9 @@ public abstract class PolicyManagerFactory {
         // TODO: See for implementation
         // http://java.sun.com/j2se/1.4.2/docs/api/javax/xml/parsers/SAXParserFactory.html#newInstance()
         try {
-            return (PolicyManagerFactory) Class.forName(
-                    "org.wyona.security.impl.PolicyManagerFactoryImpl").newInstance();
+            String defaultImpl = "org.wyona.security.impl.PolicyManagerFactoryImpl";
+            log.warn("Default policy manager factory implementation will be used: " + defaultImpl);
+            return (PolicyManagerFactory) Class.forName(defaultImpl).newInstance();
         } catch (Exception e) {
             log.error(e);
         }
