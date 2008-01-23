@@ -29,11 +29,13 @@ public class HelloWorld {
 
         RepositoryFactory repoFactory;
         Repository policiesRepo;
+        Repository policiesRepoVersion2;
         Repository identitiesRepo;
         
         try {
             repoFactory = new RepositoryFactory();
             policiesRepo = repoFactory.newRepository("policies", new File("src/test/repository/repository1/config/repository.xml").getAbsoluteFile());
+            policiesRepoVersion2 = repoFactory.newRepository("policies-version2", new File("src/test/repository/repository-policies-version2/repository.xml").getAbsoluteFile());
             identitiesRepo = repoFactory.newRepository("identities", new File("src/test/repository/repository1/config/repository-identities.xml").getAbsoluteFile());
         
             PolicyManagerFactory pmf = PolicyManagerFactory.newInstance();
@@ -118,21 +120,18 @@ public class HelloWorld {
             java.io.BufferedReader br = new java.io.BufferedReader(new java.io.InputStreamReader(System.in));
             System.out.println("Please enter a path (e.g. /hello/world.txt):");
             String value = br.readLine();
-            if (value.equals("")) {
-                System.out.println("No path has been specified!");
-                return;
-            }
-            System.out.println("The following value has been entered: " + value);
-            path = new Path(value);
+            if (!value.equals("")) {
+                System.out.println("The following value has been entered: " + value);
+                path = new Path(value);
 
-            System.out.println("Please enter a username (e.g. lenya or alice or wyona):");
-            value = br.readLine();
-            if (value.equals("")) {
-                System.out.println("No username has been specified!");
-                return;
-            }
-            System.out.println("The following value has been entered: " + value);
-            Identity identity = new Identity(value, null);
+                System.out.println("Please enter a username (e.g. lenya or alice or wyona):");
+                value = br.readLine();
+                if (value.equals("")) {
+                    System.out.println("No username has been specified!");
+                    return;
+                }
+                System.out.println("The following value has been entered: " + value);
+                Identity identity = new Identity(value, null);
 
             System.out.println("Please enter a password (e.g. levi):");
             value = br.readLine();
@@ -154,14 +153,22 @@ public class HelloWorld {
                 System.out.println("No usecase has been specified!");
                 return;
             }
-            System.out.println("The following value has been entered: " + value);
-            Usecase usecase = new Usecase(value);
+                System.out.println("The following value has been entered: " + value);
+                Usecase usecase = new Usecase(value);
 
-            if (pm.authorize(path.toString(), identity, usecase)) {
-                System.out.println("Access granted: " + path);
-            } else {
-                System.out.println("Access denied: " + path);
+                if (pm.authorize(path.toString(), identity, usecase)) {
+                    System.out.println("Access granted: " + path);
+                } else {
+                    System.out.println("Access denied: " + path);
+                }
+
+	    } else {
+                System.out.println("No path has been specified!");
             }
+
+            System.out.println("Test PolicyManagerImpl2:");
+            pmf = new org.wyona.security.impl.PolicyManagerFactoryImplVersion2();
+            pm = pmf.newPolicyManager(policiesRepoVersion2);
         } catch (Exception e) {
             System.err.println(e);
             e.printStackTrace();
