@@ -227,7 +227,11 @@ public class PolicyManagerImpl implements PolicyManager {
      */
     public Policy getPolicy(String path) throws AuthorizationException {
         try {
-            return new PolicyImplVersion1(getPoliciesRepository().getNode(getPolicyPath(path)).getInputStream());
+            if (getPoliciesRepository().existsNode(getPolicyPath(path))) {
+                return new PolicyImplVersion1(getPoliciesRepository().getNode(getPolicyPath(path)).getInputStream());
+            } else {
+                return null;          
+            }
         } catch(Exception e) {
             log.error(e, e);
             throw new AuthorizationException(e.getMessage());
