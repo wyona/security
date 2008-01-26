@@ -125,7 +125,10 @@ public class YarepUserManager implements UserManager {
                 }
             }
 */
+            // Check .iml suffix in order to stay backwards compatible
             if (usersParentNode.hasNode(userId + ".iml")) return true;
+            // YarepUser.class is saving new users with the .xml suffix
+            if (usersParentNode.hasNode(userId + ".xml")) return true;
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
         }
