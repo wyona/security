@@ -55,6 +55,7 @@ public class YarepUserManager implements UserManager {
         this.users = new HashMap();
         try {
             Node usersParentNode = getUsersParentNode();
+            // TODO: There seems to be a bug such that users like ac-identities/http\:/michaelwechner.livejournal.com/.xml are not being detected either by getNodes() or isResource()!
             Node[] userNodes = usersParentNode.getNodes();
             DefaultConfigurationBuilder configBuilder = new DefaultConfigurationBuilder(true);
             for (int i = 0; i < userNodes.length; i++) {
@@ -64,6 +65,7 @@ public class YarepUserManager implements UserManager {
                         // also support identity for backwards compatibility
                         if (config.getName().equals(YarepUser.USER) || config.getName().equals("identity")) {
                             User user = constructUser(this.identityManager, userNodes[i]);
+                            log.debug("User (re)loaded: " + userNodes[i].getName() + ", " + user.getID());
                             this.users.put(user.getID(), user);
                         }
                     } catch (Exception e) {
@@ -132,6 +134,7 @@ public class YarepUserManager implements UserManager {
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
         }
+        log.warn("No such user within persistent repository: " + userId);
         return false;
     }
 
@@ -153,10 +156,23 @@ public class YarepUserManager implements UserManager {
     public User getUser(String id) throws AccessManagementException {
         if (!existsWithinCache(id)) {
             if (existsWithinRepository(id)) {
-                // TODO: Do not re-init the whole cache, but only incrementally for this particular user
-                init();
-                return (User) this.users.get(id);
+                // TODO: Do not re-init the whole cache, but only incrementally for this particular user. Also please note that getUser(String, boolean) already refreshes the cache!
+                String nodeName = id + ".xml";
+                try {
+                    Node usersParentNode = getUsersParentNode();
+                    if (!usersParentNode.hasNode(nodeName)) nodeName = id + ".iml";
+                    return constructUser(this.identityManager, usersParentNode.getNode(nodeName));
+                } catch (Exception e) {
+                    log.error(e, e);
+                    throw new AccessManagementException(e.getMessage());
+                }
+
+                // Refresh memory
+                //init();
+                // Get user from memory (what if null?)
+                //return (User) this.users.get(id);
             }
+            log.warn("No such user (neither within memory nor within persistent repository): " + id);
             return null;
         }
         return (User) this.users.get(id);
@@ -232,11 +248,14 @@ public class YarepUserManager implements UserManager {
     
     /**
      * Override in subclasses
-     * */
+     */
     protected User constructUser(IdentityManager identityManager, Node node) throws AccessManagementException{
         return new YarepUser(identityManager, node);
     }
     
+    /**
+     *
+     */
     protected User constructUser(IdentityManager identityManager, Node usersParentNode, String id, String name, String email, String password)throws AccessManagementException{
         return new YarepUser(identityManager, usersParentNode, id, name, email, password);
     }
