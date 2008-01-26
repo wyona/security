@@ -153,6 +153,7 @@ public class YarepUserManager implements UserManager {
     public User getUser(String id) throws AccessManagementException {
         if (!existsWithinCache(id)) {
             if (existsWithinRepository(id)) {
+                // TODO: Do not re-init the whole cache, but only incrementally for this particular user
                 init();
                 return (User) this.users.get(id);
             }
