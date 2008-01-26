@@ -119,7 +119,7 @@
     </java>
   </target>
 
-  <target name="install-jars" description="Place core and impl jars into local maven repository">
+  <target name="install-jars" description="Place core and impl jars into local maven repository" depends="clean">
     <antcall target="install-jar-core"/>
     <antcall target="install-jar-impl"/>
   </target>
