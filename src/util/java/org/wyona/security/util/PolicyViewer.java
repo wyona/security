@@ -2,6 +2,7 @@ package org.wyona.security.util;
 
 import org.wyona.security.core.AuthorizationException;
 import org.wyona.security.core.UsecasePolicy;
+import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.Policy;
 import org.wyona.security.core.api.PolicyManager;
 
@@ -19,8 +20,8 @@ public class PolicyViewer {
             sb.append("<p>Access Policies for Path <i>" + path + "#" + contentItemId + "</i>:</p>");
             sb.append("<p><table border=\"1\">");
             sb.append("<tr><td>Path</td>" + getSplittedPath(pm, path, contentItemId) + "</tr>");
-            sb.append("<tr><td>Policy</td>" + getPolicies(pm, path, contentItemId) + "</tr>");
-            sb.append("<tr><td>Aggregated Policy</td>" + getAggregatedPolicies(pm, path, contentItemId) + "</tr>");
+            sb.append("<tr valign=\"top\"><td>Policy</td>" + getPolicies(pm, path, contentItemId) + "</tr>");
+            sb.append("<tr valign=\"top\"><td>Aggregated Policy</td>" + getAggregatedPolicies(pm, path, contentItemId) + "</tr>");
             sb.append("</table></p>");
             sb.append("</body></html>");
             return sb.toString();
@@ -91,8 +92,19 @@ public class PolicyViewer {
         if (up != null && up.length > 0) {
             sb.append("<ul>");
             for (int i = 0; i < up.length; i++) {
-                sb.append("<li>Usecase: " + up[i].getName() + "</li>");
-                // TODO: Get identities ...
+                sb.append("<li>Usecase: " + up[i].getName());
+                Identity[] ids = up[i].getIdentities();
+                // TODO: check of ids.length > 0 or groups/hosts exists ...
+                sb.append("<ol>");
+                for (int j = 0; j < ids.length; j++) {
+                    if (ids[j].isWorld()) {
+                        sb.append("<li>WORLD</li>");
+                    } else {
+                        sb.append("<li>User: " + ids[j].getUsername() + "</li>");
+                    }
+                }
+                sb.append("</ol>");
+                sb.append("</li>");
             }
             sb.append("</ul>");
         } else {
