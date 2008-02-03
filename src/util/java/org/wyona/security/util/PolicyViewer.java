@@ -56,8 +56,10 @@ public class PolicyViewer {
     static public StringBuffer getPolicies (PolicyManager pm, String path, String contentItemId) throws AuthorizationException {
         String[] names = path.split("/");
         StringBuffer sb = new StringBuffer();
+        StringBuffer currentPath = new StringBuffer();
         for (int i = 0; i < names.length -1; i++) {
-            Policy p = pm.getPolicy("/");
+            currentPath.append(names[i] + "/");
+            Policy p = pm.getPolicy(currentPath.toString());
             if (p != null) {
                 sb.append("<td>" + getPolicyAsXHTMLList(p) + "</td>");
             } else {
