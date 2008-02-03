@@ -35,7 +35,9 @@ public interface PolicyManager {
      public Repository getPoliciesRepository();
 
     /**
-     *
+     * @param path Path of content, e.g. /hello/world.html
+     * @param aggregate Boolean which specifies if implementation shall return an aggregated policy, e.g. an aggregation of the policies for /, /hello/ and /hello/world.html
+     * @return Policy which is associated with content path
      */
-    public Policy getPolicy(String path) throws AuthorizationException;
+    public Policy getPolicy(String path, boolean aggregate) throws AuthorizationException;
 }

@@ -59,14 +59,14 @@ public class PolicyViewer {
         StringBuffer currentPath = new StringBuffer();
         for (int i = 0; i < names.length -1; i++) {
             currentPath.append(names[i] + "/");
-            Policy p = pm.getPolicy(currentPath.toString());
+            Policy p = pm.getPolicy(currentPath.toString(), false);
             if (p != null) {
                 sb.append("<td>" + getPolicyAsXHTMLList(p) + "</td>");
             } else {
                 sb.append("<td>No policy yet!</td>");
             }
         }
-        Policy p = pm.getPolicy(path);
+        Policy p = pm.getPolicy(path, false);
         if (p != null) {
             sb.append("<td>" + getPolicyAsXHTMLList(p) + "</td>");
         } else {

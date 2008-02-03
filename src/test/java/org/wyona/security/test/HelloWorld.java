@@ -46,7 +46,7 @@ public class HelloWorld {
     
             Path path = new Path("/hello/world.html");
 
-            Policy policy = pm.getPolicy(path.toString());
+            Policy policy = pm.getPolicy(path.toString(), true);
             System.out.println(policy);
 
             String[] groupnames = {"hello", "sugus"};
