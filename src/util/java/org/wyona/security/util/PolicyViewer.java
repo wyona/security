@@ -20,8 +20,8 @@ public class PolicyViewer {
             sb.append("<p>Access Policies for Path <i>" + path + "#" + contentItemId + "</i>:</p>");
             sb.append("<p><table border=\"1\">");
             sb.append("<tr><td>Path</td>" + getSplittedPath(pm, path, contentItemId) + "</tr>");
-            sb.append("<tr valign=\"top\"><td>Policy</td>" + getPolicies(pm, path, contentItemId) + "</tr>");
-            sb.append("<tr valign=\"top\"><td>Aggregated Policy</td>" + getAggregatedPolicies(pm, path, contentItemId) + "</tr>");
+            sb.append("<tr valign=\"top\"><td>Policy</td>" + getPolicies(pm, path, contentItemId, false) + "</tr>");
+            sb.append("<tr valign=\"top\"><td>Aggregated Policy</td>" + getPolicies(pm, path, contentItemId, true) + "</tr>");
             sb.append("</table></p>");
             sb.append("</body></html>");
             return sb.toString();
@@ -53,20 +53,20 @@ public class PolicyViewer {
     /**
      * Get policies
      */
-    static public StringBuffer getPolicies (PolicyManager pm, String path, String contentItemId) throws AuthorizationException {
+    static public StringBuffer getPolicies (PolicyManager pm, String path, String contentItemId, boolean aggregated) throws AuthorizationException {
         String[] names = path.split("/");
         StringBuffer sb = new StringBuffer();
         StringBuffer currentPath = new StringBuffer();
         for (int i = 0; i < names.length -1; i++) {
             currentPath.append(names[i] + "/");
-            Policy p = pm.getPolicy(currentPath.toString(), false);
+            Policy p = pm.getPolicy(currentPath.toString(), aggregated);
             if (p != null) {
                 sb.append("<td>" + getPolicyAsXHTMLList(p) + "</td>");
             } else {
                 sb.append("<td>No policy yet!</td>");
             }
         }
-        Policy p = pm.getPolicy(path, false);
+        Policy p = pm.getPolicy(path, aggregated);
         if (p != null) {
             sb.append("<td>" + getPolicyAsXHTMLList(p) + "</td>");
         } else {
@@ -76,13 +76,6 @@ public class PolicyViewer {
             sb.append("<td>Not implemented yet into API!</td>");
         }
         return sb;
-    }
-
-    /**
-     * Get aggregated policies
-     */
-    static public StringBuffer getAggregatedPolicies (PolicyManager pm, String path, String contentItemId) throws AuthorizationException {
-        return getPolicies(pm, path, contentItemId);
     }
 
     /**
