@@ -170,8 +170,11 @@ public class HelloWorld {
             pmf = new org.wyona.security.impl.PolicyManagerFactoryImplVersion2();
             pm = pmf.newPolicyManager(policiesRepoVersion2);
 
-            policy = pm.getPolicy(path.toString());
-            System.out.println(policy);
+            //policy = pm.getPolicy(path.toString());
+            //System.out.println(policy);
+            System.out.println(org.wyona.security.util.PolicyViewer.getXHTMLView(pm, path.toString(), "phone"));
+
+            //System.out.println(org.wyona.security.util.PolicyViewer.getXHTMLView(pm, "/hello/", null));
         } catch (Exception e) {
             System.err.println(e);
             e.printStackTrace();
