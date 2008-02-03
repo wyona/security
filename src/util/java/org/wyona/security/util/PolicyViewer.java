@@ -1,5 +1,7 @@
 package org.wyona.security.util;
 
+import org.wyona.security.core.AuthorizationException;
+import org.wyona.security.core.UsecasePolicy;
 import org.wyona.security.core.api.Policy;
 import org.wyona.security.core.api.PolicyManager;
 
@@ -13,21 +15,15 @@ public class PolicyViewer {
      */
     static public String getXHTMLView (PolicyManager pm, String path, String contentItemId) {
         try {
-            Policy p = pm.getPolicy(path);
-            if (p != null) {
-                StringBuffer sb = new StringBuffer("<html><body>");
-                sb.append("<p>Access Policies for Path <i>" + path + "#" + contentItemId + "</i>:</p>");
-                sb.append("<p><table border=\"1\">");
-                sb.append("<tr><td>Path</td>" + getSplittedPath(pm, path, contentItemId) + "</tr>");
-                sb.append("<tr><td>Policy</td>" + getSplittedPath(pm, path, contentItemId) + "</tr>");
-                sb.append("<tr><td>Aggregated Policy</td>" + getSplittedPath(pm, path, contentItemId) + "</tr>");
-                sb.append("</table></p>");
-                //sb.append(p.toString());
-                sb.append("</body></html>");
-                return sb.toString();
-            } else {
-                return "<html><body>No policy for path: " + path + "#"+contentItemId+"</body></html>";
-            }
+            StringBuffer sb = new StringBuffer("<html><body>");
+            sb.append("<p>Access Policies for Path <i>" + path + "#" + contentItemId + "</i>:</p>");
+            sb.append("<p><table border=\"1\">");
+            sb.append("<tr><td>Path</td>" + getSplittedPath(pm, path, contentItemId) + "</tr>");
+            sb.append("<tr><td>Policy</td>" + getPolicies(pm, path, contentItemId) + "</tr>");
+            sb.append("<tr><td>Aggregated Policy</td>" + getAggregatedPolicies(pm, path, contentItemId) + "</tr>");
+            sb.append("</table></p>");
+            sb.append("</body></html>");
+            return sb.toString();
         } catch(Exception e) {
             return "<html><body>Exception: " + e.getMessage() + "</body></html>";
         }
@@ -49,6 +45,58 @@ public class PolicyViewer {
         }
         if (contentItemId != null) {
             sb.append("<td>#" + contentItemId + "</td>");
+        }
+        return sb;
+    }
+
+    /**
+     * Get policies
+     */
+    static public StringBuffer getPolicies (PolicyManager pm, String path, String contentItemId) throws AuthorizationException {
+        String[] names = path.split("/");
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < names.length -1; i++) {
+            Policy p = pm.getPolicy("/");
+            if (p != null) {
+                sb.append("<td>" + getPolicyAsXHTMLList(p) + "</td>");
+            } else {
+                sb.append("<td>No policy yet!</td>");
+            }
+        }
+        Policy p = pm.getPolicy(path);
+        if (p != null) {
+            sb.append("<td>" + getPolicyAsXHTMLList(p) + "</td>");
+        } else {
+            sb.append("<td>No policy yet!</td>");
+        }
+        if (contentItemId != null) {
+            sb.append("<td>Not implemented yet into API!</td>");
+        }
+        return sb;
+    }
+
+    /**
+     * Get aggregated policies
+     */
+    static public StringBuffer getAggregatedPolicies (PolicyManager pm, String path, String contentItemId) throws AuthorizationException {
+        return getPolicies(pm, path, contentItemId);
+    }
+
+    /**
+     * Get policy as XHTML list
+     */
+    static public StringBuffer getPolicyAsXHTMLList(Policy p) {
+        StringBuffer sb = new StringBuffer();
+        UsecasePolicy[] up = p.getUsecasePolicies();
+        if (up != null && up.length > 0) {
+            sb.append("<ul>");
+            for (int i = 0; i < up.length; i++) {
+                sb.append("<li>Usecase: " + up[i].getName() + "</li>");
+                // TODO: Get identities ...
+            }
+            sb.append("</ul>");
+        } else {
+            sb.append("No policy usecases!");
         }
         return sb;
     }
