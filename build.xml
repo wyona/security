@@ -112,7 +112,18 @@
     <jar
       destfile="build/lib/wyona-org-security-core-${security.version}-r${subversion.revision}.jar"
       basedir="build/classes"
-      excludes="org/wyona/security/impl/**, org/wyona/security/test/**"
+      includes="org/wyona/security/core/**"
+    >
+    </jar>
+  </target>
+
+  <target name="jar-util" description="Create a jar file of util classes" depends="init, compile-util">
+    <mkdir dir="build/lib"/>
+
+    <jar
+      destfile="build/lib/wyona-org-security-util-${security.version}-r${subversion.revision}.jar"
+      basedir="build/classes"
+      includes="org/wyona/security/util/**"
     >
     </jar>
   </target>
@@ -123,7 +134,7 @@
     <jar
       destfile="build/lib/wyona-org-security-impl-${security.version}-r${subversion.revision}.jar"
       basedir="build/classes"
-      excludes="org/wyona/security/core/**, org/wyona/security/test/**"
+      includes="org/wyona/security/impl/**"
     >
     </jar>
   </target>
@@ -140,6 +151,7 @@
 
   <target name="install-jars" description="Place core and impl jars into local maven repository" depends="clean">
     <antcall target="install-jar-core"/>
+    <antcall target="install-jar-util"/>
     <antcall target="install-jar-impl"/>
   </target>
   
@@ -153,6 +165,20 @@
 
     <artifact:install file="build/lib/wyona-org-security-core-${security.version}-r${subversion.revision}.jar">
       <pom refid="maven.project.core"/>
+    </artifact:install>
+
+  </target>
+
+  <target name="install-jar-util" description="Place util jar into local maven repository" depends="init,jar-util">
+    <copy file="pom-util.xml" todir="build/lib"/>
+    <replace file="build/lib/pom-util.xml" value="${security.version}-r${subversion.revision}">
+      <replacetoken>@VERSION@</replacetoken>
+    </replace>
+
+    <artifact:pom id="maven.project.util" file="build/lib/pom-util.xml"/>
+
+    <artifact:install file="build/lib/wyona-org-security-util-${security.version}-r${subversion.revision}.jar">
+      <pom refid="maven.project.util"/>
     </artifact:install>
 
   </target>
