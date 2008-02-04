@@ -14,13 +14,15 @@ import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import java.util.Vector;
 
 /**
- *
+ * @deprecated
  */
 public class PolicyImplVersion1 implements Policy {
 
     private static Logger log = Logger.getLogger(PolicyImplVersion1.class);
     protected DefaultConfigurationBuilder builder = null;
     protected Vector usecasePolicies = null;
+
+    private static String USECASE_ELEMENT_NAME = "role";
 
     /**
      *
@@ -37,7 +39,7 @@ public class PolicyImplVersion1 implements Policy {
         builder = new DefaultConfigurationBuilder(enableNamespaces);
         Configuration config = builder.build(in);
 
-        Configuration[] upConfigs = config.getChildren("role");
+        Configuration[] upConfigs = config.getChildren(USECASE_ELEMENT_NAME);
         usecasePolicies = new Vector();
         for (int i = 0; i < upConfigs.length; i++) {
             usecasePolicies.add(readUsecasePolicy(upConfigs[i]));
