@@ -13,11 +13,13 @@ import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import java.util.Vector;
 
 /**
- *
+ * This policy implementation is using the element name "usecase" instead of "role"
  */
 public class PolicyImplV2 extends PolicyImplVersion1 {
 
     private static Logger log = Logger.getLogger(PolicyImplV2.class);
+
+    private static String USECASE_ELEMENT_NAME = "usecase";
 
     /**
      *
@@ -33,7 +35,7 @@ public class PolicyImplV2 extends PolicyImplVersion1 {
         boolean enableNamespaces = true;
         builder = new DefaultConfigurationBuilder(enableNamespaces);
         Configuration config = builder.build(in);
-        Configuration[] upConfigs = config.getChildren("usecase");
+        Configuration[] upConfigs = config.getChildren(USECASE_ELEMENT_NAME);
         usecasePolicies = new Vector();
         for (int i = 0; i < upConfigs.length; i++) {
             usecasePolicies.add(readUsecasePolicy(upConfigs[i]));
