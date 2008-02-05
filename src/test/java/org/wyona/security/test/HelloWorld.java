@@ -175,9 +175,9 @@ public class HelloWorld {
 
             //policy = pm.getPolicy(path.toString());
             //System.out.println(policy);
-            System.out.println(PolicyViewer.getXHTMLView(pm, path.toString(), "phone", PolicyViewer.ORDERED_BY_USECASES));
+            System.out.println(PolicyViewer.getXHTMLView(pm, path.toString(), "phone", PolicyViewer.ORDERED_BY_USECASES, true));
 
-            System.out.println(PolicyViewer.getXHTMLView(pm, path.toString(), "phone", PolicyViewer.ORDERED_BY_IDENTITIES));
+            System.out.println(PolicyViewer.getXHTMLView(pm, path.toString(), "phone", PolicyViewer.ORDERED_BY_IDENTITIES, true));
             //System.out.println(PolicyViewer.getXHTMLView(pm, "/hello/", null, PolicyViewer.ORDERED_BY_IDENTITIES));
         } catch (Exception e) {
             System.err.println(e);

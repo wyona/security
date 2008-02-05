@@ -22,8 +22,13 @@ public class PolicyViewer {
 
     /**
      * Get XHTML view of policies
+     * @param pm Policy Manager
+     * @param path Content path which is associated with an access policy
+     * @param contentItemId Content Item ID which allows a unique association with an access policy and an item within the content
+     * @param orderedBy Allows ordering by usecases or identities
+     * @param showParents Show the policies of the parent nodes, which allows to figure out how the policy has been aggregated
      */
-    static public String getXHTMLView (PolicyManager pm, String path, String contentItemId, int orderedBy) {
+    static public String getXHTMLView (PolicyManager pm, String path, String contentItemId, int orderedBy, boolean showParents) {
         try {
             StringBuffer sb = new StringBuffer("<html><body>");
             sb.append("<p>Access Policies for Path <i>" + path + "#" + contentItemId + "</i>:</p>");
@@ -49,8 +54,7 @@ public class PolicyViewer {
         for (int i = 0; i < names.length -1; i++) {
             sb.append("<td>" + names[i] + "/</td>");
         }
-	log.error("DEBUG: Length: " + names.length);
-	//log.debug("Length: " + names.length);
+	if (log.isDebugEnabled()) log.debug("Length: " + names.length);
         if (path.endsWith("/")) {
             if (names.length > 0) {
                 sb.append("<td>" + names[names.length -1] + "/</td>");
