@@ -7,9 +7,11 @@
     <group id="editors" permission="true"/>
     <group id="hello" permission="true"/>
     <user id="lenya" permission="false"/>
+    <user id="alice" permission="false"/>
   </usecase>
 
   <usecase id="read">
     <user id="lenya" permission="false"/>
+    <world permission="true"/>
   </usecase>
 </policy>

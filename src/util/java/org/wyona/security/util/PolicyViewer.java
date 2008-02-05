@@ -78,7 +78,7 @@ public class PolicyViewer {
             if (p != null) {
                 if (orderedBy == ORDERED_BY_USECASES) {
                     sb.append("<td>" + getPolicyAsXHTMLListOrderedByUsecases(p) + "</td>");
-		} else if (orderedBy == ORDERED_BY_IDENTITIES) {
+                } else if (orderedBy == ORDERED_BY_IDENTITIES) {
                     sb.append("<td>" + getPolicyAsXHTMLListOrderedByIdentities(p) + "</td>");
                 } else {
                     sb.append("<td>No such orderedBy implemented: " + orderedBy + "</td>");
@@ -89,8 +89,13 @@ public class PolicyViewer {
         }
         Policy p = pm.getPolicy(path, aggregated);
         if (p != null) {
-            //sb.append("<td>" + getPolicyAsXHTMLListOrderedByUsecases(p) + "</td>");
-            sb.append("<td>" + getPolicyAsXHTMLListOrderedByIdentities(p) + "</td>");
+            if (orderedBy == ORDERED_BY_USECASES) {
+                sb.append("<td>" + getPolicyAsXHTMLListOrderedByUsecases(p) + "</td>");
+	    } else if (orderedBy == ORDERED_BY_IDENTITIES) {
+                sb.append("<td>" + getPolicyAsXHTMLListOrderedByIdentities(p) + "</td>");
+            } else {
+                sb.append("<td>No such orderedBy implemented: " + orderedBy + "</td>");
+            }
         } else {
             sb.append("<td>No policy yet!</td>");
         }
@@ -134,32 +139,46 @@ public class PolicyViewer {
      * Get policy as XHTML list ordered by identities
      */
     static public StringBuffer getPolicyAsXHTMLListOrderedByIdentities(Policy p) {
-        StringBuffer sb = new StringBuffer();
+        java.util.Vector world = new java.util.Vector();
+        java.util.HashMap users = new java.util.HashMap();
         UsecasePolicy[] up = p.getUsecasePolicies();
         if (up != null && up.length > 0) {
-            sb.append("<ul>");
             for (int i = 0; i < up.length; i++) {
-                sb.append("<li>Usecase: " + up[i].getName());
-
-/*
                 Identity[] ids = up[i].getIdentities();
-                // TODO: check of ids.length > 0 or groups/hosts exists ...
-                sb.append("<ol>");
                 for (int j = 0; j < ids.length; j++) {
                     if (ids[j].isWorld()) {
-                        sb.append("<li>WORLD</li>");
+                        world.add(up[i].getName());
                     } else {
-                        sb.append("<li>User: " + ids[j].getUsername() + "</li>");
+                        //Vector
+                        if (users.get(ids[j].getUsername()) != null) {
+                            log.error("DEBUG: User already added: " + ids[j].getUsername());
+                        } else {
+                            users.put(ids[j].getUsername(), new java.util.Vector());
+                        }
                     }
                 }
-                sb.append("</ol>");
-                sb.append("</li>");
-*/
             }
-            sb.append("</ul>");
         } else {
-            sb.append("No policy usecases!");
+            log.warn("No policy usecases!");
         }
+
+        StringBuffer sb = new StringBuffer();
+        sb.append("<ul>");
+        sb.append("<li>WORLD (...)</li>");
+        for (int i = 0; i < users.size(); i++) {
+            sb.append("<li>User: ... (...)</li>");
+        }
+/*
+        for (int i = 0; i < groups.length; i++) {
+            sb.append("<li>Group: ... (...)</li>");
+        }
+*/
+/*
+        for (int i = 0; i < hosts.length; i++) {
+            sb.append("<li>Host: 192.168.1.34 (view, open, write)</li>");
+        }
+*/
+        sb.append("</ul>");
         return sb;
     }
 }
