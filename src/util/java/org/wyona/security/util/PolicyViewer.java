@@ -151,12 +151,14 @@ public class PolicyViewer {
                     if (ids[j].isWorld()) {
                         world.add(up[i].getName());
                     } else {
-                        //Vector
-                        if (users.get(ids[j].getUsername()) != null) {
-                            log.error("DEBUG: User already added: " + ids[j].getUsername());
+                        Vector userRights;
+                        if ((userRights = (Vector) users.get(ids[j].getUsername())) != null) {
+                            log.debug("User has already been added: " + ids[j].getUsername());
                         } else {
-                            users.put(ids[j].getUsername(), new Vector());
+                            userRights = new Vector();
+                            users.put(ids[j].getUsername(), userRights);
                         }
+                        userRights.add(up[i].getName());
                     }
                 }
             }
@@ -167,8 +169,10 @@ public class PolicyViewer {
         StringBuffer sb = new StringBuffer();
         sb.append("<ul>");
         sb.append("<li>WORLD (" + getCommaSeparatedList(world) + ")</li>");
-        for (int i = 0; i < users.size(); i++) {
-            sb.append("<li>User: ... (...)</li>");
+        java.util.Iterator userIterator = users.keySet().iterator();
+        while (userIterator.hasNext()) {
+            String userName = (String) userIterator.next();
+            sb.append("<li>User: " + userName + " (" + getCommaSeparatedList((Vector) users.get(userName)) + ")</li>");
         }
 /*
         for (int i = 0; i < groups.length; i++) {
