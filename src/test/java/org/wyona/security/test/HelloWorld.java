@@ -10,6 +10,9 @@ import org.wyona.security.core.api.PolicyManager;
 import org.wyona.security.core.api.Role;
 import org.wyona.security.core.api.Usecase;
 import org.wyona.security.core.api.Identity;
+
+import org.wyona.security.util.PolicyViewer;
+
 import org.wyona.yarep.core.Repository;
 import org.wyona.yarep.core.RepositoryException;
 import org.wyona.yarep.core.RepositoryFactory;
@@ -172,9 +175,9 @@ public class HelloWorld {
 
             //policy = pm.getPolicy(path.toString());
             //System.out.println(policy);
-            System.out.println(org.wyona.security.util.PolicyViewer.getXHTMLView(pm, path.toString(), "phone"));
+            System.out.println(PolicyViewer.getXHTMLView(pm, path.toString(), "phone", PolicyViewer.ORDERED_BY_USECASES));
 
-            //System.out.println(org.wyona.security.util.PolicyViewer.getXHTMLView(pm, "/hello/", null));
+            System.out.println(PolicyViewer.getXHTMLView(pm, "/hello/", null, PolicyViewer.ORDERED_BY_IDENTITIES));
         } catch (Exception e) {
             System.err.println(e);
             e.printStackTrace();

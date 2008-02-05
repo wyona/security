@@ -15,17 +15,20 @@ public class PolicyViewer {
 
     private static Logger log = Logger.getLogger(PolicyViewer.class);
 
+    public static int ORDERED_BY_USECASES = 0;
+    public static int ORDERED_BY_IDENTITIES = 1;
+
     /**
      * Get XHTML view of policies
      */
-    static public String getXHTMLView (PolicyManager pm, String path, String contentItemId) {
+    static public String getXHTMLView (PolicyManager pm, String path, String contentItemId, int orderedBy) {
         try {
             StringBuffer sb = new StringBuffer("<html><body>");
             sb.append("<p>Access Policies for Path <i>" + path + "#" + contentItemId + "</i>:</p>");
             sb.append("<p><table border=\"1\">");
             sb.append("<tr><td>Path</td>" + getSplittedPath(pm, path, contentItemId) + "</tr>");
-            sb.append("<tr valign=\"top\"><td>Policy</td>" + getPolicies(pm, path, contentItemId, false) + "</tr>");
-            sb.append("<tr valign=\"top\"><td>Aggregated Policy</td>" + getPolicies(pm, path, contentItemId, true) + "</tr>");
+            sb.append("<tr valign=\"top\"><td>Policy</td>" + getPolicies(pm, path, contentItemId, false, orderedBy) + "</tr>");
+            sb.append("<tr valign=\"top\"><td>Aggregated Policy</td>" + getPolicies(pm, path, contentItemId, true, orderedBy) + "</tr>");
             sb.append("</table></p>");
             sb.append("</body></html>");
             return sb.toString();
@@ -63,8 +66,9 @@ public class PolicyViewer {
 
     /**
      * Get policies
+     * @param aggregated If aggregated true, then the policy will be aggregated/merged with existing parent policies, otherwise only the node specific policy will be returned
      */
-    static public StringBuffer getPolicies (PolicyManager pm, String path, String contentItemId, boolean aggregated) throws AuthorizationException {
+    static public StringBuffer getPolicies (PolicyManager pm, String path, String contentItemId, boolean aggregated, int orderedBy) throws AuthorizationException {
         String[] names = path.split("/");
         StringBuffer sb = new StringBuffer();
         StringBuffer currentPath = new StringBuffer();
@@ -72,8 +76,13 @@ public class PolicyViewer {
             currentPath.append(names[i] + "/");
             Policy p = pm.getPolicy(currentPath.toString(), aggregated);
             if (p != null) {
-                //sb.append("<td>" + getPolicyAsXHTMLListOrderedByUsecases(p) + "</td>");
-                sb.append("<td>" + getPolicyAsXHTMLListOrderedByIdentities(p) + "</td>");
+                if (orderedBy == ORDERED_BY_USECASES) {
+                    sb.append("<td>" + getPolicyAsXHTMLListOrderedByUsecases(p) + "</td>");
+		} else if (orderedBy == ORDERED_BY_IDENTITIES) {
+                    sb.append("<td>" + getPolicyAsXHTMLListOrderedByIdentities(p) + "</td>");
+                } else {
+                    sb.append("<td>No such orderedBy implemented: " + orderedBy + "</td>");
+                }
             } else {
                 sb.append("<td>No policy yet!</td>");
             }
