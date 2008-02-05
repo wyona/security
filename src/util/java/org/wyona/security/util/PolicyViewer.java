@@ -6,10 +6,14 @@ import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.Policy;
 import org.wyona.security.core.api.PolicyManager;
 
+import org.apache.log4j.Logger;
+
 /**
  * Utility class to view policies
  */
 public class PolicyViewer {
+
+    private static Logger log = Logger.getLogger(PolicyViewer.class);
 
     /**
      * Get XHTML view of policies
@@ -26,6 +30,7 @@ public class PolicyViewer {
             sb.append("</body></html>");
             return sb.toString();
         } catch(Exception e) {
+            log.error(e, e);
             return "<html><body>Exception: " + e.getMessage() + "</body></html>";
         }
     }
@@ -39,8 +44,14 @@ public class PolicyViewer {
         for (int i = 0; i < names.length -1; i++) {
             sb.append("<td>" + names[i] + "/</td>");
         }
+	log.error("DEBUG: Length: " + names.length);
+	//log.debug("Length: " + names.length);
         if (path.endsWith("/")) {
-            sb.append("<td>" + names[names.length -1] + "/</td>");
+            if (names.length > 0) {
+                sb.append("<td>" + names[names.length -1] + "/</td>");
+            } else {
+                sb.append("<td>/</td>");
+            }
         } else {
             sb.append("<td>" + names[names.length -1] + "</td>");
         }
@@ -61,14 +72,16 @@ public class PolicyViewer {
             currentPath.append(names[i] + "/");
             Policy p = pm.getPolicy(currentPath.toString(), aggregated);
             if (p != null) {
-                sb.append("<td>" + getPolicyAsXHTMLList(p) + "</td>");
+                //sb.append("<td>" + getPolicyAsXHTMLListOrderedByUsecases(p) + "</td>");
+                sb.append("<td>" + getPolicyAsXHTMLListOrderedByIdentities(p) + "</td>");
             } else {
                 sb.append("<td>No policy yet!</td>");
             }
         }
         Policy p = pm.getPolicy(path, aggregated);
         if (p != null) {
-            sb.append("<td>" + getPolicyAsXHTMLList(p) + "</td>");
+            //sb.append("<td>" + getPolicyAsXHTMLListOrderedByUsecases(p) + "</td>");
+            sb.append("<td>" + getPolicyAsXHTMLListOrderedByIdentities(p) + "</td>");
         } else {
             sb.append("<td>No policy yet!</td>");
         }
@@ -79,9 +92,9 @@ public class PolicyViewer {
     }
 
     /**
-     * Get policy as XHTML list
+     * Get policy as XHTML list ordered by usecases
      */
-    static public StringBuffer getPolicyAsXHTMLList(Policy p) {
+    static public StringBuffer getPolicyAsXHTMLListOrderedByUsecases(Policy p) {
         StringBuffer sb = new StringBuffer();
         UsecasePolicy[] up = p.getUsecasePolicies();
         if (up != null && up.length > 0) {
@@ -100,6 +113,39 @@ public class PolicyViewer {
                 }
                 sb.append("</ol>");
                 sb.append("</li>");
+            }
+            sb.append("</ul>");
+        } else {
+            sb.append("No policy usecases!");
+        }
+        return sb;
+    }
+
+    /**
+     * Get policy as XHTML list ordered by identities
+     */
+    static public StringBuffer getPolicyAsXHTMLListOrderedByIdentities(Policy p) {
+        StringBuffer sb = new StringBuffer();
+        UsecasePolicy[] up = p.getUsecasePolicies();
+        if (up != null && up.length > 0) {
+            sb.append("<ul>");
+            for (int i = 0; i < up.length; i++) {
+                sb.append("<li>Usecase: " + up[i].getName());
+
+/*
+                Identity[] ids = up[i].getIdentities();
+                // TODO: check of ids.length > 0 or groups/hosts exists ...
+                sb.append("<ol>");
+                for (int j = 0; j < ids.length; j++) {
+                    if (ids[j].isWorld()) {
+                        sb.append("<li>WORLD</li>");
+                    } else {
+                        sb.append("<li>User: " + ids[j].getUsername() + "</li>");
+                    }
+                }
+                sb.append("</ol>");
+                sb.append("</li>");
+*/
             }
             sb.append("</ul>");
         } else {
