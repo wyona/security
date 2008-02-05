@@ -8,6 +8,8 @@ import org.wyona.security.core.api.PolicyManager;
 
 import org.apache.log4j.Logger;
 
+import java.util.Vector;
+
 /**
  * Utility class to view policies
  */
@@ -139,7 +141,7 @@ public class PolicyViewer {
      * Get policy as XHTML list ordered by identities
      */
     static public StringBuffer getPolicyAsXHTMLListOrderedByIdentities(Policy p) {
-        java.util.Vector world = new java.util.Vector();
+        Vector world = new Vector();
         java.util.HashMap users = new java.util.HashMap();
         UsecasePolicy[] up = p.getUsecasePolicies();
         if (up != null && up.length > 0) {
@@ -153,7 +155,7 @@ public class PolicyViewer {
                         if (users.get(ids[j].getUsername()) != null) {
                             log.error("DEBUG: User already added: " + ids[j].getUsername());
                         } else {
-                            users.put(ids[j].getUsername(), new java.util.Vector());
+                            users.put(ids[j].getUsername(), new Vector());
                         }
                     }
                 }
@@ -164,7 +166,7 @@ public class PolicyViewer {
 
         StringBuffer sb = new StringBuffer();
         sb.append("<ul>");
-        sb.append("<li>WORLD (...)</li>");
+        sb.append("<li>WORLD (" + getCommaSeparatedList(world) + ")</li>");
         for (int i = 0; i < users.size(); i++) {
             sb.append("<li>User: ... (...)</li>");
         }
@@ -180,5 +182,21 @@ public class PolicyViewer {
 */
         sb.append("</ul>");
         return sb;
+    }
+
+    /**
+     *
+     */
+    private static String getCommaSeparatedList(Vector v) {
+        StringBuffer sb = new StringBuffer();
+        if (v.size() > 0) {
+            sb.append((String) v.elementAt(0));
+            for (int i = 1; i < v.size(); i++) {
+                sb.append(", " + (String) v.elementAt(i));
+            }
+        } else {
+            sb.append("No rights asigned!");
+        }
+        return sb.toString();
     }
 }
