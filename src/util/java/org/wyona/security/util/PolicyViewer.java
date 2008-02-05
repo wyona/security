@@ -31,12 +31,35 @@ public class PolicyViewer {
     static public String getXHTMLView (PolicyManager pm, String path, String contentItemId, int orderedBy, boolean showParents) {
         try {
             StringBuffer sb = new StringBuffer("<html><body>");
-            sb.append("<p>Access Policies for Path <i>" + path + "#" + contentItemId + "</i>:</p>");
-            sb.append("<p><table border=\"1\">");
-            sb.append("<tr><td>Path</td>" + getSplittedPath(pm, path, contentItemId) + "</tr>");
-            sb.append("<tr valign=\"top\"><td>Policy</td>" + getPolicies(pm, path, contentItemId, false, orderedBy) + "</tr>");
-            sb.append("<tr valign=\"top\"><td>Aggregated Policy</td>" + getPolicies(pm, path, contentItemId, true, orderedBy) + "</tr>");
-            sb.append("</table></p>");
+	    if(showParents) {
+                sb.append("<p><a href=\"?yanel.policy=read&amp;orderedBy=" + orderedBy + "&amp;showParents=false\">Tab: Node Policy</a> | Tab: Parent Policies</p>");
+                sb.append("<p>Access Policies for Path (and its parents)<i>" + path + "#" + contentItemId + "</i>:</p>");
+                sb.append("<p><table border=\"1\">");
+                sb.append("<tr><td>Path</td>" + getSplittedPath(pm, path, contentItemId) + "</tr>");
+                sb.append("<tr valign=\"top\"><td>Policy</td>" + getPolicies(pm, path, contentItemId, false, orderedBy) + "</tr>");
+                sb.append("<tr valign=\"top\"><td>Aggregated Policy</td>" + getPolicies(pm, path, contentItemId, true, orderedBy) + "</tr>");
+                sb.append("</table></p>");
+            } else {
+                sb.append("<p>Tab: Node Policy | <a href=\"?yanel.policy=read&amp;orderedBy=" + orderedBy + "&amp;showParents=true\">Tab: Parent Policies</a></p>");
+                sb.append("<p>Aggregated Access Policy for Path <i>" + path + "#" + contentItemId + "</i>:</p>");
+                Policy p = pm.getPolicy(path, true);
+                sb.append("<p><table border=\"1\"><tr>");
+                if (p != null) {
+                    if (orderedBy == ORDERED_BY_USECASES) {
+                        sb.append("<td>" + getPolicyAsXHTMLListOrderedByUsecases(p) + "</td>");
+                    } else if (orderedBy == ORDERED_BY_IDENTITIES) {
+                        sb.append("<td>" + getPolicyAsXHTMLListOrderedByIdentities(p) + "</td>");
+                    } else {
+                        sb.append("<td>No such orderedBy implemented: " + orderedBy + "</td>");
+                    }
+                } else {
+                    sb.append("<td>No policy yet!</td>");
+                }
+                if (contentItemId != null) {
+                    sb.append("<td>contentItemId (" + contentItemId + ") not implemented yet into API!</td>");
+                }
+                sb.append("</tr></table></p>");
+            }
             sb.append("</body></html>");
             return sb.toString();
         } catch(Exception e) {
