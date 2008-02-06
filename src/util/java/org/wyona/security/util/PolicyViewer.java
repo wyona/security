@@ -33,7 +33,8 @@ public class PolicyViewer {
             StringBuffer sb = new StringBuffer("<html><body>");
 	    if(showParents) {
                 sb.append("<p><a href=\"?yanel.policy=read&amp;orderedBy=" + orderedBy + "&amp;showParents=false\">Tab: Node Policy</a> | Tab: Parent Policies</p>");
-                sb.append("<p>Access Policies for Path (and its parents)<i>" + path + "#" + contentItemId + "</i>:</p>");
+                sb.append("<p>Access Policies for Path (and its parents) <i>" + path + "#" + contentItemId + "</i>:</p>");
+                sb.append(getOrderByLink(orderedBy, showParents));
                 sb.append("<p><table border=\"1\">");
                 sb.append("<tr><td>Path</td>" + getSplittedPath(pm, path, contentItemId) + "</tr>");
                 sb.append("<tr valign=\"top\"><td>Policy</td>" + getPolicies(pm, path, contentItemId, false, orderedBy) + "</tr>");
@@ -42,6 +43,7 @@ public class PolicyViewer {
             } else {
                 sb.append("<p>Tab: Node Policy | <a href=\"?yanel.policy=read&amp;orderedBy=" + orderedBy + "&amp;showParents=true\">Tab: Parent Policies</a></p>");
                 sb.append("<p>Aggregated Access Policy for Path <i>" + path + "#" + contentItemId + "</i>:</p>");
+                sb.append(getOrderByLink(orderedBy, showParents));
                 Policy p = pm.getPolicy(path, true);
                 sb.append("<p><table border=\"1\"><tr>");
                 if (p != null) {
@@ -229,5 +231,19 @@ public class PolicyViewer {
             sb.append("No rights asigned!");
         }
         return sb.toString();
+    }
+
+    /**
+     *
+     */
+    private static String getOrderByLink(int orderedBy, boolean showParents) {
+        if (orderedBy == ORDERED_BY_USECASES) {
+            return "<p>Order by <a href=\"?yanel.policy=read&amp;orderedBy=" + ORDERED_BY_IDENTITIES + "&amp;showParents=" + showParents + "\">Identities</a></p>";
+        } else if (orderedBy == ORDERED_BY_IDENTITIES) {
+            return "<p>Order by <a href=\"?yanel.policy=read&amp;orderedBy=" + ORDERED_BY_USECASES + "&amp;showParents=" + showParents + "\">Usecases</a></p>";
+        } else {
+            log.error("No such order by value implemented: " + orderedBy);
+            return "";
+        }
     }
 }
