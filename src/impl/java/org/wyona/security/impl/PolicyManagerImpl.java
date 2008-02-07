@@ -230,7 +230,18 @@ public class PolicyManagerImpl implements PolicyManager {
             if (getPoliciesRepository().existsNode(getPolicyPath(path))) {
                 return new PolicyImplVersion1(getPoliciesRepository().getNode(getPolicyPath(path)).getInputStream());
             } else {
-                return null;          
+                if (aggregated) {
+                    if (!path.equals("/")) {
+                        log.warn("No policy found for '" + path + "'. Check for parent '" + PathUtil.getParent(path) + "'.");
+                        return getPolicy(PathUtil.getParent(path), aggregated);
+                    } else {
+                        log.warn("No policies found at all, not even a root policy!");
+                        return null;
+                    }
+                } else {
+                    log.warn("Aggregated has been set to false, hence do not check for parent policies!");
+                    return null;
+                }
             }
         } catch(Exception e) {
             log.error(e, e);
