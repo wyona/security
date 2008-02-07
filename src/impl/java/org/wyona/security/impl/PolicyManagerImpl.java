@@ -22,7 +22,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 
 /**
- *
+ * @deprecated
  */
 public class PolicyManagerImpl implements PolicyManager {
 
