@@ -1,6 +1,5 @@
 package org.wyona.security.impl;
 
-import org.wyona.security.core.UsecasePolicy;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Policy;
 
