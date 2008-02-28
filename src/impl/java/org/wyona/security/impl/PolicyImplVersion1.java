@@ -68,14 +68,18 @@ public class PolicyImplVersion1 implements Policy {
         StringBuffer sb = new StringBuffer("Policy:\n");
         UsecasePolicy[] ups = getUsecasePolicies();
         for (int i = 0; i < ups.length; i++) {
-            sb.append("Usecase: " + ups[i].getName() + "\n");
+            sb.append("  Usecase: " + ups[i].getName() + "\n");
             Identity[] ids = ups[i].getIdentities();
             for (int j = 0; j < ids.length; j++) {
                 if (ids[j].isWorld()) {
-                    sb.append("WORLD\n");
+                    sb.append("    WORLD\n");
                 } else {
-                    sb.append("User: " + ids[j].getUsername() + "\n");
+                    sb.append("    User: " + ids[j].getUsername() + "\n");
                 }
+            }
+            GroupPolicy[] gps = ups[i].getGroupPolicies();
+            for (int j = 0; j < gps.length; j++) {
+                sb.append("    Group: " + gps[j].getId() + " (" + gps[j].getPermission() + ")\n");
             }
         }
         return sb.toString();
@@ -102,8 +106,6 @@ public class PolicyImplVersion1 implements Policy {
             for (int j = 0; j < groupConfigs.length; j++) {
                 String permission = groupConfigs[j].getAttribute("permission");
                 String id = groupConfigs[j].getAttribute("id");
-                log.error("DEBUG: Permission: " + permission);
-                log.error("DEBUG: Group ID: " + id);
                 if (permission != null) {
                     up.addGroupPolicy(new GroupPolicy(id, getBoolean(permission)));
                 } else {

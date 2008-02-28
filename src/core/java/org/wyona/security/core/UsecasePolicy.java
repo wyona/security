@@ -59,7 +59,7 @@ public class UsecasePolicy {
     /**
      *
      */
-    public GroupPolicy[] getGroupPoliciess() {
+    public GroupPolicy[] getGroupPolicies() {
         GroupPolicy[] gs = new GroupPolicy[gps.size()];
         for (int i = 0; i < gs.length; i++) {
             gs[i] = (GroupPolicy) gps.elementAt(i);
