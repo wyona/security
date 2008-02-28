@@ -30,7 +30,6 @@ public class PolicyImplV2 extends PolicyImplVersion1 {
      *
      */
     public PolicyImplV2(java.io.InputStream in) throws Exception {
-        log.warn("Implementation not finished yet!");
         boolean enableNamespaces = true;
         builder = new DefaultConfigurationBuilder(enableNamespaces);
         Configuration config = builder.build(in);

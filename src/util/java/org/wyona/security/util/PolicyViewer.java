@@ -1,6 +1,7 @@
 package org.wyona.security.util;
 
 import org.wyona.security.core.AuthorizationException;
+import org.wyona.security.core.GroupPolicy;
 import org.wyona.security.core.UsecasePolicy;
 import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.Policy;
@@ -146,15 +147,18 @@ public class PolicyViewer {
             sb.append("<ul>");
             for (int i = 0; i < up.length; i++) {
                 sb.append("<li>Usecase: " + up[i].getName());
-                Identity[] ids = up[i].getIdentities();
-                // TODO: check of ids.length > 0 or groups/hosts exists ...
                 sb.append("<ol>");
+                Identity[] ids = up[i].getIdentities();
                 for (int j = 0; j < ids.length; j++) {
                     if (ids[j].isWorld()) {
                         sb.append("<li>WORLD</li>");
                     } else {
                         sb.append("<li>User: " + ids[j].getUsername() + "</li>");
                     }
+                }
+                GroupPolicy[] gps = up[i].getGroupPolicies();
+                for (int j = 0; j < gps.length; j++) {
+                    sb.append("<li>Group: " + gps[j].getId() + "</li>");
                 }
                 sb.append("</ol>");
                 sb.append("</li>");
@@ -172,6 +176,8 @@ public class PolicyViewer {
     static public StringBuffer getPolicyAsXHTMLListOrderedByIdentities(Policy p) {
         Vector world = new Vector();
         java.util.HashMap users = new java.util.HashMap();
+        java.util.HashMap groups = new java.util.HashMap();
+
         UsecasePolicy[] up = p.getUsecasePolicies();
         if (up != null && up.length > 0) {
             for (int i = 0; i < up.length; i++) {
@@ -190,6 +196,18 @@ public class PolicyViewer {
                         userRights.add(up[i].getName());
                     }
                 }
+
+                GroupPolicy[] gps = up[i].getGroupPolicies();
+                for (int j = 0; j < gps.length; j++) {
+                    Vector groupRights;
+                    if ((groupRights = (Vector) groups.get(gps[j].getId())) != null) {
+                        log.debug("Group has already been added: " + gps[j].getId());
+                    } else {
+                        groupRights = new Vector();
+                        groups.put(gps[j].getId(), groupRights);
+                    }
+                    groupRights.add(up[i].getName());
+                }
             }
         } else {
             log.warn("No policy usecases!");
@@ -198,21 +216,28 @@ public class PolicyViewer {
         StringBuffer sb = new StringBuffer();
         sb.append("<ul>");
         sb.append("<li>WORLD (" + getCommaSeparatedList(world) + ")</li>");
+
+        // Users
         java.util.Iterator userIterator = users.keySet().iterator();
         while (userIterator.hasNext()) {
             String userName = (String) userIterator.next();
             sb.append("<li>User: " + userName + " (" + getCommaSeparatedList((Vector) users.get(userName)) + ")</li>");
         }
-/*
-        for (int i = 0; i < groups.length; i++) {
-            sb.append("<li>Group: ... (...)</li>");
+
+        //Groups 
+        java.util.Iterator groupIterator = groups.keySet().iterator();
+        while (groupIterator.hasNext()) {
+            String groupName = (String) groupIterator.next();
+            sb.append("<li>Group: " + groupName + " (" + getCommaSeparatedList((Vector) groups.get(groupName)) + ")</li>");
         }
-*/
+
+// TODO: Also add hosts
 /*
         for (int i = 0; i < hosts.length; i++) {
             sb.append("<li>Host: 192.168.1.34 (view, open, write)</li>");
         }
 */
+
         sb.append("</ul>");
         return sb;
     }
