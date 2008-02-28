@@ -1,7 +1,9 @@
 package org.wyona.security.impl;
 
+import org.wyona.security.core.GroupPolicy;
 import org.wyona.security.core.UsecasePolicy;
 import org.wyona.security.core.api.AccessManagementException;
+import org.wyona.security.core.api.Group;
 import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.Policy;
 
@@ -34,7 +36,6 @@ public class PolicyImplVersion1 implements Policy {
      *
      */
     public PolicyImplVersion1(java.io.InputStream in) throws Exception {
-        log.warn("Implementation not finished yet!");
         boolean enableNamespaces = true;
         builder = new DefaultConfigurationBuilder(enableNamespaces);
         Configuration config = builder.build(in);
@@ -85,22 +86,45 @@ public class PolicyImplVersion1 implements Policy {
      */
     protected UsecasePolicy readUsecasePolicy(Configuration upConfig) throws Exception {
             UsecasePolicy up = new UsecasePolicy(upConfig.getAttribute("id"));
+
             Configuration[] worldConfigs = upConfig.getChildren("world");
             if (worldConfigs.length > 1) log.warn("Usecase policy contains more than one WORLD entry!");
             for (int j = 0; j < worldConfigs.length; j++) {
                 up.addIdentity(new Identity());
             }
+
             Configuration[] userConfigs = upConfig.getChildren("user");
             for (int j = 0; j < userConfigs.length; j++) {
                 up.addIdentity(new Identity(userConfigs[j].getAttribute("id"), null));
             }
-/*
+
             Configuration[] groupConfigs = upConfig.getChildren("group");
             for (int j = 0; j < groupConfigs.length; j++) {
-                up.addIdentity(new Identity());
+                String permission = groupConfigs[j].getAttribute("permission");
+                String id = groupConfigs[j].getAttribute("id");
+                log.error("DEBUG: Permission: " + permission);
+                log.error("DEBUG: Group ID: " + id);
+                if (permission != null) {
+                    up.addGroupPolicy(new GroupPolicy(id, getBoolean(permission)));
+                } else {
+                    up.addGroupPolicy(new GroupPolicy(id));
+                }
             }
-*/
         return up;
+    }
+
+    /**
+     *
+     */
+    private boolean getBoolean(String value) {
+        if (value.equals("false")) {
+            return false;
+        } else if (value.equals("true")) {
+            return true;
+        } else {
+            log.error("No such boolean value: " + value);
+            return false;
+        }
     }
 }
 
