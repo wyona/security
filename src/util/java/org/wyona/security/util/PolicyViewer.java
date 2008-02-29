@@ -33,6 +33,7 @@ public class PolicyViewer {
         try {
             StringBuffer sb = new StringBuffer("<html><body>");
 	    if(showParents) {
+                // Show also all parent policies
                 sb.append("<p><a href=\"?yanel.policy=read&amp;orderedBy=" + orderedBy + "&amp;showParents=false\">Tab: Node Policy</a> | Tab: Parent Policies</p>");
                 sb.append("<p>Access Policies for Path (and its parents) <i>" + path + "#" + contentItemId + "</i>:</p>");
                 sb.append(getOrderByLink(orderedBy, showParents));
@@ -42,22 +43,14 @@ public class PolicyViewer {
                 sb.append("<tr valign=\"top\"><td>Aggregated Policy</td>" + getPolicies(pm, path, contentItemId, true, orderedBy) + "</tr>");
                 sb.append("</table></p>");
             } else {
+                // Show policy of this node only
                 sb.append("<p>Tab: Node Policy | <a href=\"?yanel.policy=read&amp;orderedBy=" + orderedBy + "&amp;showParents=true\">Tab: Parent Policies</a></p>");
                 sb.append("<p>Aggregated Access Policy for Path <i>" + path + "#" + contentItemId + "</i>:</p>");
                 sb.append(getOrderByLink(orderedBy, showParents));
-                Policy p = pm.getPolicy(path, true);
+                boolean aggregated = true;
+                Policy p = pm.getPolicy(path, aggregated);
                 sb.append("<p><table border=\"1\"><tr>");
-                if (p != null) {
-                    if (orderedBy == ORDERED_BY_USECASES) {
-                        sb.append("<td>" + getPolicyAsXHTMLListOrderedByUsecases(p) + "</td>");
-                    } else if (orderedBy == ORDERED_BY_IDENTITIES) {
-                        sb.append("<td>" + getPolicyAsXHTMLListOrderedByIdentities(p) + "</td>");
-                    } else {
-                        sb.append("<td>No such orderedBy implemented: " + orderedBy + "</td>");
-                    }
-                } else {
-                    sb.append("<td>No policy yet!</td>");
-                }
+		sb.append(getPolicy(p, aggregated, orderedBy));
                 if (contentItemId != null) {
                     sb.append("<td>contentItemId (" + contentItemId + ") not implemented yet into API!</td>");
                 }
@@ -99,41 +92,29 @@ public class PolicyViewer {
     /**
      * Get policies
      * @param aggregated If aggregated true, then the policy will be aggregated/merged with existing parent policies, otherwise only the node specific policy will be returned
+     * @param path Path of node
      */
     static public StringBuffer getPolicies (PolicyManager pm, String path, String contentItemId, boolean aggregated, int orderedBy) throws AuthorizationException {
+
         String[] names = path.split("/");
         StringBuffer sb = new StringBuffer();
         StringBuffer currentPath = new StringBuffer();
+        // Show policy of this node
         for (int i = 0; i < names.length -1; i++) {
             currentPath.append(names[i] + "/");
             Policy p = pm.getPolicy(currentPath.toString(), aggregated);
-            if (p != null) {
-                if (orderedBy == ORDERED_BY_USECASES) {
-                    sb.append("<td>" + getPolicyAsXHTMLListOrderedByUsecases(p) + "</td>");
-                } else if (orderedBy == ORDERED_BY_IDENTITIES) {
-                    sb.append("<td>" + getPolicyAsXHTMLListOrderedByIdentities(p) + "</td>");
-                } else {
-                    sb.append("<td>No such orderedBy implemented: " + orderedBy + "</td>");
-                }
-            } else {
-                sb.append("<td>No policy yet!</td>");
-            }
+            sb.append(getPolicy(p, aggregated, orderedBy));
         }
+
+        // Show policy of this node
         Policy p = pm.getPolicy(path, aggregated);
-        if (p != null) {
-            if (orderedBy == ORDERED_BY_USECASES) {
-                sb.append("<td>" + getPolicyAsXHTMLListOrderedByUsecases(p) + "</td>");
-	    } else if (orderedBy == ORDERED_BY_IDENTITIES) {
-                sb.append("<td>" + getPolicyAsXHTMLListOrderedByIdentities(p) + "</td>");
-            } else {
-                sb.append("<td>No such orderedBy implemented: " + orderedBy + "</td>");
-            }
-        } else {
-            sb.append("<td>No policy yet!</td>");
-        }
+        sb.append(getPolicy(p, aggregated, orderedBy));
+
+        // Show policy according to content id
         if (contentItemId != null) {
             sb.append("<td>Not implemented yet into API!</td>");
         }
+
         return sb;
     }
 
@@ -270,5 +251,31 @@ public class PolicyViewer {
             log.error("No such order by value implemented: " + orderedBy);
             return "";
         }
+    }
+
+    /**
+     * Get policy
+     * @param aggregated If aggregated true, then the policy will be aggregated/merged with existing parent policies, otherwise only the node specific policy will be returned
+     * @param path Path of node
+     */
+    static public StringBuffer getPolicy (Policy policy, boolean aggregated, int orderedBy) throws AuthorizationException {
+        StringBuffer sb = new StringBuffer("<td>");
+        if (policy != null) {
+            String showUseInheritedPolicies = "";
+            if (!aggregated) {
+                showUseInheritedPolicies = "<p>Use inherited policies: " + policy.useInheritedPolicies() + "</p>";
+            }
+            if (orderedBy == ORDERED_BY_USECASES) {
+                sb.append(showUseInheritedPolicies + getPolicyAsXHTMLListOrderedByUsecases(policy));
+            } else if (orderedBy == ORDERED_BY_IDENTITIES) {
+                sb.append(showUseInheritedPolicies + getPolicyAsXHTMLListOrderedByIdentities(policy));
+            } else {
+                sb.append("No such orderedBy implemented: " + orderedBy);
+            }
+        } else {
+            sb.append("No policy yet!");
+        }
+        sb.append("</td>");
+        return sb;
     }
 }
