@@ -23,6 +23,7 @@ public class PolicyImplVersion1 implements Policy {
     private static Logger log = Logger.getLogger(PolicyImplVersion1.class);
     protected DefaultConfigurationBuilder builder = null;
     protected Vector usecasePolicies = null;
+    protected boolean useInheritedPolicies = true;
 
     private static String USECASE_ELEMENT_NAME = "role";
 
@@ -39,6 +40,9 @@ public class PolicyImplVersion1 implements Policy {
         boolean enableNamespaces = true;
         builder = new DefaultConfigurationBuilder(enableNamespaces);
         Configuration config = builder.build(in);
+
+        String useInheritedPoliciesString = config.getAttribute("use-inherited-policies", "true");
+        if (useInheritedPoliciesString.equals("false")) useInheritedPolicies = false;
 
         Configuration[] upConfigs = config.getChildren(USECASE_ELEMENT_NAME);
         usecasePolicies = new Vector();
@@ -127,6 +131,13 @@ public class PolicyImplVersion1 implements Policy {
             log.error("No such boolean value: " + value);
             return false;
         }
+    }
+
+    /**
+     *
+     */
+    public boolean useInheritedPolicies() {
+        return true;
     }
 }
 

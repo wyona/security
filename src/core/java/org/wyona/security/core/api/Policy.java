@@ -27,4 +27,11 @@ public interface Policy {
      * @throws AccessManagementException
      */
     public Policy getParentPolicy() throws AccessManagementException;
+
+    /**
+     * Check if inheritance shall be applied.
+     *
+     * @throws AccessManagementException
+     */
+    public boolean useInheritedPolicies();
 }
