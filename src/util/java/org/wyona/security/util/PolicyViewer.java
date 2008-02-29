@@ -35,7 +35,11 @@ public class PolicyViewer {
 	    if(showParents) {
                 // Show also all parent policies
                 sb.append("<p><a href=\"?yanel.policy=read&amp;orderedBy=" + orderedBy + "&amp;showParents=false\">Tab: Node Policy</a> | Tab: Parent Policies</p>");
-                sb.append("<p>Access Policies for Path (and its parents) <i>" + path + "#" + contentItemId + "</i>:</p>");
+
+                sb.append("<p>Access Policies for Path (and its parents) <i>" + path);
+                if (contentItemId != null) sb.append("#" + contentItemId);
+                sb.append("</i>:</p>");
+
                 sb.append(getOrderByLink(orderedBy, showParents));
                 sb.append("<p><table border=\"1\">");
                 sb.append("<tr><td>Path</td>" + getSplittedPath(pm, path, contentItemId) + "</tr>");
@@ -45,7 +49,11 @@ public class PolicyViewer {
             } else {
                 // Show policy of this node only
                 sb.append("<p>Tab: Node Policy | <a href=\"?yanel.policy=read&amp;orderedBy=" + orderedBy + "&amp;showParents=true\">Tab: Parent Policies</a></p>");
-                sb.append("<p>Aggregated Access Policy for Path <i>" + path + "#" + contentItemId + "</i>:</p>");
+
+                sb.append("<p>Aggregated Access Policy for Path <i>" + path);
+                if (contentItemId != null) sb.append("#" + contentItemId);
+                sb.append("</i>:</p>");
+
                 sb.append(getOrderByLink(orderedBy, showParents));
                 boolean aggregated = true;
                 Policy p = pm.getPolicy(path, aggregated);

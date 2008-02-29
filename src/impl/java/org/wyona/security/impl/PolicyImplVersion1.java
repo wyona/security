@@ -137,7 +137,7 @@ public class PolicyImplVersion1 implements Policy {
      *
      */
     public boolean useInheritedPolicies() {
-        return true;
+        return useInheritedPolicies;
     }
 }
 
