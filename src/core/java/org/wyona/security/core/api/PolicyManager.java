@@ -40,4 +40,15 @@ public interface PolicyManager {
      * @return Policy which is associated with content path
      */
     public Policy getPolicy(String path, boolean aggregate) throws AuthorizationException;
+
+    /**
+     * @param path Path of content, e.g. /hello/world.html
+     * @param policy New or modified policy
+     */
+    public void setPolicy(String path, Policy policy) throws AuthorizationException;
+
+    /**
+     * @return All the usecases which the policy manager supports. For example this can be useful for a policy editor in order to select from a list of usecases/actions/rights.
+     */
+    public String[] getUsecases() throws AuthorizationException;
 }

@@ -253,4 +253,19 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
             throw new AuthorizationException(e.getMessage());
         }
     }
+
+    /**
+     *
+     */
+    public void setPolicy(String path, Policy policy) {
+        log.warn("Not implemented yet!");
+    }
+
+    /**
+     *
+     */
+    public String[] getUsecases() {
+        log.warn("Not implemented yet!");
+        return null;
+    }
 }
