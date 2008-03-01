@@ -39,6 +39,7 @@ public class PolicyViewer {
                 sb.append("<p>Access Policies for Path (and its parents) <i>" + path);
                 if (contentItemId != null) sb.append("#" + contentItemId);
                 sb.append("</i>:</p>");
+                sb.append("<p>(Policy Repository: "+pm.getPoliciesRepository().getName()+", "+pm.getPoliciesRepository().getConfigFile()+")</p>");
 
                 sb.append(getOrderByLink(orderedBy, showParents));
                 sb.append("<p><table border=\"1\">");
