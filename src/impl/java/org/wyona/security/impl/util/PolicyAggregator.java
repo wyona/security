@@ -1,11 +1,11 @@
 package org.wyona.security.impl.util;
 
 import org.wyona.security.core.AuthorizationException;
+import org.wyona.security.core.UsecasePolicy;
 import org.wyona.security.core.api.Policy;
 import org.wyona.security.core.api.PolicyManager;
 /*
 import org.wyona.security.core.GroupPolicy;
-import org.wyona.security.core.UsecasePolicy;
 import org.wyona.security.core.api.Identity;
 */
 
@@ -45,8 +45,29 @@ public class PolicyAggregator {
             } else {
                 if (!path.equals("/")) {
                     Policy parentPolicy = aggregatePolicy(PathUtil.getParent(path), pm);
+
                     // TODO: Aggregate this policy with parent policy
                     log.warn("TODO: Aggregate policy " + path + " with parent " + PathUtil.getParent(path));
+                    UsecasePolicy[] usecasePolicies = policy.getUsecasePolicies();
+                    UsecasePolicy[] parentUsecasePolicies = parentPolicy.getUsecasePolicies();
+                    for (int i = 0; i < parentUsecasePolicies.length; i++) {
+                        boolean usecaseAlreadyExists = false;
+                        for (int k = 0; k < usecasePolicies.length; k++) {
+                            if (parentUsecasePolicies[i].getName().equals(usecasePolicies[k].getName())) {
+                                usecaseAlreadyExists = true;
+                                break;
+                            }
+                        }
+                        if(!usecaseAlreadyExists) {
+                            try {
+                                policy.addUsecasePolicy(parentUsecasePolicies[i]);
+                            } catch(Exception e) {
+                                log.error(e, e);
+                                throw new AuthorizationException(e.getMessage());
+			    }
+                        }
+                    }
+
                     return policy;
                 } else {
                     return policy;
