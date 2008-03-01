@@ -49,7 +49,10 @@ public class HelloWorld {
     
             Path path = new Path("/hello/world.html");
 
-            Policy policy = pm.getPolicy(path.toString(), true);
+            boolean aggregate = true;
+            //boolean aggregate = false;
+            Policy policy = pm.getPolicy(path.toString(), aggregate);
+            System.out.println("Policy of path " + path + " (Policy Repository: " + pm.getPoliciesRepository().getName() + ", " + pm.getPoliciesRepository().getConfigFile() + ")");
             System.out.println(policy);
 
             String[] groupnames = {"hello", "sugus"};
@@ -173,12 +176,12 @@ public class HelloWorld {
             pmf = new org.wyona.security.impl.PolicyManagerFactoryImplVersion2();
             pm = pmf.newPolicyManager(policiesRepoVersion2);
 
-            //policy = pm.getPolicy(path.toString());
-            //System.out.println(policy);
-            System.out.println(PolicyViewer.getXHTMLView(pm, path.toString(), "phone", PolicyViewer.ORDERED_BY_USECASES, true));
+            boolean showParents = true;
+            System.out.println(PolicyViewer.getXHTMLView(pm, path.toString(), "phone", PolicyViewer.ORDERED_BY_USECASES, showParents));
+            System.out.println(PolicyViewer.getXHTMLView(pm, path.toString(), "phone", PolicyViewer.ORDERED_BY_IDENTITIES, showParents));
+            showParents = false;
+            //System.out.println(PolicyViewer.getXHTMLView(pm, path.toString(), "phone", PolicyViewer.ORDERED_BY_IDENTITIES, showParents));
 
-            System.out.println(PolicyViewer.getXHTMLView(pm, path.toString(), "phone", PolicyViewer.ORDERED_BY_IDENTITIES, true));
-            System.out.println(PolicyViewer.getXHTMLView(pm, path.toString(), "phone", PolicyViewer.ORDERED_BY_IDENTITIES, false));
             //System.out.println(PolicyViewer.getXHTMLView(pm, "/hello/", null, PolicyViewer.ORDERED_BY_IDENTITIES));
         } catch (Exception e) {
             System.err.println(e);
