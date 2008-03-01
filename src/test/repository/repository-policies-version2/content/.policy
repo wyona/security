@@ -14,4 +14,8 @@
   <usecase id="write">
     <user id="alice" permission="true"/>
   </usecase>
+
+  <usecase id="delete">
+    <user id="bob" permission="true"/>
+  </usecase>
 </policy>
