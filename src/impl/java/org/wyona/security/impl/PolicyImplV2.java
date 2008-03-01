@@ -33,6 +33,10 @@ public class PolicyImplV2 extends PolicyImplVersion1 {
         boolean enableNamespaces = true;
         builder = new DefaultConfigurationBuilder(enableNamespaces);
         Configuration config = builder.build(in);
+
+        String useInheritedPoliciesString = config.getAttribute("use-inherited-policies", "true");
+        if (useInheritedPoliciesString.equals("false")) useInheritedPolicies = false;
+	
         Configuration[] upConfigs = config.getChildren(USECASE_ELEMENT_NAME);
         usecasePolicies = new Vector();
         for (int i = 0; i < upConfigs.length; i++) {
