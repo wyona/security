@@ -230,22 +230,22 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
     /**
      *
      */
-    public Policy getPolicy(String path, boolean aggregated) throws AuthorizationException {
+    public Policy getPolicy(String path, boolean aggregate) throws AuthorizationException {
         try {
-            if (getPoliciesRepository().existsNode(getPolicyPath(path))) {
-                return new PolicyImplV2(getPoliciesRepository().getNode(getPolicyPath(path)).getInputStream());
+            if (aggregate) {
+                return org.wyona.security.impl.util.PolicyAggregator.aggregatePolicy(path, this);
             } else {
-                if (aggregated) {
+                if (getPoliciesRepository().existsNode(getPolicyPath(path))) {
+                    return new PolicyImplV2(getPoliciesRepository().getNode(getPolicyPath(path)).getInputStream());
+                } else {
                     if (!path.equals("/")) {
-                        log.warn("No policy found for '" + path + "'. Check for parent '" + PathUtil.getParent(path) + "'.");
-                        return getPolicy(PathUtil.getParent(path), aggregated);
+                        log.warn("No policy found for '" + path + "' (Policies Repository: " + getPoliciesRepository().getName() + "). Check for parent '" + PathUtil.getParent(path) + "'.");
+                        return null;
+                        //return getPolicy(PathUtil.getParent(path), false);
                     } else {
                         log.warn("No policies found at all, not even a root policy!");
                         return null;
                     }
-                } else {
-                    log.warn("Aggregated has been set to false, hence do not check for parent policies!");
-                    return null;
                 }
             }
         } catch(Exception e) {
