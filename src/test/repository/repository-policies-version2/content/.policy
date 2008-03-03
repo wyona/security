@@ -5,6 +5,8 @@
   <usecase id="view">
     <world permission="true"/>
     <user id="alice" permission="true"/>
+    <user id="bob" permission="true"/>
+    <group id="admin" permission="true"/>
   </usecase>
 
   <usecase id="read">
