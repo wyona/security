@@ -65,6 +65,8 @@ public class PolicyAggregator {
                                 log.error(e, e);
                                 throw new AuthorizationException(e.getMessage());
 			    }
+                        } else {
+                            // TODO: Add additional world, identities, groups ...
                         }
                     }
 
