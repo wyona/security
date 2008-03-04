@@ -1,4 +1,4 @@
-package org.wyona.security.impl;
+package org.wyona.security.util;
 
 import org.wyona.security.core.GroupPolicy;
 import org.wyona.security.core.UsecasePolicy;
