@@ -57,13 +57,26 @@ public class PolicyParser implements Policy {
         String useInheritedPoliciesString = config.getAttribute("use-inherited-policies", "true");
         if (useInheritedPoliciesString.equals("false")) useInheritedPolicies = false;
 
+        // TODO: Check for world
+
         Configuration[] userConfigs = config.getChildren("user");
         for (int i = 0; i < userConfigs.length; i++) {
-            Configuration[] rightConfigs = config.getChildren("right");
+            Configuration[] rightConfigs = userConfigs[i].getChildren("right");
             for (int k = 0; k < rightConfigs.length; k++) {
                 addUsecasePolicy(new UsecasePolicy(rightConfigs[k].getAttribute("id")));
             }
         }
+
+        Configuration[] groupConfigs = config.getChildren("group");
+        for (int i = 0; i < groupConfigs.length; i++) {
+            Configuration[] rightConfigs = groupConfigs[i].getChildren("right");
+            for (int k = 0; k < rightConfigs.length; k++) {
+                addUsecasePolicy(new UsecasePolicy(rightConfigs[k].getAttribute("id")));
+            }
+        }
+
+        // TODO: Check for hosts
+
         return this;
     }
 
@@ -82,8 +95,22 @@ public class PolicyParser implements Policy {
      * @see
      */
     public void addUsecasePolicy(UsecasePolicy up) throws AccessManagementException {
-        usecasePolicies.add(up);
-        log.warn("Usecase policy has been added: " + up.getName());
+        boolean usecasePolicyAlreadyExists = false;
+
+        for (int i = 0; i < usecasePolicies.size(); i++) {
+            UsecasePolicy existingUP = (UsecasePolicy) usecasePolicies.elementAt(i);
+            if (existingUP.getName().equals(up.getName())) {
+                usecasePolicyAlreadyExists = true;
+                break;
+            }
+        }
+
+        if (!usecasePolicyAlreadyExists) {
+            usecasePolicies.add(up);
+            log.warn("New usecase policy has been added: " + up.getName());
+        } else {
+            log.warn("TODO: Merge identities of existing usecase policy: " + up.getName());
+        }
     }
 
     /**
