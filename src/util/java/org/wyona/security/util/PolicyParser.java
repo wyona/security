@@ -63,7 +63,9 @@ public class PolicyParser implements Policy {
         for (int i = 0; i < userConfigs.length; i++) {
             Configuration[] rightConfigs = userConfigs[i].getChildren("right");
             for (int k = 0; k < rightConfigs.length; k++) {
-                addUsecasePolicy(new UsecasePolicy(rightConfigs[k].getAttribute("id")));
+                UsecasePolicy up = new UsecasePolicy(rightConfigs[k].getAttribute("id"));
+                up.addIdentity(new Identity(userConfigs[i].getAttribute("id"), null));
+                addUsecasePolicy(up);
             }
         }
 
@@ -71,7 +73,9 @@ public class PolicyParser implements Policy {
         for (int i = 0; i < groupConfigs.length; i++) {
             Configuration[] rightConfigs = groupConfigs[i].getChildren("right");
             for (int k = 0; k < rightConfigs.length; k++) {
-                addUsecasePolicy(new UsecasePolicy(rightConfigs[k].getAttribute("id")));
+                UsecasePolicy up = new UsecasePolicy(rightConfigs[k].getAttribute("id"));
+                up.addGroupPolicy(new GroupPolicy(groupConfigs[i].getAttribute("id"), true));
+                addUsecasePolicy(up);
             }
         }
 
@@ -95,21 +99,34 @@ public class PolicyParser implements Policy {
      * @see
      */
     public void addUsecasePolicy(UsecasePolicy up) throws AccessManagementException {
-        boolean usecasePolicyAlreadyExists = false;
+        UsecasePolicy existingUsecasePolicy = null;
 
         for (int i = 0; i < usecasePolicies.size(); i++) {
             UsecasePolicy existingUP = (UsecasePolicy) usecasePolicies.elementAt(i);
             if (existingUP.getName().equals(up.getName())) {
-                usecasePolicyAlreadyExists = true;
+                existingUsecasePolicy = existingUP;
                 break;
             }
         }
 
-        if (!usecasePolicyAlreadyExists) {
-            usecasePolicies.add(up);
-            log.warn("New usecase policy has been added: " + up.getName());
+        if (existingUsecasePolicy != null) {
+            log.warn("TODO: Merge identities and groups with existing usecase policy: " + up.getName());
+            Identity[] identities = existingUsecasePolicy.getIdentities();
+            boolean identityExists = false;
+            for (int i = 0; i < identities.length; i++) {
+                //if (identities[i].getUsername().equals()) {
+                //}
+                log.error("DEBUG: Merge identity: " + identities[i].getUsername());
+            }
+
+            GroupPolicy[] gps = existingUsecasePolicy.getGroupPolicies();
+            boolean groupExists = false;
+            for (int i = 0; i < gps.length; i++) {
+                log.error("DEBUG: Merge group: " + gps[i].getId());
+            }
         } else {
-            log.warn("TODO: Merge identities of existing usecase policy: " + up.getName());
+            usecasePolicies.add(up);
+            log.info("New usecase policy has been added: " + up.getName());
         }
     }
 
