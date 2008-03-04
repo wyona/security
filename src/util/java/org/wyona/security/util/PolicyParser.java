@@ -16,7 +16,21 @@ import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import java.util.Vector;
 
 /**
- *
+ * Allows to parse an XML such as for example
+ * <policy xmlns="http://www.wyona.org/security/1.0" use-inherited-policies="false">
+ *   <world>
+ *     <right id="view">Read</right>
+ *     <right id="write">Write</right>
+ *   </world>
+ *   <user id="http://michaelwechner.livejournal.com/">
+ *     <right id="open"/>
+ *     <right id="write"/>
+ *   </user>
+ *   <group id="admin">
+ *     <right id="open"/>
+ *     <right id="write"/>
+ *   </group>
+ * </policy>
  */
 public class PolicyParser implements Policy {
 
@@ -25,19 +39,17 @@ public class PolicyParser implements Policy {
     protected Vector usecasePolicies = null;
     protected boolean useInheritedPolicies = true;
 
-    private static String USECASE_ELEMENT_NAME = "role";
-
     /**
      *
      */
     public PolicyParser() throws Exception {
+        usecasePolicies = new Vector();
     }
 
     /**
      *
      */
     public Policy parseXML(java.io.InputStream in) throws Exception {
-/*
         boolean enableNamespaces = true;
         builder = new DefaultConfigurationBuilder(enableNamespaces);
         Configuration config = builder.build(in);
@@ -45,12 +57,13 @@ public class PolicyParser implements Policy {
         String useInheritedPoliciesString = config.getAttribute("use-inherited-policies", "true");
         if (useInheritedPoliciesString.equals("false")) useInheritedPolicies = false;
 
-        Configuration[] upConfigs = config.getChildren(USECASE_ELEMENT_NAME);
-        usecasePolicies = new Vector();
-        for (int i = 0; i < upConfigs.length; i++) {
-            usecasePolicies.add(readUsecasePolicy(upConfigs[i]));
+        Configuration[] userConfigs = config.getChildren("user");
+        for (int i = 0; i < userConfigs.length; i++) {
+            Configuration[] rightConfigs = config.getChildren("right");
+            for (int k = 0; k < rightConfigs.length; k++) {
+                addUsecasePolicy(new UsecasePolicy(rightConfigs[k].getAttribute("id")));
+            }
         }
-*/
         return this;
     }
 
