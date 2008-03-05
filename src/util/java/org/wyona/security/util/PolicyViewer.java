@@ -165,7 +165,7 @@ public class PolicyViewer {
      * Get policy as XHTML list ordered by identities
      */
     static public StringBuffer getPolicyAsXHTMLListOrderedByIdentities(Policy p) {
-        Vector world = new Vector();
+        Vector worldRights = new Vector();
         java.util.HashMap users = new java.util.HashMap();
         java.util.HashMap groups = new java.util.HashMap();
 
@@ -175,7 +175,7 @@ public class PolicyViewer {
                 Identity[] ids = up[i].getIdentities();
                 for (int j = 0; j < ids.length; j++) {
                     if (ids[j].isWorld()) {
-                        world.add(up[i].getName());
+                        worldRights.add(up[i].getName());
                     } else {
                         Vector userRights;
                         if ((userRights = (Vector) users.get(ids[j].getUsername())) != null) {
@@ -206,7 +206,9 @@ public class PolicyViewer {
 
         StringBuffer sb = new StringBuffer();
         sb.append("<ul>");
-        sb.append("<li>WORLD (" + getCommaSeparatedList(world) + ")</li>");
+        if (worldRights.size() > 0) {
+            sb.append("<li>WORLD (" + getCommaSeparatedList(worldRights) + ")</li>");
+        }
 
         // Users
         java.util.Iterator userIterator = users.keySet().iterator();
@@ -234,17 +236,18 @@ public class PolicyViewer {
     }
 
     /**
-     *
+     * @param rights
      */
-    private static String getCommaSeparatedList(Vector v) {
+    private static String getCommaSeparatedList(Vector rights) {
         StringBuffer sb = new StringBuffer();
-        if (v.size() > 0) {
-            sb.append((String) v.elementAt(0));
-            for (int i = 1; i < v.size(); i++) {
-                sb.append(", " + (String) v.elementAt(i));
+        if (rights.size() > 0) {
+            sb.append((String) rights.elementAt(0));
+            for (int i = 1; i < rights.size(); i++) {
+                sb.append(", " + (String) rights.elementAt(i));
             }
         } else {
-            sb.append("No rights asigned!");
+            if(log.isDebugEnabled()) log.debug("No rights asigned!");
+            return null;
         }
         return sb.toString();
     }
