@@ -109,10 +109,13 @@ public class PolicyViewer {
         StringBuffer sb = new StringBuffer();
         StringBuffer currentPath = new StringBuffer();
         // Show policy of this node
-        for (int i = 0; i < names.length -1; i++) {
+        for (int i = 0; i < names.length - 1; i++) {
             currentPath.append(names[i] + "/");
             Policy p = pm.getPolicy(currentPath.toString(), aggregate);
-            String back = "../";
+            String back = "";
+            for (int k = i; k < names.length - 2; k++) {
+                back = back + "../";
+            }
             sb.append(getPolicy(p, aggregate, orderedBy, back));
         }
 
@@ -293,7 +296,12 @@ public class PolicyViewer {
                 sb.append("No such orderedBy implemented: " + orderedBy);
             }
         } else {
-            sb.append("<p>No policy yet!</p><p><a href=\"?yanel.policy=update\">Create new policy.</a></p>");
+            sb.append("<p>No policy yet!</p>");
+            if (back != null) {
+	        sb.append("<p><a href=\"" + back + "?yanel.policy=update\">Create new policy.</a></p>");
+            } else {
+	        sb.append("<p><a href=\"?yanel.policy=update\">Create new policy.</a></p>");
+            }
         }
         sb.append("</td>");
         return sb;
