@@ -100,26 +100,45 @@ public class PolicyViewer {
 
     /**
      * Get policies
-     * @param aggregate If aggregate true, then the policy will be aggregated/merged with existing parent policies, otherwise only the node specific policy will be returned
+
+     * @param pm Policy manager
      * @param path Path of node
+     * @param contentItemId Content item ID
+     * @param aggregate If aggregate true, then the policy will be aggregated/merged with existing parent policies, otherwise only the node specific policy will be returned
+     * @param orderedBy Ordered by identities or usecases
      */
-    static public StringBuffer getPolicies (PolicyManager pm, String path, String contentItemId, boolean aggregate, int orderedBy) throws AuthorizationException {
+    static public StringBuffer getPolicies(PolicyManager pm, String path, String contentItemId, boolean aggregate, int orderedBy) throws AuthorizationException {
 
         String[] names = path.split("/");
         StringBuffer sb = new StringBuffer();
         StringBuffer currentPath = new StringBuffer();
-        // Show policy of this node
+        // Show policies of the parents of the node
         for (int i = 0; i < names.length - 1; i++) {
             currentPath.append(names[i] + "/");
             Policy p = pm.getPolicy(currentPath.toString(), aggregate);
+
+
             String back = "";
-            for (int k = i; k < names.length - 2; k++) {
-                back = back + "../";
+            if (path.endsWith("/")) {
+                for (int k = i; k < names.length - 1; k++) {
+                    back = back + "../";
+                } 
+            } else {
+                if (i == names.length -2) {
+                    back ="./";
+                } else {
+                    for (int k = i; k < names.length - 2; k++) {
+                        back = back + "../";
+                    } 
+                }
             }
+            log.error("DEBUG: " + i + ", " + names[i] + ", " + back);
+
+
             sb.append(getPolicy(p, aggregate, orderedBy, back));
         }
 
-        // Show policy of this node
+        // Show policy of the actual node
         Policy p = pm.getPolicy(path, aggregate);
         sb.append(getPolicy(p, aggregate, orderedBy, null));
 
