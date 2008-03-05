@@ -61,7 +61,6 @@ public class PolicyImplVersion1 implements Policy {
 
     public void addUsecasePolicy(UsecasePolicy up) throws AccessManagementException {
         usecasePolicies.add(up);
-        log.warn("Usecase policy has been added: " + up.getName());
     }
 
     public Policy getParentPolicy() throws AccessManagementException {
