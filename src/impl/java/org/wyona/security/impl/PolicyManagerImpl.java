@@ -250,17 +250,26 @@ public class PolicyManagerImpl implements PolicyManager {
     }
 
     /**
-     *
+     * @see
      */
     public void setPolicy(String path, Policy policy) {
         log.warn("Not implemented yet!");
     }
 
     /**
-     *
+     * @see
      */
     public String[] getUsecases() {
-        log.warn("Not implemented yet!");
-        return null;
+        log.warn("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");
+        String[] usecases = {"view", "toolbar"};
+        return usecases;
+    }
+
+    /**
+     * @see
+     */
+    public String getUsecaseLabel(String usecaseId, String language) {
+        log.warn("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");
+        return "Toolbar";
     }
 }

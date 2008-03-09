@@ -51,4 +51,9 @@ public interface PolicyManager {
      * @return All the usecases which the policy manager supports. For example this can be useful for a policy editor in order to select from a list of usecases/actions/rights.
      */
     public String[] getUsecases() throws AuthorizationException;
+
+    /**
+     * @return Get usecase label, for example return "Read" as the label for the usecaseId "r"
+     */
+    public String getUsecaseLabel(String usecaseId, String language) throws AuthorizationException;
 }
