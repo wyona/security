@@ -11,14 +11,6 @@ public class GroupPolicy {
     /**
      *
      */
-    public GroupPolicy(String groupId) {
-        this.groupId = groupId;
-        this.permission = true;
-    }
-
-    /**
-     *
-     */
     public GroupPolicy(String groupId, boolean permission) {
         this.groupId = groupId;
         this.permission = permission;
