@@ -63,6 +63,14 @@ public class PolicyImplVersion1 implements Policy {
         usecasePolicies.add(up);
     }
 
+    /**
+     * @see
+     */
+    public String getPath() throws AccessManagementException {
+        log.warn("Not implemented yet!");
+        return null;
+    }
+
     public Policy getParentPolicy() throws AccessManagementException {
         log.warn("Not implemented yet!");
         return null;

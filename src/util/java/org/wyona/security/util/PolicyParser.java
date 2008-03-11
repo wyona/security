@@ -152,6 +152,14 @@ public class PolicyParser implements Policy {
     /**
      * @see
      */
+    public String getPath() throws AccessManagementException {
+        log.warn("Not implemented yet!");
+        return null;
+    }
+
+    /**
+     * @see
+     */
     public Policy getParentPolicy() throws AccessManagementException {
         log.warn("Not implemented yet!");
         return null;

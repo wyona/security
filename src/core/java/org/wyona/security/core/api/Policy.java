@@ -22,6 +22,13 @@ public interface Policy {
     public void addUsecasePolicy(UsecasePolicy up) throws AccessManagementException;
 
     /**
+     * Gets policy path.
+     *
+     * @throws AccessManagementException
+     */
+    public String getPath() throws AccessManagementException;
+
+    /**
      * Gets parent policy.
      *
      * @throws AccessManagementException
