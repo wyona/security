@@ -112,6 +112,13 @@ public class YarepGroup extends YarepItem implements Group {
         for (int i = 0; i < items.length; i++) {
             DefaultConfiguration memberNode = new DefaultConfiguration(MEMBER);
             memberNode.setAttribute(MEMBER_ID, items[i].getID());
+            if (items[i] instanceof Group) {
+                memberNode.setAttribute(MEMBER_TYPE, "group");
+            } else if (items[i] instanceof User) {
+                memberNode.setAttribute(MEMBER_TYPE, "user");
+            } else {
+                log.error("Item is neither user nor group: " + items[i].getID());
+            }
             membersNode.addChild(memberNode);
         }
 
@@ -164,7 +171,8 @@ public class YarepGroup extends YarepItem implements Group {
      */
     public void removeMember(Item item) throws AccessManagementException {
         if (null != item) {
-            this.members.remove(item.getID());
+            this.members.remove(item);
+            log.warn("Member has been removed: " + item.getID());
         } else {
             log.warn("Item is null. Can't remove item/user from the group '" + getID() + "'");
         }
