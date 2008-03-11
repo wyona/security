@@ -4,6 +4,7 @@ package org.wyona.security.core.api;
  * Group of items, whereas an item is normally a user of a host.
  */
 public interface Group extends Item {
+
     /**
      * Gets all members of this group in no particular order.
      * 
