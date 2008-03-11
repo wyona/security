@@ -1,6 +1,7 @@
 package org.wyona.security.util;
 
 import org.wyona.security.core.GroupPolicy;
+import org.wyona.security.core.IdentityPolicy;
 import org.wyona.security.core.UsecasePolicy;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
@@ -64,7 +65,8 @@ public class PolicyParser implements Policy {
             Configuration[] rightConfigs = userConfigs[i].getChildren("right");
             for (int k = 0; k < rightConfigs.length; k++) {
                 UsecasePolicy up = new UsecasePolicy(rightConfigs[k].getAttribute("id"));
-                up.addIdentity(new Identity(userConfigs[i].getAttribute("id"), null));
+                String permission = rightConfigs[k].getAttribute("permission");
+                up.addIdentity(new Identity(userConfigs[i].getAttribute("id"), null), new Boolean(permission).booleanValue());
                 addUsecasePolicy(up);
             }
         }
@@ -74,7 +76,8 @@ public class PolicyParser implements Policy {
             Configuration[] rightConfigs = groupConfigs[i].getChildren("right");
             for (int k = 0; k < rightConfigs.length; k++) {
                 UsecasePolicy up = new UsecasePolicy(rightConfigs[k].getAttribute("id"));
-                up.addGroupPolicy(new GroupPolicy(groupConfigs[i].getAttribute("id"), true));
+                String permission = rightConfigs[k].getAttribute("permission");
+                up.addGroupPolicy(new GroupPolicy(groupConfigs[i].getAttribute("id"), new Boolean(permission).booleanValue()));
                 addUsecasePolicy(up);
             }
         }
@@ -111,18 +114,18 @@ public class PolicyParser implements Policy {
 
         if (existingUsecasePolicy != null) {
             // Merge identities and groups
-            Identity[] identities = up.getIdentities();
-            for (int k = 0; k < identities.length; k++) {
+            IdentityPolicy[] identityPolicies = up.getIdentityPolicies();
+            for (int k = 0; k < identityPolicies.length; k++) {
                 boolean identityExists = false;
-                Identity[] existingIdentities = existingUsecasePolicy.getIdentities();
-                for (int i = 0; i < existingIdentities.length; i++) {
-                    if (identities[k].getUsername().equals(existingIdentities[i].getUsername())) {
+                IdentityPolicy[] existingIdentityPolicies = existingUsecasePolicy.getIdentityPolicies();
+                for (int i = 0; i < existingIdentityPolicies.length; i++) {
+                    if (identityPolicies[k].getIdentity().getUsername().equals(existingIdentityPolicies[i].getIdentity().getUsername())) {
                         identityExists = true;
                         break;
                     }
                 }
                 if (!identityExists) {
-                    existingUsecasePolicy.addIdentity(new Identity(identities[k].getUsername(), null));
+                    existingUsecasePolicy.addIdentity(new Identity(identityPolicies[k].getIdentity().getUsername(), null), identityPolicies[k].getPermission());
                 }
             }
 
