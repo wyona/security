@@ -20,6 +20,7 @@ public class YarepGroup extends YarepItem implements Group {
     protected static final Logger log = Logger.getLogger(YarepGroup.class);
     
     private Vector members;
+    private Vector parents;
 
     public static final String MEMBERS = "members";
 
@@ -61,6 +62,7 @@ public class YarepGroup extends YarepItem implements Group {
     public YarepGroup(IdentityManager identityManager, Node parentNode, String id, String name, String nodeName) throws AccessManagementException {
         super(identityManager, parentNode, id, name, nodeName);
         this.members = new Vector();
+        this.parents = new Vector();
 
     }
 
@@ -72,6 +74,7 @@ public class YarepGroup extends YarepItem implements Group {
         setName(config.getChild(NAME, false).getValue());
 
         this.members = new Vector();
+        this.parents = new Vector();
         Configuration[] memberNodes = config.getChild(MEMBERS).getChildren(MEMBER);
 
         for (int i = 0; i < memberNodes.length; i++) {
@@ -124,6 +127,18 @@ public class YarepGroup extends YarepItem implements Group {
         } else {
             log.warn("Item is null. Can't add item/user to the group '" + getID() + "'");
         }
+    }
+
+    /**
+     * @see org.wyona.security.core.api.Group#getParents()
+     */
+    public Group[] getParents() throws AccessManagementException {
+        log.error("TODO: Set parent not implemented yet!");
+        Group[] g = new Group[parents.size()];
+        for (int i = 0; i < g.length; i++) {
+            g[i] = (Group) parents.elementAt(i);
+        }
+        return g;
     }
 
     /**
