@@ -24,11 +24,11 @@ import java.util.Vector;
  *     <right id="write">Write</right>
  *   </world>
  *   <user id="http://michaelwechner.livejournal.com/">
- *     <right id="open"/>
- *     <right id="write"/>
+ *     <right id="open" permission="true"/>
+ *     <right id="write" permission="false"/>
  *   </user>
  *   <group id="admin">
- *     <right id="open"/>
+ *     <right id="open" permission="true"/>
  *     <right id="write"/>
  *   </group>
  * </policy>
@@ -140,7 +140,7 @@ public class PolicyParser implements Policy {
                     }
                 }
                 if (!groupExists) {
-                    existingUsecasePolicy.addGroupPolicy(new GroupPolicy(groups[k].getId()));
+                    existingUsecasePolicy.addGroupPolicy(new GroupPolicy(groups[k].getId(), groups[k].getPermission()));
                 }
             }
         } else {
@@ -167,51 +167,6 @@ public class PolicyParser implements Policy {
     /**
      *
      */
-/*
-    protected UsecasePolicy readUsecasePolicy(Configuration upConfig) throws Exception {
-            UsecasePolicy up = new UsecasePolicy(upConfig.getAttribute("id"));
-
-            Configuration[] worldConfigs = upConfig.getChildren("world");
-            if (worldConfigs.length > 1) log.warn("Usecase policy contains more than one WORLD entry!");
-            for (int j = 0; j < worldConfigs.length; j++) {
-                up.addIdentity(new Identity());
-            }
-
-            Configuration[] userConfigs = upConfig.getChildren("user");
-            for (int j = 0; j < userConfigs.length; j++) {
-                up.addIdentity(new Identity(userConfigs[j].getAttribute("id"), null));
-            }
-
-            Configuration[] groupConfigs = upConfig.getChildren("group");
-            for (int j = 0; j < groupConfigs.length; j++) {
-                String permission = groupConfigs[j].getAttribute("permission");
-                String id = groupConfigs[j].getAttribute("id");
-                if (permission != null) {
-                    up.addGroupPolicy(new GroupPolicy(id, getBoolean(permission)));
-                } else {
-                    up.addGroupPolicy(new GroupPolicy(id));
-                }
-            }
-        return up;
-    }
-*/
-
-    /**
-     *
-     */
-/*
-    private boolean getBoolean(String value) {
-        if (value.equals("false")) {
-            return false;
-        } else if (value.equals("true")) {
-            return true;
-        } else {
-            log.error("No such boolean value: " + value);
-            return false;
-        }
-    }
-*/
-
     public String toString() {
         StringBuffer sb = new StringBuffer("Policy:\n");
         UsecasePolicy[] ups = getUsecasePolicies();
