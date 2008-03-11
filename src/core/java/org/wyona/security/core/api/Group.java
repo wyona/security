@@ -6,6 +6,14 @@ package org.wyona.security.core.api;
 public interface Group extends Item {
 
     /**
+     * Gets all parents of this group in no particular order.
+     * 
+     * @return array of parent groups, or empty array if there are no parent groups.
+     * @throws AccessManagementException
+     */
+    Group[] getParents() throws AccessManagementException;
+
+    /**
      * Gets all members of this group in no particular order.
      * 
      * @return array of members, or empty array if there are no members.
