@@ -115,7 +115,7 @@ public class PolicyImplVersion1 implements Policy {
                 if (permission != null) {
                     up.addGroupPolicy(new GroupPolicy(id, getBoolean(permission)));
                 } else {
-                    up.addGroupPolicy(new GroupPolicy(id));
+                    up.addGroupPolicy(new GroupPolicy(id, true));
                 }
             }
         return up;
