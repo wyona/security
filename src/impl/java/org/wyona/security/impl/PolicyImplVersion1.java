@@ -106,41 +106,27 @@ public class PolicyImplVersion1 implements Policy {
             Configuration[] worldConfigs = upConfig.getChildren("world");
             if (worldConfigs.length > 1) log.warn("Usecase policy contains more than one WORLD entry!");
             for (int j = 0; j < worldConfigs.length; j++) {
-                String permission = worldConfigs[j].getAttribute("permission");
+                String permission = worldConfigs[j].getAttribute("permission", "true");
                 up.addIdentity(new Identity(), new Boolean(permission).booleanValue());
             }
 
             Configuration[] userConfigs = upConfig.getChildren("user");
             for (int j = 0; j < userConfigs.length; j++) {
-                String permission = userConfigs[j].getAttribute("permission");
+                String permission = userConfigs[j].getAttribute("permission", "true");
                 up.addIdentity(new Identity(userConfigs[j].getAttribute("id"), null), new Boolean(permission).booleanValue());
             }
 
             Configuration[] groupConfigs = upConfig.getChildren("group");
             for (int j = 0; j < groupConfigs.length; j++) {
-                String permission = groupConfigs[j].getAttribute("permission");
+                String permission = groupConfigs[j].getAttribute("permission", "true");
                 String id = groupConfigs[j].getAttribute("id");
                 if (permission != null) {
-                    up.addGroupPolicy(new GroupPolicy(id, getBoolean(permission)));
+                    up.addGroupPolicy(new GroupPolicy(id, new Boolean(permission).booleanValue()));
                 } else {
                     up.addGroupPolicy(new GroupPolicy(id, true));
                 }
             }
         return up;
-    }
-
-    /**
-     *
-     */
-    private boolean getBoolean(String value) {
-        if (value.equals("false")) {
-            return false;
-        } else if (value.equals("true")) {
-            return true;
-        } else {
-            log.error("No such boolean value: " + value);
-            return false;
-        }
     }
 
     /**
