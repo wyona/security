@@ -12,10 +12,14 @@ import org.wyona.yarep.core.Node;
 import org.wyona.yarep.core.NodeType;
 import org.wyona.yarep.core.RepositoryException;
 
+/**
+ *
+ */
 public abstract class YarepItem implements Item {
+
     protected static Logger log = Logger.getLogger(YarepItem.class);
     
-    public static final String NAME = "name";
+    protected static final String NAME = "name";
 
     public static final String ID = "id";
 
@@ -29,7 +33,7 @@ public abstract class YarepItem implements Item {
 
     /**
      * Simply construct the object. This is useful to enable subclasses to initialize the objects on their own
-     * */
+     */
     protected YarepItem(){
         // Do nothing
     }
