@@ -132,7 +132,7 @@ public class PolicyViewer {
                     } 
                 }
             }
-            log.error("DEBUG: " + i + ", " + names[i] + ", " + back);
+            //log.debug("Back path: " + i + ", " + names[i] + ", " + back);
 
 
             sb.append(getPolicy(p, aggregate, orderedBy, back));
