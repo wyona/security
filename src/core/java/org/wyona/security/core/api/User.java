@@ -71,6 +71,15 @@ public interface User extends Item {
     Group[] getGroups() throws AccessManagementException;
 
     /**
+     * Gets all groups this user is a member of and the parents of these groups (and their parents, etc).
+     *
+     * @param parents If true then also return all parent groups
+     * @return array of groups, empty array if this user is not a member of any group.
+     * @throws AccessManagementException
+     */
+    Group[] getGroups(boolean parents) throws AccessManagementException;
+
+    /**
      * Get expiration date of this user
      *
      * @return expiration date
