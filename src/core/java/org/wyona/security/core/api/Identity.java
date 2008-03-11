@@ -75,6 +75,25 @@ public class Identity implements java.io.Serializable {
     }
     
     /**
+     * @param parents If true, then all parents (and their parents (and ...)) shall also be returned
+     */
+    public String[] getGroupnames(boolean parents) {
+        if (parents) {
+            log.error("TODO: Implementation not finished yet!");
+            log.error("DEBUG: Groups which user " + getUsername() + " belongs to:");
+            String[] gns = getGroupnames();
+            if (gns != null) {
+                for (int i = 0; i < gns.length; i++) {
+                    log.error("DEBUG: Group: " + gns[i]);
+                }
+            }
+            return gns;
+        } else {
+            return getGroupnames();
+        }
+    }
+    
+    /**
      *
      */
     private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
