@@ -23,6 +23,9 @@ public class YarepGroup extends YarepItem implements Group {
     public static final String MEMBER = "member";
 
     public static final String MEMBER_ID = "id";
+    private static final String MEMBER_TYPE = "type";
+    private static final String USER_TYPE = "user";
+    private static final String GROUP_TYPE = "group";
     
     public static final String GROUP = "group";
 
@@ -71,8 +74,18 @@ public class YarepGroup extends YarepItem implements Group {
 
         for (int i = 0; i < memberNodes.length; i++) {
             String id = memberNodes[i].getAttribute(MEMBER_ID);
-            User user = getIdentityManager().getUserManager().getUser(id);
-            addMember(user);
+            // type attribute is optional and helps to differentiate between users and groups
+            String type = memberNodes[i].getAttribute(MEMBER_TYPE, USER_TYPE);
+            if (type.equals(USER_TYPE)) {
+                User user = getIdentityManager().getUserManager().getUser(id);
+                addMember(user);
+            } else if (type.equals(GROUP_TYPE)) {
+                log.warn("Beware of loops when adding groups within groups!");
+                Group group = getIdentityManager().getGroupManager().getGroup(id);
+                addMember(group);
+            } else {
+                log.error("No such member/item type: " + type);
+            }
         }
     }
 
