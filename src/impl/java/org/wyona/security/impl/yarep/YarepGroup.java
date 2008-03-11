@@ -1,6 +1,6 @@
 package org.wyona.security.impl.yarep;
 
-import java.util.HashMap;
+import java.util.Vector;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -13,10 +13,13 @@ import org.wyona.security.core.api.Item;
 import org.wyona.security.core.api.User;
 import org.wyona.yarep.core.Node;
 
+/**
+ * Group implementation based on Yarep
+ */
 public class YarepGroup extends YarepItem implements Group {
     protected static final Logger log = Logger.getLogger(YarepGroup.class);
     
-    private HashMap members;
+    private Vector members;
 
     public static final String MEMBERS = "members";
 
@@ -57,19 +60,18 @@ public class YarepGroup extends YarepItem implements Group {
     
     public YarepGroup(IdentityManager identityManager, Node parentNode, String id, String name, String nodeName) throws AccessManagementException {
         super(identityManager, parentNode, id, name, nodeName);
-        this.members = new HashMap();
+        this.members = new Vector();
 
     }
 
     /**
      * @see org.wyona.security.impl.yarep.YarepItem#configure(org.apache.avalon.framework.configuration.Configuration)
      */
-    protected void configure(Configuration config) throws ConfigurationException,
-            AccessManagementException {
+    protected void configure(Configuration config) throws ConfigurationException, AccessManagementException {
         setID(config.getAttribute(ID));
         setName(config.getChild(NAME, false).getValue());
 
-        this.members = new HashMap();
+        this.members = new Vector();
         Configuration[] memberNodes = config.getChild(MEMBERS).getChildren(MEMBER);
 
         for (int i = 0; i < memberNodes.length; i++) {
@@ -118,7 +120,7 @@ public class YarepGroup extends YarepItem implements Group {
      */
     public void addMember(Item item) throws AccessManagementException {
         if (null != item){
-            this.members.put(item.getID(), item);
+            this.members.add(item);
         } else {
             log.warn("Item is null. Can't add item/user to the group '" + getID() + "'");
         }
@@ -128,14 +130,18 @@ public class YarepGroup extends YarepItem implements Group {
      * @see org.wyona.security.core.api.Group#getMembers()
      */
     public Item[] getMembers() throws AccessManagementException {
-        return (Item[]) this.members.values().toArray(new Item[this.members.size()]);
+        Item[] m = new Item[members.size()];
+        for (int i = 0; i < m.length; i++) {
+            m[i] = (Item) members.elementAt(i);
+        }
+        return m;
     }
 
     /**
      * @see org.wyona.security.core.api.Group#isMember(org.wyona.security.core.api.Item)
      */
     public boolean isMember(Item item) throws AccessManagementException {
-        return item != null && this.members.containsKey(item.getID());
+        return item != null && this.members.contains(item);
     }
 
     /**
