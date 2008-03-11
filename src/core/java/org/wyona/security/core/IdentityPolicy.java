@@ -13,14 +13,6 @@ public class IdentityPolicy {
     /**
      *
      */
-    public IdentityPolicy(Identity identity) {
-        this.identity = identity;
-        this.permission = true;
-    }
-
-    /**
-     *
-     */
     public IdentityPolicy(Identity identity, boolean permission) {
         this.identity = identity;
         this.permission = permission;
