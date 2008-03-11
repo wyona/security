@@ -98,12 +98,14 @@ public class PolicyImplVersion1 implements Policy {
             Configuration[] worldConfigs = upConfig.getChildren("world");
             if (worldConfigs.length > 1) log.warn("Usecase policy contains more than one WORLD entry!");
             for (int j = 0; j < worldConfigs.length; j++) {
-                up.addIdentity(new Identity());
+                String permission = worldConfigs[j].getAttribute("permission");
+                up.addIdentity(new Identity(), new Boolean(permission).booleanValue());
             }
 
             Configuration[] userConfigs = upConfig.getChildren("user");
             for (int j = 0; j < userConfigs.length; j++) {
-                up.addIdentity(new Identity(userConfigs[j].getAttribute("id"), null));
+                String permission = userConfigs[j].getAttribute("permission");
+                up.addIdentity(new Identity(userConfigs[j].getAttribute("id"), null), new Boolean(permission).booleanValue());
             }
 
             Configuration[] groupConfigs = upConfig.getChildren("group");
