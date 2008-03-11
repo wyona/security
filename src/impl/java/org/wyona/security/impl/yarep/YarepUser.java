@@ -271,6 +271,18 @@ public class YarepUser extends YarepItem implements User {
     }
 
     /**
+     * @see org.wyona.security.core.api.User#getGroups(boolean)
+     */
+    public Group[] getGroups(boolean parents) throws AccessManagementException {
+        if (parents) {
+            log.error("TODO: Implementation not finished yet!");
+            return null;
+        } else {
+            return getGroups();
+        }
+    }
+
+    /**
      * @see org.wyona.security.core.api.User#setEmail(java.lang.String)
      */
     public void setEmail(String email) throws AccessManagementException {
