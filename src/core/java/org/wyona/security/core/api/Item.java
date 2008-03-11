@@ -4,6 +4,7 @@ package org.wyona.security.core.api;
  * An Item is a generalization of users, hosts, etc.
  */
 public interface Item {
+
     /**
      * Gets the id of this item.
      * The id is immutable.
