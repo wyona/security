@@ -6,11 +6,14 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.log4j.Logger;
+
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
-import org.wyona.security.core.api.IdentityManager;
+import org.wyona.security.core.api.UserManager;
+import org.wyona.security.core.api.GroupManager;
 import org.wyona.security.core.api.Item;
 import org.wyona.security.core.api.User;
+
 import org.wyona.yarep.core.Node;
 
 /**
@@ -21,6 +24,9 @@ public class YarepGroup extends YarepItem implements Group {
     
     private Vector members;
     private Vector parents;
+
+    private UserManager userManager;
+    private GroupManager groupManager;
 
     public static final String MEMBERS = "members";
 
@@ -36,34 +42,37 @@ public class YarepGroup extends YarepItem implements Group {
     /**
      * Instantiates an existing YarepGroup from a repository node.
      * 
-     * @param identityManager
+     * @param userManager
+     * @param groupManager
      * @param node
      * @throws AccessManagementException
      */
-    public YarepGroup(IdentityManager identityManager, Node node) throws AccessManagementException {
-        super(identityManager, node); // this will call configure()
+    public YarepGroup(UserManager userManager, GroupManager groupManager, Node node) throws AccessManagementException {
+        super(userManager, groupManager, node); // this will call configure()
     }
 
     /**
      * Creates a new YarepGroup with the given id as a child of the given parent
      * node. The user is not saved.
      * 
-     * @param identityManager
+     * @param userManager
+     * @param groupManager
      * @param parentNode
      * @param id
      * @param name
      * @throws AccessManagementException
      */
-    public YarepGroup(IdentityManager identityManager, Node parentNode, String id, String name)
-            throws AccessManagementException {
-        this(identityManager, parentNode, id, name, id + ".xml");
+    public YarepGroup(UserManager userManager, GroupManager groupManager, Node parentNode, String id, String name) throws AccessManagementException {
+        this(userManager, groupManager, parentNode, id, name, id + ".xml");
     }
     
-    public YarepGroup(IdentityManager identityManager, Node parentNode, String id, String name, String nodeName) throws AccessManagementException {
-        super(identityManager, parentNode, id, name, nodeName);
+    /**
+     *
+     */
+    public YarepGroup(UserManager userManager, GroupManager groupManager, Node parentNode, String id, String name, String nodeName) throws AccessManagementException {
+        super(userManager, groupManager, parentNode, id, name, nodeName);
         this.members = new Vector();
         this.parents = new Vector();
-
     }
 
     /**
@@ -82,12 +91,16 @@ public class YarepGroup extends YarepItem implements Group {
             // type attribute is optional and helps to differentiate between users and groups
             String type = memberNodes[i].getAttribute(MEMBER_TYPE, USER_TYPE);
             if (type.equals(USER_TYPE)) {
-                User user = getIdentityManager().getUserManager().getUser(id);
-                addMember(user);
+                if (getUserManager() != null) {
+                    User user = getUserManager().getUser(id);
+                    addMember(user);
+                } else {
+                    log.error("User manager is NULL! User " + id + " cannot be added to group " + getID());
+                }
             } else if (type.equals(GROUP_TYPE)) {
                 log.warn("Beware of loops when adding groups within groups!");
-                if (getIdentityManager().getGroupManager() != null) {
-                    Group group = getIdentityManager().getGroupManager().getGroup(id);
+                if (getGroupManager() != null) {
+                    Group group = getGroupManager().getGroup(id);
                     addMember(group);
                 } else {
                     log.error("Group manager is NULL! Group " + id + " cannot be added to group " + getID());
@@ -181,5 +194,4 @@ public class YarepGroup extends YarepItem implements Group {
             log.warn("Item is null. Can't remove item/user from the group '" + getID() + "'");
         }
     }
-
 }
