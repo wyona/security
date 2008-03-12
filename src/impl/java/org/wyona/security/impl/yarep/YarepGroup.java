@@ -25,9 +25,6 @@ public class YarepGroup extends YarepItem implements Group {
     private Vector members;
     private Vector parents;
 
-    private UserManager userManager;
-    private GroupManager groupManager;
-
     public static final String MEMBERS = "members";
 
     public static final String MEMBER = "member";
