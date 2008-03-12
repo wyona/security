@@ -86,8 +86,12 @@ public class YarepGroup extends YarepItem implements Group {
                 addMember(user);
             } else if (type.equals(GROUP_TYPE)) {
                 log.warn("Beware of loops when adding groups within groups!");
-                Group group = getIdentityManager().getGroupManager().getGroup(id);
-                addMember(group);
+                if (getIdentityManager().getGroupManager() != null) {
+                    Group group = getIdentityManager().getGroupManager().getGroup(id);
+                    addMember(group);
+                } else {
+                    log.error("Group manager is NULL! Group " + id + " cannot be added to group " + getID());
+                }
             } else {
                 log.error("No such member/item type: " + type);
             }
