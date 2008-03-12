@@ -4,20 +4,27 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.avalon.framework.configuration.DefaultConfigurationSerializer;
+
 import org.apache.log4j.Logger;
+
 import org.wyona.security.core.api.AccessManagementException;
-import org.wyona.security.core.api.IdentityManager;
+import org.wyona.security.core.api.GroupManager;
 import org.wyona.security.core.api.Item;
+import org.wyona.security.core.api.UserManager;
+
 import org.wyona.yarep.core.Node;
 import org.wyona.yarep.core.NodeType;
 import org.wyona.yarep.core.RepositoryException;
 
 /**
- *
+ * Methods which have YarepUser and YarepGroup in common
  */
 public abstract class YarepItem implements Item {
 
-    protected static Logger log = Logger.getLogger(YarepItem.class);
+    private UserManager userManager;
+    private GroupManager groupManager;
+
+    private static Logger log = Logger.getLogger(YarepItem.class);
     
     protected static final String NAME = "name";
 
@@ -29,25 +36,22 @@ public abstract class YarepItem implements Item {
 
     private Node node;
 
-    private IdentityManager identityManager;
-
     /**
-     * Simply construct the object. This is useful to enable subclasses to initialize the objects on their own
+     *
      */
-    protected YarepItem(){
-        // Do nothing
+    protected YarepItem() {
     }
-    
+
     /**
      * Instantiates an existing YarepItem from a repository node.
      *
-     * @param identityManager
      * @param node
      * @throws AccessManagementException
      */
-    public YarepItem(IdentityManager identityManager, Node node) throws AccessManagementException {
+    public YarepItem(UserManager userManager, GroupManager groupManager, Node node) throws AccessManagementException {
+        this.userManager = userManager;
+        this.groupManager = groupManager;
         try {
-            this.identityManager = identityManager;
             this.node = node;
             DefaultConfigurationBuilder configBuilder = new DefaultConfigurationBuilder(true);
             Configuration config = configBuilder.build(node.getInputStream());
@@ -62,17 +66,15 @@ public abstract class YarepItem implements Item {
      * Creates a new YarepItem with the given id as a child of the given parent
      * node. The item is not saved.
 
-     * @param identityManager
      * @param parentNode
      * @param id
      * @param name
      * @param nodeName
      * @throws AccessManagementException
      */
-    public YarepItem(IdentityManager identityManager, Node parentNode, String id, String name, 
-            String nodeName)
-            throws AccessManagementException {
-        this.identityManager = identityManager;
+    public YarepItem(UserManager userManager, GroupManager groupManager, Node parentNode, String id, String name, String nodeName) throws AccessManagementException {
+        this.userManager = userManager;
+        this.groupManager = groupManager;
         this.id = id;
         this.name = name;
         try {
@@ -90,8 +92,7 @@ public abstract class YarepItem implements Item {
      * @throws ConfigurationException
      * @throws AccessManagementException
      */
-    protected abstract void configure(Configuration config) throws ConfigurationException,
-            AccessManagementException;
+    protected abstract void configure(Configuration config) throws ConfigurationException, AccessManagementException;
 
     /**
      * Creates a configuration object of this item.
@@ -127,14 +128,6 @@ public abstract class YarepItem implements Item {
             log.error(e.getMessage(), e);
             throw new AccessManagementException(e.getMessage(), e);
         }
-    }
-
-    /**
-     * Gets the identity manager which belongs to this item.
-     * @return identity manager
-     */
-    protected IdentityManager getIdentityManager() {
-        return this.identityManager;
     }
 
     /**
@@ -178,4 +171,17 @@ public abstract class YarepItem implements Item {
         this.name = name;
     }
 
+    /**
+     *
+     */
+    public UserManager getUserManager() {
+        return this.userManager;
+    }
+
+    /**
+     *
+     */
+    public GroupManager getGroupManager() {
+        return this.groupManager;
+    }
 }
