@@ -9,6 +9,7 @@ import org.wyona.security.core.ExpiredIdentityException;
  * A user.
  */
 public interface User extends Item {
+
     /**
      * Gets the email address of this user.
      *
@@ -108,11 +109,11 @@ public interface User extends Item {
      *
      * @return String language
      */
-    public String getLanguage() throws AccessManagementException;;
+    public String getLanguage() throws AccessManagementException;
 
     /**
      * Set Language of this user
      * @param String language
      */
-    public void setLanguage(String language) throws AccessManagementException;;
+    public void setLanguage(String language) throws AccessManagementException;
 }
