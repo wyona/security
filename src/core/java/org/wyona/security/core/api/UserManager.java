@@ -4,6 +4,7 @@ package org.wyona.security.core.api;
  * Manages users.
  */
 public interface UserManager {
+
     /**
      * Gets all users in no particular order.
      * 
