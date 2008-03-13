@@ -10,19 +10,27 @@ import java.util.GregorianCalendar;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+
+import org.apache.log4j.Logger;
+
 import org.wyona.security.core.ExpiredIdentityException;
 import org.wyona.security.core.UserHistory;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
-import org.wyona.security.core.api.IdentityManager;
+import org.wyona.security.core.api.GroupManager;
+import org.wyona.security.core.api.UserManager;
 import org.wyona.security.core.api.User;
 import org.wyona.security.impl.Password;
+
 import org.wyona.yarep.core.Node;
 
 /**
  *
  */
 public class YarepUser extends YarepItem implements User {
+
+    private static Logger log = Logger.getLogger(YarepUser.class);
+
     public static final String USER = "user";
 
     public static final String EMAIL = "email";
@@ -54,18 +62,21 @@ public class YarepUser extends YarepItem implements User {
     private String description;
     
     private Date expire;
-    
+
+    /**
+     *
+     */
     protected YarepUser() {
-        super();
     }
     
     /**
      * Instantiates an existing YarepUser from a repository node.
      *
+     * @param userManager
      * @param node
      */
-    public YarepUser(IdentityManager identityManager, Node node) throws AccessManagementException {
-        super(identityManager, node); // this will call configure()
+    public YarepUser(UserManager userManager, GroupManager groupManager, Node node) throws AccessManagementException {
+        super(userManager, groupManager, node); // this will call configure()
     }
 
     /**
@@ -77,9 +88,8 @@ public class YarepUser extends YarepItem implements User {
      * @param plainTextPassword - password as a plain text, it will be encrypted locally
      * @throws AccessManagementException
      */
-    public YarepUser(IdentityManager identityManager, Node parentNode, String id, String name,
-            String email, String plainTextPassword) throws AccessManagementException {
-        super(identityManager, parentNode, id, name, id + ".xml");
+    public YarepUser(UserManager userManager, GroupManager groupManager, Node parentNode, String id, String name, String email, String plainTextPassword) throws AccessManagementException {
+        super(userManager, groupManager, parentNode, id, name, id + ".xml");
         setEmail(email);
         setPassword(plainTextPassword);
     }
@@ -90,8 +100,8 @@ public class YarepUser extends YarepItem implements User {
      * 
      * @throws AccessManagementException
      */
-    public YarepUser(IdentityManager identityManager, Node parentNode, String id, String name, String nodeName) throws AccessManagementException{
-        super(identityManager, parentNode, id, name, nodeName);
+    public YarepUser(UserManager userManager, GroupManager groupManager, Node parentNode, String id, String name, String nodeName) throws AccessManagementException{
+        super(userManager, groupManager, parentNode, id, name, nodeName);
     }
 
     /**
@@ -260,7 +270,7 @@ public class YarepUser extends YarepItem implements User {
      * @see org.wyona.security.core.api.User#getGroups()
      */
     public Group[] getGroups() throws AccessManagementException {
-        Group[] allGroups = getIdentityManager().getGroupManager().getGroups();
+        Group[] allGroups = getGroupManager().getGroups();
         ArrayList groups = new ArrayList();
         for (int i = 0; i < allGroups.length; i++) {
             if (allGroups[i].isMember(this)) {
