@@ -25,22 +25,24 @@ public class YarepIdentityManagerImpl implements IdentityManager {
 
     /**
      * No initialization, subclasses should use configure()
-     * */
-    protected YarepIdentityManagerImpl(){
-        
+     */
+    protected YarepIdentityManagerImpl() {
     }
     
     /**
      *  Basic initialization
      */
-    public YarepIdentityManagerImpl(Repository identitiesRepository) throws AccessManagementException{
+    public YarepIdentityManagerImpl(Repository identitiesRepository) throws AccessManagementException {
         this.identitiesRepository = identitiesRepository;
         userManager = new YarepUserManager(this, identitiesRepository);
         groupManager = new YarepGroupManager(this, identitiesRepository);
     }
     
+    /**
+     *
+     */
     protected void configure(Configuration config) throws ConfigurationException, AccessManagementException{
-        log.warn("Configuratble identity managers should override this method");
+        log.warn("Configurable identity managers should override this method!");
     }
     
     /**
