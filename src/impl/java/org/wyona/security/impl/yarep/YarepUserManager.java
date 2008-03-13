@@ -37,8 +37,7 @@ public class YarepUserManager implements UserManager {
      * @param identitiesRepository
      * @throws AccessManagementException
      */
-    public YarepUserManager(IdentityManager identityManager, Repository identitiesRepository)
-            throws AccessManagementException {
+    public YarepUserManager(IdentityManager identityManager, Repository identitiesRepository) throws AccessManagementException {
         this.identityManager = identityManager;
         this.identitiesRepository = identitiesRepository;
         init();
@@ -250,13 +249,13 @@ public class YarepUserManager implements UserManager {
      * Override in subclasses
      */
     protected User constructUser(IdentityManager identityManager, Node node) throws AccessManagementException{
-        return new YarepUser(identityManager, node);
+        return new YarepUser(identityManager.getUserManager(), identityManager.getGroupManager(), node);
     }
     
     /**
      *
      */
     protected User constructUser(IdentityManager identityManager, Node usersParentNode, String id, String name, String email, String password)throws AccessManagementException{
-        return new YarepUser(identityManager, usersParentNode, id, name, email, password);
+        return new YarepUser(identityManager.getUserManager(), identityManager.getGroupManager(), usersParentNode, id, name, email, password);
     }
 }
