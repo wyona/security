@@ -16,7 +16,7 @@ import org.wyona.yarep.core.RepositoryFactory;
 import org.wyona.yarep.util.RepoPath;
 import org.wyona.yarep.util.YarepUtil;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
@@ -26,7 +26,7 @@ import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
  */
 public class PolicyManagerImplVersion2 implements PolicyManager {
 
-    private static Category log = Category.getInstance(PolicyManagerImplVersion2.class);
+    private static Logger log = Logger.getLogger(PolicyManagerImplVersion2.class);
 
     private Repository policiesRepository;
     private DefaultConfigurationBuilder configBuilder;
@@ -265,8 +265,8 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      * @see
      */
     public String[] getUsecases() {
-        log.warn("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");log.warn("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");
-        String[] usecases = {"view", "save", "toolbar", "policy.read", "policy.update"};
+        log.warn("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");
+        String[] usecases = {"view", "open", "write", "resource.create", "delete", "introspection", "toolbar", "policy.read", "policy.update"};
         return usecases;
     }
 
@@ -275,6 +275,24 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      */
     public String getUsecaseLabel(String usecaseId, String language) {
         log.warn("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");
-        return "Toolbar";
+        if (language.equals("de")) {
+            if (usecaseId.equals("view")) {
+                return "Anschauen/Lesen";
+            } else if (usecaseId.equals("open")) {
+                return "Open content for editing";
+            } else {
+                return "No label for \"usecaseId\"";
+            }
+        } else {
+            if (usecaseId.equals("view")) {
+                return "View/Read";
+            } else if (usecaseId.equals("open")) {
+                return "Open content for editing";
+            } else if (usecaseId.equals("write")) {
+                return "Write/Save";
+            } else {
+                return "No label for \"usecaseId\"";
+            }
+        }
     }
 }
