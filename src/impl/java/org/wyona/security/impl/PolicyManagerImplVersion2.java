@@ -281,7 +281,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
             } else if (usecaseId.equals("open")) {
                 return "Open content for editing";
             } else {
-                return "No label for \"usecaseId\"";
+                return "No label for \"" + usecaseId + "\"";
             }
         } else {
             if (usecaseId.equals("view")) {
@@ -291,7 +291,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
             } else if (usecaseId.equals("write")) {
                 return "Write/Save";
             } else {
-                return "No label for \"usecaseId\"";
+                return "No label for \"" + usecaseId + "\"";
             }
         }
     }
