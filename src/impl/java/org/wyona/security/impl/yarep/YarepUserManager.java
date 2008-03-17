@@ -93,8 +93,7 @@ public class YarepUserManager implements UserManager {
         }
         try {
             Node usersParentNode = getUsersParentNode();
-            User user = constructUser(this.identityManager, usersParentNode, id, name, email,
-                    password);
+            User user = constructUser(this.identityManager, usersParentNode, id, name, email, password);
             user.save();
             this.users.put(id, user);
             return user;
