@@ -31,6 +31,9 @@ public class Identity implements java.io.Serializable {
         this.groupnames = groupnames;
     }
     
+    /**
+     *
+     */
     public Identity(User user) {
         try {
             this.username = user.getID();
