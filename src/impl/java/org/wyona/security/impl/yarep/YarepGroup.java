@@ -49,25 +49,10 @@ public class YarepGroup extends YarepItem implements Group {
     }
 
     /**
-     * Creates a new YarepGroup with the given id as a child of the given parent
-     * node. The user is not saved.
-     * 
-     * @param userManager
-     * @param groupManager
-     * @param parentNode
-     * @param id
-     * @param name
-     * @throws AccessManagementException
-     */
-    public YarepGroup(UserManager userManager, GroupManager groupManager, Node parentNode, String id, String name) throws AccessManagementException {
-        this(userManager, groupManager, parentNode, id, name, id + ".xml");
-    }
-    
-    /**
      *
      */
-    public YarepGroup(UserManager userManager, GroupManager groupManager, Node parentNode, String id, String name, String nodeName) throws AccessManagementException {
-        super(userManager, groupManager, parentNode, id, name, nodeName);
+    public YarepGroup(UserManager userManager, GroupManager groupManager, String id, String name) {
+        super(userManager, groupManager, id, name);
         this.members = new Vector();
         this.parents = new Vector();
     }

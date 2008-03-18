@@ -64,44 +64,26 @@ public class YarepUser extends YarepItem implements User {
     private Date expire;
 
     /**
-     *
-     */
-    protected YarepUser() {
-    }
-    
-    /**
      * Instantiates an existing YarepUser from a repository node.
      *
      * @param userManager
+     * @param groupManager
      * @param node
      */
     public YarepUser(UserManager userManager, GroupManager groupManager, Node node) throws AccessManagementException {
         super(userManager, groupManager, node); // this will call configure()
     }
-
-    /**
-     * Creates a new YarepUser with the given id as a child of the given parent
-     * node. The user is not saved.
-     *
-     * @param parentNode
-     * @param id
-     * @param plainTextPassword - password as a plain text, it will be encrypted locally
-     * @throws AccessManagementException
-     */
-    public YarepUser(UserManager userManager, GroupManager groupManager, Node parentNode, String id, String name, String email, String plainTextPassword) throws AccessManagementException {
-        super(userManager, groupManager, parentNode, id, name, id + ".xml");
-        setEmail(email);
-        setPassword(plainTextPassword);
-    }
     
     /**
-     * Creates a new YarepUser with the given id as a child of the given parent
-     * node. The user is not saved.
-     * 
-     * @throws AccessManagementException
+     * Creates a new YarepUser with a given id and name (not persistent)
+     *
+     * @param userManager
+     * @param groupManager
+     * @param id
+     * @param name
      */
-    public YarepUser(UserManager userManager, GroupManager groupManager, Node parentNode, String id, String name, String nodeName) throws AccessManagementException{
-        super(userManager, groupManager, parentNode, id, name, nodeName);
+    public YarepUser(UserManager userManager, GroupManager groupManager, String id, String name) {
+        super(userManager, groupManager, id, name);
     }
 
     /**
@@ -270,6 +252,7 @@ public class YarepUser extends YarepItem implements User {
      * @see org.wyona.security.core.api.User#getGroups()
      */
     public Group[] getGroups() throws AccessManagementException {
+        log.error("TODO: Get groups for user: " + getID() + ", " + getName());
         Group[] allGroups = getGroupManager().getGroups();
         ArrayList groups = new ArrayList();
         for (int i = 0; i < allGroups.length; i++) {

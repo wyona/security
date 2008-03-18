@@ -37,14 +37,10 @@ public abstract class YarepItem implements Item {
     private Node node;
 
     /**
-     *
-     */
-    protected YarepItem() {
-    }
-
-    /**
      * Instantiates an existing YarepItem from a repository node.
      *
+     * @param userManager
+     * @param groupManager
      * @param node
      * @throws AccessManagementException
      */
@@ -63,26 +59,18 @@ public abstract class YarepItem implements Item {
     }
 
     /**
-     * Creates a new YarepItem with the given id as a child of the given parent
-     * node. The item is not saved.
-
-     * @param parentNode
+     * Creates a new YarepItem with a given id and name (not persistent)
+     *
+     * @param userManager
+     * @param groupManager
      * @param id
      * @param name
-     * @param nodeName
-     * @throws AccessManagementException
      */
-    public YarepItem(UserManager userManager, GroupManager groupManager, Node parentNode, String id, String name, String nodeName) throws AccessManagementException {
+    public YarepItem(UserManager userManager, GroupManager groupManager, String id, String name) {
         this.userManager = userManager;
         this.groupManager = groupManager;
         this.id = id;
         this.name = name;
-        try {
-            this.node = parentNode.addNode(nodeName, NodeType.RESOURCE);
-        } catch (RepositoryException e) {
-            log.error(e.getMessage(), e);
-            throw new AccessManagementException(e.getMessage(), e);
-        }
     }
 
     /**
@@ -138,7 +126,10 @@ public abstract class YarepItem implements Item {
         return this.node;
     }
     
-    protected void setNode(Node node){
+    /**
+     * Sets the repository node which shall contain the configuration of this item.
+     */
+    public void setNode(Node node){
         this.node = node;
     }
 

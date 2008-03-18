@@ -12,6 +12,7 @@ import org.wyona.security.core.api.User;
 import org.wyona.security.core.api.UserManager;
 import org.wyona.yarep.core.NoSuchNodeException;
 import org.wyona.yarep.core.Node;
+import org.wyona.yarep.core.NodeType;
 import org.wyona.yarep.core.Repository;
 import org.wyona.yarep.core.RepositoryException;
 
@@ -31,6 +32,9 @@ public class YarepUserManager implements UserManager {
 
     protected HashMap users;
 
+    private String SUFFIX = "xml";
+    private String DEPRECATED_SUFFIX = "iml";
+
     /**
      * Constructor.
      * @param identityManager
@@ -40,7 +44,6 @@ public class YarepUserManager implements UserManager {
     public YarepUserManager(IdentityManager identityManager, Repository identitiesRepository) throws AccessManagementException {
         this.identityManager = identityManager;
         this.identitiesRepository = identitiesRepository;
-        init();
     }
 
     /**
@@ -50,7 +53,8 @@ public class YarepUserManager implements UserManager {
      *
      * @throws AccessManagementException
      */
-    protected synchronized void init() throws AccessManagementException {
+    public synchronized void loadUsers() throws AccessManagementException {
+        log.warn("Load users: " + identitiesRepository.getName());
         this.users = new HashMap();
         try {
             Node usersParentNode = getUsersParentNode();
@@ -86,19 +90,23 @@ public class YarepUserManager implements UserManager {
     /**
      * @see org.wyona.security.core.api.UserManager#createUser(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
-    public User createUser(String id, String name, String email, String password)
-            throws AccessManagementException {
+    public User createUser(String id, String name, String email, String password) throws AccessManagementException {
         if (existsUser(id)) {
-            throw new AccessManagementException("User " + id + " already exists.");
+            throw new AccessManagementException("User " + id + " already exists!");
         }
         try {
             Node usersParentNode = getUsersParentNode();
-            User user = constructUser(this.identityManager, usersParentNode, id, name, email, password);
+            //YarepUser user = new YarepUser(this, identityManager.getGroupManager(), usersParentNode, id, name, email, password);
+            YarepUser user = new YarepUser(this, identityManager.getGroupManager(), id, name);
+            user.setEmail(email);
+            user.setPassword(password);
+            user.setNode(usersParentNode.addNode(id + "." + SUFFIX, NodeType.RESOURCE));
             user.save();
+            // Add to cache
             this.users.put(id, user);
             return user;
         } catch (Exception e) {
-            log.error(e.getMessage(), e);
+            log.error(e, e);
             throw new AccessManagementException(e.getMessage(), e);
         }
     }
@@ -112,23 +120,19 @@ public class YarepUserManager implements UserManager {
     }
 
     /**
-     * Check if user exists within access control repository
+     * Check if user exists within persistent access control repository
      */
     private boolean existsWithinRepository(String userId) {
         try {
             Node usersParentNode = getUsersParentNode();
-/*
-            Node[] userNodes = usersParentNode.getNodes();
-            for (int i = 0; i < userNodes.length; i++) {
-                if (userNodes[i].isResource()) {
-                    log.error("DEBUG: User node: " + userNodes[i].getName());
-                }
-            }
-*/
+
             // Check .iml suffix in order to stay backwards compatible
-            if (usersParentNode.hasNode(userId + ".iml")) return true;
-            // YarepUser.class is saving new users with the .xml suffix
-            if (usersParentNode.hasNode(userId + ".xml")) return true;
+            if (usersParentNode.hasNode(userId + "." + DEPRECATED_SUFFIX)) {
+                log.warn("Deprecated user node path '" + userId + "." + DEPRECATED_SUFFIX + "' within repository '" + identitiesRepository.getName() + "'. Please upgrade by replacing the suffix '." + DEPRECATED_SUFFIX + "' by '." + SUFFIX + "'");
+                return true;
+            }
+
+            if (usersParentNode.hasNode(userId + "." + SUFFIX)) return true;
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
         }
@@ -155,10 +159,15 @@ public class YarepUserManager implements UserManager {
         if (!existsWithinCache(id)) {
             if (existsWithinRepository(id)) {
                 // TODO: Do not re-init the whole cache, but only incrementally for this particular user. Also please note that getUser(String, boolean) already refreshes the cache!
-                String nodeName = id + ".xml";
                 try {
+                    String nodeName = id + "." + SUFFIX;
                     Node usersParentNode = getUsersParentNode();
-                    if (!usersParentNode.hasNode(nodeName)) nodeName = id + ".iml";
+
+                    // Check for .iml suffix in order to stay backwards compatible
+                    if (!usersParentNode.hasNode(nodeName)) {
+                        nodeName = id + "." + DEPRECATED_SUFFIX;
+                    }
+
                     return constructUser(this.identityManager, usersParentNode.getNode(nodeName));
                 } catch (Exception e) {
                     log.error(e, e);
@@ -166,13 +175,14 @@ public class YarepUserManager implements UserManager {
                 }
 
                 // Refresh memory
-                //init();
+                //loadUsers();
                 // Get user from memory (what if null?)
                 //return (User) this.users.get(id);
             }
             log.warn("No such user (neither within memory nor within persistent repository): " + id);
             return null;
         }
+
         return (User) this.users.get(id);
     }
 
@@ -222,7 +232,8 @@ public class YarepUserManager implements UserManager {
 
     /**
      * Gets the repository node which is the parent node of all user nodes.
-     * @return parent node of users node.
+     *
+     * @return node which is the parent of all user nodes.
      * @throws NoSuchNodeException
      * @throws RepositoryException
      */
@@ -230,7 +241,8 @@ public class YarepUserManager implements UserManager {
         if (this.identitiesRepository.existsNode("/users")) {
             return this.identitiesRepository.getNode("/users");
         }
-        // fallback to root node for backwards compatibility:
+
+        log.warn("Fallback to root node (Repository: " + identitiesRepository.getName() + ") for backwards compatibility. Please upgrade by introducing a /users node!");
         return this.identitiesRepository.getNode("/");
     }
     
@@ -240,21 +252,15 @@ public class YarepUserManager implements UserManager {
     private void refreshCache(String userId) throws AccessManagementException {
         // TODO: Only user with ID 'userId' actually would need to be refreshed!
         log.warn("Reloading all users in order to refresh cache!");
-        init();
-        ((YarepGroupManager)identityManager.getGroupManager()).init();
+        loadUsers();
+        log.warn("TODO: Refresh of group manager!");
+        ((YarepGroupManager)identityManager.getGroupManager()).loadGroups();
     }
     
     /**
      * Override in subclasses
      */
     protected User constructUser(IdentityManager identityManager, Node node) throws AccessManagementException{
-        return new YarepUser(identityManager.getUserManager(), identityManager.getGroupManager(), node);
-    }
-    
-    /**
-     *
-     */
-    protected User constructUser(IdentityManager identityManager, Node usersParentNode, String id, String name, String email, String password)throws AccessManagementException{
-        return new YarepUser(identityManager.getUserManager(), identityManager.getGroupManager(), usersParentNode, id, name, email, password);
+        return new YarepUser(this, identityManager.getGroupManager(), node);
     }
 }

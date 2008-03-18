@@ -34,8 +34,12 @@ public class YarepIdentityManagerImpl implements IdentityManager {
      */
     public YarepIdentityManagerImpl(Repository identitiesRepository) throws AccessManagementException {
         this.identitiesRepository = identitiesRepository;
+
         userManager = new YarepUserManager(this, identitiesRepository);
         groupManager = new YarepGroupManager(this, identitiesRepository);
+
+        ((YarepUserManager) userManager).loadUsers();
+        ((YarepGroupManager) groupManager).loadGroups();
     }
     
     /**
