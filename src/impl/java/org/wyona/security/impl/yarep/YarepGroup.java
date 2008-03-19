@@ -74,16 +74,24 @@ public class YarepGroup extends YarepItem implements Group {
             String type = memberNodes[i].getAttribute(MEMBER_TYPE, USER_TYPE);
             if (type.equals(USER_TYPE)) {
                 if (getUserManager() != null) {
-                    User user = getUserManager().getUser(id);
-                    addMember(user);
+                    if (getUserManager().existsUser(id)) {
+                        User user = getUserManager().getUser(id);
+                        addMember(user);
+                    } else {
+                        log.warn("No user with id '" + id + "' exists, but is referenced within group '" + getID() + "' (" + getName() + ")");
+                    }
                 } else {
                     log.error("User manager is NULL! User " + id + " cannot be added to group " + getID());
                 }
             } else if (type.equals(GROUP_TYPE)) {
                 log.warn("Beware of loops when adding groups within groups!");
                 if (getGroupManager() != null) {
-                    Group group = getGroupManager().getGroup(id);
-                    addMember(group);
+                    if (getGroupManager().existsGroup(id)) {
+                        Group group = getGroupManager().getGroup(id);
+                        addMember(group);
+                    } else {
+                        log.warn("No group with id '" + id + "' exists, but is referenced within group '" + getID() + "' (" + getName() + ")");
+                    }
                 } else {
                     log.error("Group manager is NULL! Group " + id + " cannot be added to group " + getID());
                 }
