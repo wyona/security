@@ -253,7 +253,7 @@ public class YarepUserManager implements UserManager {
         // TODO: Only user with ID 'userId' actually would need to be refreshed!
         log.warn("Reloading all users in order to refresh cache!");
         loadUsers();
-        log.warn("TODO: Refresh of group manager!");
+        log.warn("Refresh of group manager after reloading all users!");
         ((YarepGroupManager)identityManager.getGroupManager()).loadGroups();
     }
     
