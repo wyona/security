@@ -111,7 +111,18 @@ public class YarepGroupManager implements GroupManager {
      * @see org.wyona.security.core.api.GroupManager#existsGroup(java.lang.String)
      */
     public boolean existsGroup(String id) throws AccessManagementException {
-        return this.groups.containsKey(id);
+        if (this.groups.containsKey(id)) {
+            // Exists within memory cache
+            return true;
+        } else {
+            // Check if group exists within persitent repository
+            try {
+                return getGroupsParentNode().hasNode(id + "." + SUFFIX);
+            } catch(Exception e) {
+                log.error(e, e);
+                return false;
+            }
+        }
     }
 
     /**
@@ -120,8 +131,21 @@ public class YarepGroupManager implements GroupManager {
     public Group getGroup(String id) throws AccessManagementException {
         if (!existsGroup(id)) {
             return null;
+        } else {
+            if (this.groups.containsKey(id)) {
+                return (Group) this.groups.get(id);
+            } else {
+                log.warn("Group '" + id + "' exists within persistent repository, but not within memory yet! Will be loaded into memory ...");
+                try {
+                    Group group = constructGroup(getGroupsParentNode().getNode(id + "." + SUFFIX));
+                    this.groups.put(group.getID(), group);
+                    return (Group) this.groups.get(id);
+                } catch (Exception e) {
+                    log.error(e, e);
+                    throw new AccessManagementException(e.getMessage());
+                }
+            }
         }
-        return (Group) this.groups.get(id);
     }
 
     /**
