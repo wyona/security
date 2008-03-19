@@ -38,7 +38,9 @@ public class YarepIdentityManagerImpl implements IdentityManager {
         userManager = new YarepUserManager(this, identitiesRepository);
         groupManager = new YarepGroupManager(this, identitiesRepository);
 
-        ((YarepUserManager) userManager).loadUsers();
+        userManager.getUsers(true);
+        //((YarepUserManager) userManager).loadUsers();
+
         ((YarepGroupManager) groupManager).loadGroups();
     }
     
