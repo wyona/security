@@ -46,8 +46,6 @@ public class PolicyAggregator {
                 if (!path.equals("/")) {
                     Policy parentPolicy = aggregatePolicy(PathUtil.getParent(path), pm);
 
-                    // TODO: Aggregate this policy with parent policy
-                    log.warn("TODO: Aggregate policy " + path + " with parent " + PathUtil.getParent(path));
                     UsecasePolicy[] usecasePolicies = policy.getUsecasePolicies();
                     UsecasePolicy[] parentUsecasePolicies = parentPolicy.getUsecasePolicies();
                     for (int i = 0; i < parentUsecasePolicies.length; i++) {
@@ -67,6 +65,7 @@ public class PolicyAggregator {
 			    }
                         } else {
                             // TODO: Add additional world, identities, groups ...
+                            log.warn("TODO: Merge policy " + path + " with parent " + PathUtil.getParent(path) + " for usecase: " + parentUsecasePolicies[i].getName());
                         }
                     }
 
