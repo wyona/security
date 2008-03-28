@@ -29,13 +29,22 @@ public class PolicyViewer {
      * @param contentItemId Content Item ID which allows a unique association with an access policy and an item within the content
      * @param orderedBy Allows ordering by usecases or identities
      * @param showParents Show the policies of the parent nodes, which allows to figure out how the policy has been aggregated
+     * @param showTabs Show the tabs which allow to switch between parent policies and node policy
      */
-    static public String getXHTMLView (PolicyManager pm, String path, String contentItemId, int orderedBy, boolean showParents) {
+    static public String getXHTMLView (PolicyManager pm, String path, String contentItemId, int orderedBy, boolean showParents, boolean showTabs) {
         try {
-            StringBuffer sb = new StringBuffer("<html><body>");
+            StringBuffer sb = new StringBuffer("<html>");
+            sb.append("<head>");
+            sb.append("<title>Access Policy: " + path + "</title>");
+            // TODO: Calculate back path ...
+            sb.append("<link type=\"text/css\" href=\"../../yanel/yanel-css/view-access-policy.css\" rel=\"stylesheet\"/>");
+            sb.append("</head>");
+            sb.append("<body>");
 	    if(showParents) {
                 // Show also all parent policies
-                sb.append("<p><a href=\"?yanel.policy=read&amp;orderedBy=" + orderedBy + "&amp;showParents=false\">Tab: Node Policy</a> | Tab: Parent Policies</p>");
+                if (showTabs) {
+                    sb.append("<p><a href=\"?yanel.policy=read&amp;orderedBy=" + orderedBy + "&amp;showParents=false\">Tab: Node Policy</a> | Tab: Parent Policies</p>");
+                }
 
                 sb.append("<p>Access Policies for Path (and its parents) <i>" + path);
                 if (contentItemId != null) sb.append("#" + contentItemId);
@@ -50,11 +59,13 @@ public class PolicyViewer {
                 sb.append("</table></p>");
             } else {
                 // Show policy of this node only
-                sb.append("<p>Tab: Node Policy | <a href=\"?yanel.policy=read&amp;orderedBy=" + orderedBy + "&amp;showParents=true\">Tab: Parent Policies</a></p>");
+                if (showTabs) {
+                    sb.append("<p>Tab: Node Policy | <a href=\"?yanel.policy=read&amp;orderedBy=" + orderedBy + "&amp;showParents=true\">Tab: Parent Policies</a></p>");
+                }
 
-                sb.append("<p>Aggregated Access Policy for Path <i>" + path);
+                sb.append("<div id=\"path-sentence\"><p>Aggregated Access Policy for Path <i>" + path);
                 if (contentItemId != null) sb.append("#" + contentItemId);
-                sb.append("</i>:</p>");
+                sb.append("</i>:</p></div>");
 
                 sb.append(getOrderByLink(orderedBy, showParents));
                 boolean aggregate = true;
@@ -284,9 +295,9 @@ public class PolicyViewer {
      */
     private static String getOrderByLink(int orderedBy, boolean showParents) {
         if (orderedBy == ORDERED_BY_USECASES) {
-            return "<p>Order by <a href=\"?yanel.policy=read&amp;orderedBy=" + ORDERED_BY_IDENTITIES + "&amp;showParents=" + showParents + "\">Identities</a></p>";
+            return "<div id=\"order-by-sentence\"><p>Order by <a href=\"?yanel.policy=read&amp;orderedBy=" + ORDERED_BY_IDENTITIES + "&amp;showParents=" + showParents + "\">Identities</a></p></div>";
         } else if (orderedBy == ORDERED_BY_IDENTITIES) {
-            return "<p>Order by <a href=\"?yanel.policy=read&amp;orderedBy=" + ORDERED_BY_USECASES + "&amp;showParents=" + showParents + "\">Usecases</a></p>";
+            return "<div id=\"order-by-sentence\"><p>Order by <a href=\"?yanel.policy=read&amp;orderedBy=" + ORDERED_BY_USECASES + "&amp;showParents=" + showParents + "\">Usecases</a></p></div>";
         } else {
             log.error("No such order by value implemented: " + orderedBy);
             return "";
