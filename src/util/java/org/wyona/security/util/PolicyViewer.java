@@ -37,7 +37,7 @@ public class PolicyViewer {
             sb.append("<head>");
             sb.append("<title>Access Policy: " + path + "</title>");
             // TODO: Calculate back path ...
-            sb.append("<link type=\"text/css\" href=\"../../yanel/yanel-css/view-access-policy.css\" rel=\"stylesheet\"/>");
+            sb.append("<link type=\"text/css\" href=\"" + backToRootPath(path) + "yanel/yanel-css/view-access-policy.css\" rel=\"stylesheet\"/>");
             sb.append("</head>");
             sb.append("<body>");
 	    if(showParents) {
@@ -340,5 +340,17 @@ public class PolicyViewer {
         }
         sb.append("</td>");
         return sb;
+    }
+
+    /**
+     *
+     */
+    private static String backToRootPath(String path) {
+        String[] names = path.split("/");
+        StringBuffer backPath = new StringBuffer();
+	for (int i = 0; i < names.length - 1; i++) {
+            backPath.append("../");
+        }
+        return backPath.toString();
     }
 }
