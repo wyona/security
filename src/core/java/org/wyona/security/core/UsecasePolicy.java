@@ -81,4 +81,44 @@ public class UsecasePolicy {
         }
         return gs;
     }
+
+    /**
+     * Merge UsecasePolicy into this UsecasePolicy
+     */
+    public void merge(UsecasePolicy up) {
+        if (!getName().equals(up.getName())) {
+            log.error("Usecase policies do not have the same names: " + getName() + " != " + up.getName());
+            return;
+        }
+
+        // Merge identities
+        IdentityPolicy[] upIdps = up.getIdentityPolicies();
+        for (int i = 0; i < upIdps.length; i++) {
+            boolean identityAlreadyExists = false;
+            for (int k = 0; k < idps.size(); k++) {
+                if (((IdentityPolicy) idps.elementAt(k)).getIdentity().getUsername().equals(upIdps[i].getIdentity().getUsername())) {
+                    identityAlreadyExists = true;
+                    break;
+                }
+            }
+            if (!identityAlreadyExists) {
+                addIdentity(upIdps[i].getIdentity(), upIdps[i].getPermission());
+            }
+        }
+
+        // Merge groups
+        GroupPolicy[] upGps = up.getGroupPolicies();
+        for (int i = 0; i < upGps.length; i++) {
+            boolean groupAlreadyExists = false;
+            for (int k = 0; k < gps.size(); k++) {
+                if (((GroupPolicy) gps.elementAt(k)).getId().equals(upGps[i].getId())) {
+                    groupAlreadyExists = true;
+                    break;
+                }
+            }
+            if (!groupAlreadyExists) {
+                addGroupPolicy(upGps[i]);
+            }
+        }
+    }
 }
