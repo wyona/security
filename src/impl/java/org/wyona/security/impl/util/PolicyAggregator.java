@@ -53,6 +53,7 @@ public class PolicyAggregator {
                         for (int k = 0; k < usecasePolicies.length; k++) {
                             if (parentUsecasePolicies[i].getName().equals(usecasePolicies[k].getName())) {
                                 usecaseAlreadyExists = true;
+                                usecasePolicies[k].merge(parentUsecasePolicies[i]);
                                 break;
                             }
                         }
@@ -63,9 +64,6 @@ public class PolicyAggregator {
                                 log.error(e, e);
                                 throw new AuthorizationException(e.getMessage());
 			    }
-                        } else {
-                            // TODO: Add additional world, identities, groups ...
-                            log.warn("TODO: Merge policy " + path + " with parent " + PathUtil.getParent(path) + " for usecase: " + parentUsecasePolicies[i].getName());
                         }
                     }
 
