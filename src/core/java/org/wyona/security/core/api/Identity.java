@@ -82,8 +82,8 @@ public class Identity implements java.io.Serializable {
      */
     public String[] getGroupnames(boolean parents) {
         if (parents) {
-            log.error("TODO: Implementation not finished yet!");
-            log.error("DEBUG: Groups which user " + getUsername() + " belongs to:");
+            log.warn("TODO: Implementation of finding parent groups for user '" + getUsername() + "' not finished yet!");
+            //log.error("DEBUG: Groups which user " + getUsername() + " belongs to:");
             String[] gns = getGroupnames();
             if (gns != null) {
                 for (int i = 0; i < gns.length; i++) {
