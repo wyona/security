@@ -54,7 +54,7 @@ public class YarepUserManager implements UserManager {
      * @throws AccessManagementException
      */
     public synchronized void loadUsers() throws AccessManagementException {
-        log.warn("Load users: " + identitiesRepository.getName());
+        log.warn("Load users from repository '" + identitiesRepository.getName() + "'");
         this.users = new HashMap();
         try {
             Node usersParentNode = getUsersParentNode();
@@ -251,9 +251,9 @@ public class YarepUserManager implements UserManager {
      */
     private void refreshCache(String userId) throws AccessManagementException {
         // TODO: Only user with ID 'userId' actually would need to be refreshed!
-        log.warn("Reloading all users in order to refresh cache!");
+        log.warn("Reloading all users in order to refresh cache! Actually reloading user '" + userId + "' would be sufficient!");
         loadUsers();
-        log.warn("Refresh of group manager after reloading all users!");
+        log.warn("Refresh of group manager after reloading all users, such that user '" + userId + "' has access to a refreshed group manager!");
         ((YarepGroupManager)identityManager.getGroupManager()).loadGroups();
     }
     
