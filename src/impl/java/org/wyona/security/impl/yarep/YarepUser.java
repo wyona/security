@@ -252,7 +252,7 @@ public class YarepUser extends YarepItem implements User {
      * @see org.wyona.security.core.api.User#getGroups()
      */
     public Group[] getGroups() throws AccessManagementException {
-        log.error("TODO: Get groups for user: " + getID() + ", " + getName());
+        if(log.isDebugEnabled()) log.debug("Get groups for user: " + getID() + ", " + getName());
         Group[] allGroups = getGroupManager().getGroups();
         ArrayList groups = new ArrayList();
         for (int i = 0; i < allGroups.length; i++) {
@@ -268,8 +268,9 @@ public class YarepUser extends YarepItem implements User {
      */
     public Group[] getGroups(boolean parents) throws AccessManagementException {
         if (parents) {
-            log.error("TODO: Implementation not finished yet!");
-            return null;
+            log.warn("All parent groups for user '" + getID() + "' will be resolved!");
+            log.error("TODO: Resolve parent groups!");
+            return getGroups();
         } else {
             return getGroups();
         }
