@@ -31,6 +31,7 @@ public class PolicyImplVersion1 implements Policy {
      *
      */
     public PolicyImplVersion1() throws Exception {
+        this.usecasePolicies = new Vector();
     }
 
     /**
@@ -103,6 +104,8 @@ public class PolicyImplVersion1 implements Policy {
     protected UsecasePolicy readUsecasePolicy(Configuration upConfig) throws Exception {
             UsecasePolicy up = new UsecasePolicy(upConfig.getAttribute("id"));
 
+            up.setUseInheritedPolicies(upConfig.getAttributeAsBoolean("use-inherited-policies", true));
+            
             Configuration[] worldConfigs = upConfig.getChildren("world");
             if (worldConfigs.length > 1) log.warn("Usecase policy contains more than one WORLD entry!");
             for (int j = 0; j < worldConfigs.length; j++) {
@@ -135,5 +138,30 @@ public class PolicyImplVersion1 implements Policy {
     public boolean useInheritedPolicies() {
         return useInheritedPolicies;
     }
+
+    public void setUseInheritedPolicies(boolean useInheritedPolicies) {
+        this.useInheritedPolicies = useInheritedPolicies;
+    }
+    
+    public void removeUsecasePolicy(String name) throws AccessManagementException {
+        for (int i = 0; i < usecasePolicies.size(); i++) {
+            UsecasePolicy up = (UsecasePolicy)usecasePolicies.elementAt(i);
+            if (up.getName().equals(name)) {
+                usecasePolicies.remove(i);
+                return;
+            }
+        }
+    }
+
+    public UsecasePolicy getUsecasePolicy(String name) throws AccessManagementException {
+        for (int i = 0; i < usecasePolicies.size(); i++) {
+            UsecasePolicy up = (UsecasePolicy)usecasePolicies.elementAt(i);
+            if (up.getName().equals(name)) {
+                return (UsecasePolicy)usecasePolicies.elementAt(i);
+            }
+        }
+        return null;
+    }
+
 }
 

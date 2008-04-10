@@ -7,6 +7,15 @@ import org.wyona.security.core.UsecasePolicy;
  */
 public interface Policy {
     /**
+     * Gets the usecase policy for the given usecase name or null if there is
+     * no such usecase policy.
+     * @param name
+     * @return usecase policy or null
+     * @throws AccessManagementException
+     */
+    public UsecasePolicy getUsecasePolicy(String name) throws AccessManagementException;
+    
+    /**
      * Gets the usecases/actions of policies.
      *
      * @return usecases declared within this policy
@@ -21,6 +30,16 @@ public interface Policy {
      */
     public void addUsecasePolicy(UsecasePolicy up) throws AccessManagementException;
 
+    /**
+     * Removes a usecase policy from this policy.
+     * Does not do anything if this policy has no usecase policy with the given name.
+     * The modification is not persistent, it only modifies the policy object in the memory.  
+     * 
+     * @param name name of the usecase policy.
+     * @throws AccessManagementException
+     */
+    public void removeUsecasePolicy(String name) throws AccessManagementException;
+    
     /**
      * Gets policy path.
      *
@@ -41,4 +60,10 @@ public interface Policy {
      * @throws AccessManagementException
      */
     public boolean useInheritedPolicies();
+    
+    /**
+     * Set if inheritance shall be applied.
+     * @param useInheritedPolicies
+     */
+    public void setUseInheritedPolicies(boolean useInheritedPolicies);
 }

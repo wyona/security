@@ -295,4 +295,13 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
             }
         }
     }
+    
+    public Policy createEmptyPolicy() throws AuthorizationException {
+        try {
+            return new PolicyImplV2();
+        } catch (Exception e) {
+            throw new AuthorizationException(e.getMessage(), e);
+        }
+    }
+
 }

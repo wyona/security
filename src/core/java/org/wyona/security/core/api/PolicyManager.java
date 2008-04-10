@@ -46,6 +46,12 @@ public interface PolicyManager {
      * @param policy New or modified policy
      */
     public void setPolicy(String path, Policy policy) throws AuthorizationException;
+    
+    /**
+     * Creates an empty policy.
+     * @return empty policy
+     */
+    public Policy createEmptyPolicy() throws AuthorizationException;
 
     /**
      * @return All the usecases which the policy manager supports. For example this can be useful for a policy editor in order to select from a list of usecases/actions/rights.

@@ -1,5 +1,6 @@
 package org.wyona.security.core;
 
+import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.GroupPolicy;
 
@@ -18,6 +19,7 @@ public class UsecasePolicy {
 
     private Vector idps = null;
     private Vector gps = null;
+    private boolean useInheritedPolicies = true;
 
     /**
      *
@@ -63,6 +65,40 @@ public class UsecasePolicy {
         }
         return ip;
     }
+    
+    /**
+     * Gets the identity policy for the given identity or null if there is no such
+     * identity policy. 
+     * @param identity
+     * @return identity policy or null
+     */
+    public IdentityPolicy getIdentityPolicy(Identity identity) {
+        for (int i = 0; i < idps.size(); i++) {
+            IdentityPolicy ip = (IdentityPolicy)idps.elementAt(i);
+            if (identity.isWorld() && ip.getIdentity().isWorld() ||
+                    identity.getUsername().equals(ip.getIdentity().getUsername())) {
+                return ip;
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Removes an identity policy from this usecase policy.
+     * Does not do anything if this policy has no identity policy for the given identity.
+     * The modification is not persistent, it only modifies the policy object in the memory.  
+     * @param identity
+     */
+    public void removeIdentityPolicy(Identity identity) {
+        for (int i = 0; i < idps.size(); i++) {
+            IdentityPolicy ip = (IdentityPolicy)idps.elementAt(i);
+            if (identity.isWorld() && ip.getIdentity().isWorld() ||
+                    identity.getUsername().equals(ip.getIdentity().getUsername())) {
+                idps.remove(i);
+                return;
+            }
+        }
+    }
 
     /**
      *
@@ -82,6 +118,56 @@ public class UsecasePolicy {
         return gs;
     }
 
+    /**
+     * Gets the group policy for the given group id or null if there is no such
+     * group policy.
+     * @param groupId
+     * @return group policy or null
+     */
+    public GroupPolicy getGroupPolicy(String groupId) {
+        for (int i = 0; i < gps.size(); i++) {
+            GroupPolicy gp = (GroupPolicy)gps.elementAt(i);
+            if (groupId.equals(gp.getId())) {
+                return gp;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Removes an group policy from this usecase policy.
+     * Does not do anything if this policy has no group policy for the given group id.
+     * The modification is not persistent, it only modifies the policy object in the memory.  
+     * @param groupId 
+     */
+    public void removeGroupPolicy(String groupId) {
+        for (int i = 0; i < gps.size(); i++) {
+            GroupPolicy gp = (GroupPolicy)gps.elementAt(i);
+            if (groupId.equals(gp.getId())) {
+                gps.remove(i);
+                return;
+            }
+        }
+    }
+
+    /**
+     * Check if inheritance shall be applied.
+     *
+     */
+    public boolean useInheritedPolicies() {
+        return useInheritedPolicies;
+    }
+    
+    /**
+     * Set if inheritance shall be applied.
+     * The default is true.
+     * @param useInheritedPolicies
+     */
+    public void setUseInheritedPolicies(boolean useInheritedPolicies) {
+        this.useInheritedPolicies = useInheritedPolicies;
+    }
+
+    
     /**
      * Merge UsecasePolicy into this UsecasePolicy
      */

@@ -195,5 +195,18 @@ public class PolicyParser implements Policy {
         }
         return sb.toString();
     }
+
+    public UsecasePolicy getUsecasePolicy(String name) throws AccessManagementException {
+        log.warn("Not implemented yet!");
+        return null;
+    }
+
+    public void removeUsecasePolicy(String name) throws AccessManagementException {
+        log.warn("Not implemented yet!");
+    }
+
+    public void setUseInheritedPolicies(boolean useInheritedPolicies) {
+        log.warn("Not implemented yet!");
+    }
 }
 

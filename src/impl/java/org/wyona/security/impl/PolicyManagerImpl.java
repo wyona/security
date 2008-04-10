@@ -272,4 +272,12 @@ public class PolicyManagerImpl implements PolicyManager {
         log.warn("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");
         return "Toolbar";
     }
+
+    public Policy createEmptyPolicy() throws AuthorizationException {
+        try {
+            return new PolicyImplVersion1();
+        } catch (Exception e) {
+            throw new AuthorizationException(e.getMessage(), e);
+        }
+    }
 }
