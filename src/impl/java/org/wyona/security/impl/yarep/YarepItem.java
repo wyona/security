@@ -50,6 +50,7 @@ public abstract class YarepItem implements Item {
         try {
             this.node = node;
             DefaultConfigurationBuilder configBuilder = new DefaultConfigurationBuilder(true);
+            if (log.isDebugEnabled()) log.debug("Read/Load item (either user or group) from repo node: " + node.getPath());
             Configuration config = configBuilder.build(node.getInputStream());
             configure(config);
         } catch (Exception e) {
