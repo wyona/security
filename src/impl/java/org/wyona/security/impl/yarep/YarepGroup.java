@@ -84,7 +84,7 @@ public class YarepGroup extends YarepItem implements Group {
                     log.error("User manager is NULL! User " + id + " cannot be added to group " + getID());
                 }
             } else if (type.equals(GROUP_TYPE)) {
-                log.warn("Beware of loops when adding groups within groups!");
+                log.warn("Subgroup '" + id + "' within group '" + getID() + "' detected! Beware of loops when adding groups within groups!");
                 if (getGroupManager() != null) {
                     if (getGroupManager().existsGroup(id)) {
                         Group group = getGroupManager().getGroup(id);
