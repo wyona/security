@@ -13,6 +13,7 @@ public class Identity implements java.io.Serializable {
     protected String[] groupnames;
 
     private boolean isWorld = false;
+    private boolean parentGroupsAlreadyResolved = false;
 
     /**
      * Identity is WORLD
@@ -28,6 +29,8 @@ public class Identity implements java.io.Serializable {
      */
     public Identity(String username, String[] groupnames) {
         this.username = username;
+        // TODO: What about parents groups?! This method seems to be used a lot, e.g. during policy instantiation ...!
+        //log.error("DEBUG: Set groupnames via String array for user: " + username);
         this.groupnames = groupnames;
     }
     
@@ -37,11 +40,15 @@ public class Identity implements java.io.Serializable {
     public Identity(User user) {
         try {
             this.username = user.getID();
-            Group[] groups = user.getGroups();
+
+            log.warn("Set groupnames via user object for user '" + user.getID() + "' such that also parent groups are loaded!");
+            // NOTE: Setting true means that also parent groups shall be loaded (groups in groups)!
+            Group[] groups = user.getGroups(true);
             groupnames = new String[groups.length];
-            for (int i=0; i<groups.length; i++) {
+            for (int i = 0; i < groups.length; i++) {
                 groupnames[i] = groups[i].getID();
             }
+            parentGroupsAlreadyResolved = true;
         } catch (AccessManagementException e) {
             log.error(e, e);
             throw new RuntimeException(e.getMessage(), e);
@@ -82,15 +89,24 @@ public class Identity implements java.io.Serializable {
      */
     public String[] getGroupnames(boolean parents) {
         if (parents) {
-            log.warn("TODO: Implementation of finding parent groups for user '" + getUsername() + "' not finished yet!");
-            //log.error("DEBUG: Groups which user " + getUsername() + " belongs to:");
+            if (parentGroupsAlreadyResolved) {
+                return getGroupnames();
+            } else {
+                String uname = getUsername();
+                if (uname == null) uname = "WORLD";
+                log.warn("TODO: Implementation of finding parent groups for user '" + uname + "' not finished yet!");
+                return getGroupnames();
+            }
+/*
+            //log.debug("Groups which user " + getUsername() + " belongs to:");
             String[] gns = getGroupnames();
             if (gns != null) {
                 for (int i = 0; i < gns.length; i++) {
-                    log.error("DEBUG: Group: " + gns[i]);
+                    log.debug("Group: " + gns[i]);
                 }
             }
             return gns;
+*/
         } else {
             return getGroupnames();
         }
