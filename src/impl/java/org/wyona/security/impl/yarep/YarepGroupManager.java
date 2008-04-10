@@ -51,7 +51,7 @@ public class YarepGroupManager implements GroupManager {
      * @throws AccessManagementException
      */
     public void loadGroups() throws AccessManagementException {
-        log.warn("Load groups: " + identitiesRepository.getName());
+        log.warn("Load groups from repository '" + identitiesRepository.getName() + "'");
         this.groups = new HashMap();
         try {
             Node groupsParentNode = getGroupsParentNode();
