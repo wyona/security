@@ -252,8 +252,9 @@ public class PolicyManagerImpl implements PolicyManager {
     /**
      * @see
      */
-    public void setPolicy(String path, Policy policy) {
+    public void setPolicy(String path, Policy policy) throws java.lang.UnsupportedOperationException {
         log.warn("Not implemented yet!");
+        throw new java.lang.UnsupportedOperationException("Setting policy by this policy manager '" + this.getClass().getName() + "' not implemented yet!");
     }
 
     /**
