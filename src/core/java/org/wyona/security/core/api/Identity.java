@@ -27,6 +27,14 @@ public class Identity implements java.io.Serializable {
     /**
      *
      */
+    public Identity(String username) {
+        this.username = username;
+        this.groupnames = null;
+    }
+
+    /**
+     *
+     */
     public Identity(String username, String[] groupnames) {
         this.username = username;
         // TODO: What about parents groups?! This method seems to be used a lot, e.g. during policy instantiation ...!
@@ -80,6 +88,11 @@ public class Identity implements java.io.Serializable {
             }
             return copy;
         } else {
+            if (isWorld()) {
+                log.debug("No groups for WORLD!");
+            } else {
+                log.warn("No groups for user '" + getUsername() + "'!");
+            }
             return null;
         }
     }
