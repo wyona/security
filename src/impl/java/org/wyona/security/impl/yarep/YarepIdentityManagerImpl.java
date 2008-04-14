@@ -31,15 +31,16 @@ public class YarepIdentityManagerImpl implements IdentityManager {
     
     /**
      *  Basic initialization
+     *  @param identitiesRepository Peristent repository where users and groups are stored
+     *  @param load Load users and groups into memory during initialization
      */
-    public YarepIdentityManagerImpl(Repository identitiesRepository) throws AccessManagementException {
+    public YarepIdentityManagerImpl(Repository identitiesRepository, boolean load) throws AccessManagementException {
         this.identitiesRepository = identitiesRepository;
 
         userManager = new YarepUserManager(this, identitiesRepository);
         groupManager = new YarepGroupManager(this, identitiesRepository);
 
-        userManager.getUsers(true);
-        //((YarepUserManager) userManager).loadUsers();
+        userManager.getUsers(load);
 
         ((YarepGroupManager) groupManager).loadGroups();
     }
