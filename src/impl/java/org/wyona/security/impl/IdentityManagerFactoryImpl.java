@@ -20,7 +20,8 @@ public class IdentityManagerFactoryImpl extends IdentityManagerFactory {
     public IdentityManager newIdentityManager(Repository identitiesRepository) {
         IdentityManager im = null;
         try {
-            im = new org.wyona.security.impl.yarep.YarepIdentityManagerImpl(identitiesRepository);
+            boolean load = false;
+            im = new org.wyona.security.impl.yarep.YarepIdentityManagerImpl(identitiesRepository, load);
         } catch (AccessManagementException e) {
             log.error(e, e);
         }
