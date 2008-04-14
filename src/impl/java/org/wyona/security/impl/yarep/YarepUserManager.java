@@ -53,7 +53,7 @@ public class YarepUserManager implements UserManager {
      *
      * @throws AccessManagementException
      */
-    public synchronized void loadUsers() throws AccessManagementException {
+    private synchronized void loadUsers() throws AccessManagementException {
         log.warn("Load users from repository '" + identitiesRepository.getName() + "'");
         this.users = new HashMap();
         try {
@@ -88,6 +88,27 @@ public class YarepUserManager implements UserManager {
     }
 
     /**
+     * Loads a specific user from persistance storage into memory
+     *
+     * @param id User id
+     * @throws AccessManagementException
+     */
+    private synchronized void loadUser(String id) throws AccessManagementException {
+        log.warn("Load user '" + id + "' from repository '" + identitiesRepository.getName() + "'");
+        if (this.users == null) {
+            log.warn("No users yet within memory. Initialize users hash map.");
+            this.users = new HashMap();
+        }
+        if (this.users.containsKey(id)) {
+            log.warn("User '" + id + "' already exists within memory, but will be reloaded!");
+        } else {
+            log.warn("User '" + id + "' does not exist wihtin memory yet, but will be loaded now!");
+        }
+
+        this.users.put(id, getUserFromPersistentRepository(id));
+    }
+
+    /**
      * @see org.wyona.security.core.api.UserManager#createUser(java.lang.String, java.lang.String, java.lang.String, java.lang.String)
      */
     public User createUser(String id, String name, String email, String password) throws AccessManagementException {
@@ -115,7 +136,7 @@ public class YarepUserManager implements UserManager {
      * Check if user exists within cache
      */
     private boolean existsWithinCache(String userId) {
-        if (this.users.containsKey(userId)) return true;
+        if (this.users!= null && this.users.containsKey(userId)) return true;
         return false;
     }
 
@@ -157,33 +178,33 @@ public class YarepUserManager implements UserManager {
      */
     public User getUser(String id) throws AccessManagementException {
         if (!existsWithinCache(id)) {
-            if (existsWithinRepository(id)) {
-                // TODO: Do not re-init the whole cache, but only incrementally for this particular user. Also please note that getUser(String, boolean) already refreshes the cache!
-                try {
-                    String nodeName = id + "." + SUFFIX;
-                    Node usersParentNode = getUsersParentNode();
+            return getUserFromPersistentRepository(id);
+        }
+        return (User) this.users.get(id);
+    }
 
-                    // Check for .iml suffix in order to stay backwards compatible
-                    if (!usersParentNode.hasNode(nodeName)) {
-                        nodeName = id + "." + DEPRECATED_SUFFIX;
-                    }
+    /**
+     * Get user from repository
+     */
+    private User getUserFromPersistentRepository(String id) throws AccessManagementException {
+        if (existsWithinRepository(id)) {
+            try {
+                String nodeName = id + "." + SUFFIX;
+                Node usersParentNode = getUsersParentNode();
 
-                    return constructUser(this.identityManager, usersParentNode.getNode(nodeName));
-                } catch (Exception e) {
-                    log.error(e, e);
-                    throw new AccessManagementException(e.getMessage());
+                // Check for .iml suffix in order to stay backwards compatible
+                if (!usersParentNode.hasNode(nodeName)) {
+                    nodeName = id + "." + DEPRECATED_SUFFIX;
                 }
 
-                // Refresh memory
-                //loadUsers();
-                // Get user from memory (what if null?)
-                //return (User) this.users.get(id);
+                return constructUser(this.identityManager, usersParentNode.getNode(nodeName));
+            } catch (Exception e) {
+                log.error(e, e);
+                throw new AccessManagementException(e.getMessage());
             }
-            log.warn("No such user (neither within memory nor within persistent repository): " + id);
-            return null;
         }
-
-        return (User) this.users.get(id);
+        log.warn("No such user within persistent repository: " + id);
+        return null;
     }
 
     /**
@@ -191,7 +212,9 @@ public class YarepUserManager implements UserManager {
      */
     public User getUser(String id, boolean refresh) throws AccessManagementException {
         if(refresh){
-            refreshCache(id);
+            loadUser(id);
+            log.warn("Refresh of group manager after reloading all users, such that user '" + id + "' has access to a refreshed group manager!");
+            ((YarepGroupManager)identityManager.getGroupManager()).loadGroups();
         }
         return getUser(id);
     }
@@ -200,7 +223,12 @@ public class YarepUserManager implements UserManager {
      * @see org.wyona.security.core.api.UserManager#getUsers()
      */
     public User[] getUsers() throws AccessManagementException {
-        return (User[]) this.users.values().toArray(new User[this.users.size()]);
+        if (users != null) {
+            return (User[]) this.users.values().toArray(new User[this.users.size()]);
+        } else {
+            log.warn("No users loaded yet. Either users will be loaded incrementally or use getUsers(true)!");
+            return new User[0];
+        }
     }
 
     /**
@@ -208,7 +236,9 @@ public class YarepUserManager implements UserManager {
      */
     public User[] getUsers(boolean refresh) throws AccessManagementException {
         if(refresh){
-            refreshCache(null);
+            loadUsers();
+            log.warn("Refresh of group manager after reloading all users, such that users have access to a refreshed group manager!");
+            ((YarepGroupManager)identityManager.getGroupManager()).loadGroups();
         }
         return getUsers();
     }
@@ -244,17 +274,6 @@ public class YarepUserManager implements UserManager {
 
         log.warn("Fallback to root node (Repository: " + identitiesRepository.getName() + ") for backwards compatibility. Please upgrade by introducing a /users node!");
         return this.identitiesRepository.getNode("/");
-    }
-    
-    /**
-     * Refresh a particular user within cache
-     */
-    private void refreshCache(String userId) throws AccessManagementException {
-        // TODO: Only user with ID 'userId' actually would need to be refreshed!
-        log.warn("Reloading all users in order to refresh cache! Actually reloading user '" + userId + "' would be sufficient!");
-        loadUsers();
-        log.warn("Refresh of group manager after reloading all users, such that user '" + userId + "' has access to a refreshed group manager!");
-        ((YarepGroupManager)identityManager.getGroupManager()).loadGroups();
     }
     
     /**
