@@ -262,7 +262,7 @@ public class PolicyManagerImpl implements PolicyManager {
      */
     public String[] getUsecases() {
         log.warn("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");
-        String[] usecases = {"view", "toolbar"};
+        String[] usecases = {"view", "open", "write", "toolbar", "create", "delete"};
         return usecases;
     }
 
@@ -271,7 +271,29 @@ public class PolicyManagerImpl implements PolicyManager {
      */
     public String getUsecaseLabel(String usecaseId, String language) {
         log.warn("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");
-        return "Toolbar";
+        if (language.equals("de")) {
+            if (usecaseId.equals("view")) {
+                return "Anschauen/Lesen";
+            } else if (usecaseId.equals("open")) {
+                return "Open content for editing";
+            } else if (usecaseId.equals("toolbar")) {
+                return "Toolbar";
+            } else {
+                return "No label for \"" + usecaseId + "\"";
+            }
+        } else {
+            if (usecaseId.equals("view")) {
+                return "View/Read";
+            } else if (usecaseId.equals("open")) {
+                return "Open content for editing";
+            } else if (usecaseId.equals("write")) {
+                return "Write/Save";
+            } else if (usecaseId.equals("toolbar")) {
+                return "Toolbar";
+            } else {
+                return "No label for \"" + usecaseId + "\"";
+            }
+        }
     }
 
     public Policy createEmptyPolicy() throws AuthorizationException {
