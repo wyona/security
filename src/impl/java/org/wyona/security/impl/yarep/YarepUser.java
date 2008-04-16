@@ -18,6 +18,7 @@ import org.wyona.security.core.UserHistory;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
 import org.wyona.security.core.api.GroupManager;
+import org.wyona.security.core.api.Item;
 import org.wyona.security.core.api.UserManager;
 import org.wyona.security.core.api.User;
 import org.wyona.security.impl.Password;
@@ -253,10 +254,18 @@ public class YarepUser extends YarepItem implements User {
      */
     public Group[] getGroups() throws AccessManagementException {
         if(log.isDebugEnabled()) log.debug("Get groups for user: " + getID() + ", " + getName());
+        return getGroups(this);
+    }
+
+    /**
+     *
+     */
+    private Group[] getGroups(Item item) throws AccessManagementException {
+        if(log.isDebugEnabled()) log.debug("Get groups for item: " + item.getID());
         Group[] allGroups = getGroupManager().getGroups();
         ArrayList groups = new ArrayList();
         for (int i = 0; i < allGroups.length; i++) {
-            if (allGroups[i].isMember(this)) {
+            if (allGroups[i].isMember(item)) {
                 groups.add(allGroups[i]);
             }
         }
@@ -269,8 +278,13 @@ public class YarepUser extends YarepItem implements User {
     public Group[] getGroups(boolean parents) throws AccessManagementException {
         if (parents) {
             log.warn("All parent groups for user '" + getID() + "' will be resolved!");
-            log.error("TODO: Resolve parent groups!");
-            return getGroups();
+            log.warn("Parent groups will be resolved!");
+            Group[] groups = getGroups();
+            for (int i = 0; i < groups.length; i++) {
+                Group[] parentGroups = getGroups(groups[i]);
+                if (parentGroups.length > 0) log.error("DEBUG: Parent groups found for '" + groups[i].getID() + "'");
+            }
+            return groups;
         } else {
             return getGroups();
         }
