@@ -11,10 +11,10 @@
                   version="1.2.8"/>
       <dependency groupId="wyona-org-commons" artifactId="wyona-org-commons"
                   version="0.0.1-dev-r22019"/>
-      <dependency groupId="yarep" artifactId="yarep-core" version="1.0-dev-r32338"/>
+      <dependency groupId="yarep" artifactId="yarep-core" version="1.0-dev-r35545"/>
 
       <!-- Runtime libraries -->
-      <dependency groupId="yarep" artifactId="yarep-impl" version="1.0-dev-r32338"/>
+      <dependency groupId="yarep" artifactId="yarep-impl" version="1.0-dev-r35545"/>
       <dependency groupId="avalon-framework" artifactId="avalon-framework-api" version="4.3"/>
       <dependency groupId="avalon-framework" artifactId="avalon-framework-impl" version="4.3"/>
       <dependency groupId="xerces" artifactId="xercesImpl"
