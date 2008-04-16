@@ -137,6 +137,8 @@ public class YarepGroupManager implements GroupManager {
             } else {
                 log.warn("Group '" + id + "' exists within persistent repository, but not within memory yet! Will be loaded into memory ...");
                 try {
+                    log.error("DEBUG: Add group id '" + id + "' to hash map first in order to break loops!");
+                    this.groups.put(id, null);
                     Group group = constructGroup(getGroupsParentNode().getNode(id + "." + SUFFIX));
                     this.groups.put(group.getID(), group);
                     return (Group) this.groups.get(id);
