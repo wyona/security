@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.Vector;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -277,16 +278,51 @@ public class YarepUser extends YarepItem implements User {
      */
     public Group[] getGroups(boolean parents) throws AccessManagementException {
         if (parents) {
-            log.warn("All parent groups for user '" + getID() + "' will be resolved!");
-            log.warn("Parent groups will be resolved!");
+            log.warn("Resolve parent groups for user '" + getID() + "' ...");
             Group[] groups = getGroups();
+            Vector allGroups = new Vector();
             for (int i = 0; i < groups.length; i++) {
-                Group[] parentGroups = getGroups(groups[i]);
-                if (parentGroups.length > 0) log.error("DEBUG: Parent groups found for '" + groups[i].getID() + "'");
+                allGroups.add(groups[i]);
             }
-            return groups;
+            for (int i = 0; i < groups.length; i++) {
+                try {
+                    getParentGroups(groups[i], allGroups);
+                } catch (Exception e) {
+                    log.error(e, e);
+                    throw new AccessManagementException(e);
+                }
+            }
+            return (Group[])allGroups.toArray(new Group[allGroups.size()]);
         } else {
             return getGroups();
+        }
+    }
+
+    /**
+     *
+     */
+    private void getParentGroups(Group group, Vector groups) throws Exception {
+        Group[] parentGroups = getGroups(group);
+        if (parentGroups.length > 0) {
+            log.error("DEBUG: Parent groups found for '" + group.getID() + "'");
+            for (int i = 0; i < parentGroups.length; i++) {
+                log.error("DEBUG: Check if parent group '" + parentGroups[i].getID() + "' is already contained ...");
+                boolean alreadyContained = false;
+                for (int k = 0; k < groups.size(); k++) {
+                    if (parentGroups[i].getID().equals(((Group)groups.elementAt(k)).getID())) {
+                        log.warn("Loop detected for group '" + group.getID() + "' and parent group '" + parentGroups[i].getID() + "'!");
+                        alreadyContained = true;
+                        break;
+                    }
+                }
+                if (!alreadyContained) {
+                    log.error("DEBUG: Add parent group '" + parentGroups[i].getID() + "'!");
+                    groups.add(parentGroups[i]);
+                    getParentGroups(parentGroups[i], groups);
+                }
+            }
+        } else {
+            log.error("DEBUG: Group '" + group.getID() + "' does not seem to have parent groups.");
         }
     }
 
