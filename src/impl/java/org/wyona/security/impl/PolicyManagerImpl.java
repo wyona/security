@@ -5,6 +5,9 @@ import java.util.Hashtable;
 import org.wyona.commons.io.Path;
 import org.wyona.commons.io.PathUtil;
 import org.wyona.security.core.AuthorizationException;
+import org.wyona.security.core.GroupPolicy;
+import org.wyona.security.core.IdentityPolicy;
+import org.wyona.security.core.UsecasePolicy;
 import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.Policy;
 import org.wyona.security.core.api.PolicyManager;
@@ -252,9 +255,82 @@ public class PolicyManagerImpl implements PolicyManager {
     /**
      * @see
      */
-    public void setPolicy(String path, Policy policy) throws java.lang.UnsupportedOperationException {
-        log.warn("Not implemented yet!");
-        throw new java.lang.UnsupportedOperationException("Setting policy by this policy manager '" + this.getClass().getName() + "' not implemented yet!");
+    public void setPolicy(String path, Policy policy) throws AuthorizationException {
+        //log.warn("Not implemented yet!");
+        //throw new java.lang.UnsupportedOperationException("Setting policy by this policy manager '" + this.getClass().getName() + "' not implemented yet!");
+
+        StringBuffer sb = new StringBuffer("<?xml version=\"1.0\"?>");
+        sb.append("\n\n<policy xmlns=\"http://www.wyona.org/security/1.0\" use-inherited-policies=\"" + policy.useInheritedPolicies() + "\">");
+
+        UsecasePolicy[] up = policy.getUsecasePolicies();
+        if (up != null && up.length > 0) {
+            for (int i = 0; i < up.length; i++) {
+                String useInheritedPoliciesStr = "";
+                if (!up[i].useInheritedPolicies()) {
+                    useInheritedPoliciesStr = " use-inherited-policies=\"false\"";
+                }
+                sb.append("\n\n<role id=\"" + up[i].getName() + "\"" + useInheritedPoliciesStr + ">");
+                sb.append(getIdentitiesGroupsAsXML(up[i]));
+                sb.append("\n</role>");
+
+/*
+                if (up[i].getName().equals("r")) {
+                    sb.append("\n\n<role id=\"" + "r" + "\"" + useInheritedPoliciesStr + ">");
+                    sb.append(getIdentitiesGroupsAsXML(up[i]));
+                    sb.append("\n</role>");
+                } else if (up[i].getName().equals("w")) {
+                    sb.append("\n\n<role id=\"" + "w" + "\"" + useInheritedPoliciesStr + ">");
+                    sb.append(getIdentitiesGroupsAsXML(up[i]));
+                    sb.append("\n</role>");
+                } else {
+                    log.warn("No such usecase supported: " + up[i].getName());
+                }
+*/
+            }
+        } else {
+            log.warn("No usecases for policy associated with " + path);
+        }
+        sb.append("\n</policy>");
+
+        //log.debug("Policy: " + sb);
+
+        Repository repo = getPoliciesRepository();
+        String policyPath = getPolicyPath(path);
+        try {
+            if (repo.existsNode(policyPath)) {
+                log.warn("Existing policy will be overwritten: " + policyPath);
+            } else {
+                org.wyona.yarep.util.YarepUtil.addNodes(repo, policyPath, org.wyona.yarep.core.NodeType.RESOURCE);
+                log.warn("New policy node has been created: " + policyPath);
+            }
+            org.wyona.yarep.core.Node policyNode = getPoliciesRepository().getNode(policyPath);
+            java.io.Writer writer = new java.io.OutputStreamWriter(policyNode.getOutputStream(), "UTF-8");
+            writer.write(sb.toString());
+            writer.close();
+            log.warn("Policy has been overwritten: " + policyPath);
+        } catch (Exception e) {
+            log.error(e, e);
+            throw new AuthorizationException(e.getMessage());
+        }
+    }
+
+    /**
+     *
+     */
+    private StringBuffer getIdentitiesGroupsAsXML(UsecasePolicy up) {
+        StringBuffer sb = new StringBuffer();
+
+        IdentityPolicy[] idps = up.getIdentityPolicies();
+        for (int k = 0; k < idps.length; k++) {
+            sb.append("\n  <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + idps[k].getPermission() + "\"/>");
+        }
+
+        GroupPolicy[] gps = up.getGroupPolicies();
+        for (int k = 0; k < gps.length; k++) {
+            sb.append("\n  <group id=\"" + gps[k].getId() + "\" permission=\"" + gps[k].getPermission() + "\"/>");
+        }
+
+        return sb;
     }
 
     /**
