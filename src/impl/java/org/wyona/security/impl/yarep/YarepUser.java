@@ -306,7 +306,7 @@ public class YarepUser extends YarepItem implements User {
         if (parentGroups.length > 0) {
             log.error("DEBUG: Parent groups found for '" + group.getID() + "'");
             for (int i = 0; i < parentGroups.length; i++) {
-                log.error("DEBUG: Check if parent group '" + parentGroups[i].getID() + "' is already contained ...");
+                if (log.isDebugEnabled()) log.debug("Check if parent group '" + parentGroups[i].getID() + "' is already contained ...");
                 boolean alreadyContained = false;
                 for (int k = 0; k < groups.size(); k++) {
                     if (parentGroups[i].getID().equals(((Group)groups.elementAt(k)).getID())) {
