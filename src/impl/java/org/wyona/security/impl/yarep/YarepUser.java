@@ -304,7 +304,7 @@ public class YarepUser extends YarepItem implements User {
     private void getParentGroups(Group group, Vector groups) throws Exception {
         Group[] parentGroups = getGroups(group);
         if (parentGroups.length > 0) {
-            log.error("DEBUG: Parent groups found for '" + group.getID() + "'");
+            if (log.isDebugEnabled()) log.debug("Parent groups found for '" + group.getID() + "'");
             for (int i = 0; i < parentGroups.length; i++) {
                 if (log.isDebugEnabled()) log.debug("Check if parent group '" + parentGroups[i].getID() + "' is already contained ...");
                 boolean alreadyContained = false;
@@ -316,13 +316,13 @@ public class YarepUser extends YarepItem implements User {
                     }
                 }
                 if (!alreadyContained) {
-                    log.error("DEBUG: Add parent group '" + parentGroups[i].getID() + "'!");
+                    if (log.isDebugEnabled()) log.debug("Add parent group '" + parentGroups[i].getID() + "'!");
                     groups.add(parentGroups[i]);
                     getParentGroups(parentGroups[i], groups);
                 }
             }
         } else {
-            log.error("DEBUG: Group '" + group.getID() + "' does not seem to have parent groups.");
+            if (log.isDebugEnabled()) log.debug("Group '" + group.getID() + "' does not seem to have parent groups.");
         }
     }
 
