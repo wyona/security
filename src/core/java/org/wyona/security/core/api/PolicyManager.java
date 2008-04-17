@@ -48,6 +48,13 @@ public interface PolicyManager {
     public void setPolicy(String path, Policy policy) throws AuthorizationException;
     
     /**
+     * Removes the policy from the given path.
+     * @param path
+     * @throws AuthorizationException
+     */
+    public void removePolicy(String path) throws AuthorizationException;
+    
+    /**
      * Creates an empty policy.
      * @return empty policy
      */

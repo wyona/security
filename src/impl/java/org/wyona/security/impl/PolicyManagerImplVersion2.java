@@ -11,7 +11,9 @@ import org.wyona.security.core.api.PolicyManager;
 import org.wyona.security.core.api.Role;
 import org.wyona.security.core.api.Usecase;
 import org.wyona.yarep.core.NoSuchNodeException;
+import org.wyona.yarep.core.Node;
 import org.wyona.yarep.core.Repository;
+import org.wyona.yarep.core.RepositoryException;
 import org.wyona.yarep.core.RepositoryFactory;
 import org.wyona.yarep.util.RepoPath;
 import org.wyona.yarep.util.YarepUtil;
@@ -305,4 +307,16 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
         }
     }
 
+    public void removePolicy(String path) throws AuthorizationException {
+        Repository repo = getPoliciesRepository();
+        String policyPath = getPolicyPath(path);
+        try {
+            if (repo.existsNode(policyPath)) {
+                repo.getNode(policyPath).delete();
+            }
+        } catch (RepositoryException e) {
+            throw new AuthorizationException("could not remove policy for path: " + path + 
+                    ": " + e.getMessage(), e);
+        }
+    }
 }
