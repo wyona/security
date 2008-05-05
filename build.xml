@@ -155,12 +155,7 @@
     <antcall target="install-jar-impl"/>
   </target>
   
-  <target name="install-jar-core" description="Place core jar into local maven repository" depends="init,jar-core">
-    <copy file="pom-core.xml" todir="build/lib"/>
-    <replace file="build/lib/pom-core.xml" value="${security.version}-r${subversion.revision}">
-      <replacetoken>@VERSION@</replacetoken>
-    </replace>
-
+  <target name="install-jar-core" description="Place core jar into local maven repository" depends="init,jar-core,patch-pom-core">
     <artifact:pom id="maven.project.core" file="build/lib/pom-core.xml"/>
 
     <artifact:install file="build/lib/wyona-org-security-core-${security.version}-r${subversion.revision}.jar">
@@ -169,12 +164,7 @@
 
   </target>
 
-  <target name="install-jar-util" description="Place util jar into local maven repository" depends="init,jar-util">
-    <copy file="pom-util.xml" todir="build/lib"/>
-    <replace file="build/lib/pom-util.xml" value="${security.version}-r${subversion.revision}">
-      <replacetoken>@VERSION@</replacetoken>
-    </replace>
-
+  <target name="install-jar-util" description="Place util jar into local maven repository" depends="init,jar-util,patch-pom-util">
     <artifact:pom id="maven.project.util" file="build/lib/pom-util.xml"/>
 
     <artifact:install file="build/lib/wyona-org-security-util-${security.version}-r${subversion.revision}.jar">
@@ -183,18 +173,84 @@
 
   </target>
 
-  <target name="install-jar-impl" description="Place impl jar into local maven repository" depends="init,jar-impl">
-    <copy file="pom-impl.xml" todir="build/lib"/>
-    <replace file="build/lib/pom-impl.xml" value="${security.version}-r${subversion.revision}">
-      <replacetoken>@VERSION@</replacetoken>
-    </replace>
-
+  <target name="install-jar-impl" description="Place impl jar into local maven repository" depends="init,jar-impl,patch-pom-impl">
     <artifact:pom id="maven.project.impl" file="build/lib/pom-impl.xml"/>
 
     <artifact:install file="build/lib/wyona-org-security-impl-${security.version}-r${subversion.revision}.jar">
       <pom refid="maven.project.impl"/>
     </artifact:install>
 
+  </target>
+  
+  <target name="deploy-jars" description="Upload jar files for core and impl into remote maven repository" depends="clean">
+    <antcall target="deploy-jar-core"/>
+    <antcall target="deploy-jar-util"/>
+    <antcall target="deploy-jar-impl"/>
+  </target>
+
+  <target name="install-ssh-provider">
+    <!-- <artifact:install-provider artifactId="wagon-ssh" version="1.0-beta-2"/> -->
+    <artifact:install-provider artifactId="wagon-ssh" version="1.0-alpha-7"/>
+  </target>
+  
+  <target name="deploy-jar-core" description="Upload core jar file into remote maven repository" depends="init,jar-core,install-ssh-provider,patch-pom-core">
+    <artifact:pom id="maven.project.core" file="build/lib/pom-core.xml"/>
+
+    <echo>deploying to ${repository.url}</echo>
+
+    <artifact:deploy file="build/lib/wyona-org-security-core-${security.version}-r${subversion.revision}.jar">
+      <remoteRepository url="${repository.url}">
+        <authentication username="${repository.username}" privateKey="${user.home}/.ssh/id_dsa"/>
+      </remoteRepository>
+      <pom refid="maven.project.core"/>
+    </artifact:deploy>
+  </target>
+
+  <target name="deploy-jar-util" description="Upload util jar file into remote maven repository" depends="init,jar-util,install-ssh-provider,patch-pom-util">
+    <artifact:pom id="maven.project.util" file="build/lib/pom-util.xml"/>
+
+    <echo>deploying to ${repository.url}</echo>
+
+    <artifact:deploy file="build/lib/wyona-org-security-util-${security.version}-r${subversion.revision}.jar">
+      <remoteRepository url="${repository.url}">
+        <authentication username="${repository.username}" privateKey="${user.home}/.ssh/id_dsa"/>
+      </remoteRepository>
+      <pom refid="maven.project.util"/>
+    </artifact:deploy>
+  </target>
+
+  <target name="deploy-jar-impl" description="Upload impl jar file into remote maven repository" depends="init,jar-impl,install-ssh-provider,patch-pom-impl">
+    <artifact:pom id="maven.project.impl" file="build/lib/pom-impl.xml"/>
+
+    <echo>deploying to ${repository.url}</echo>
+
+    <artifact:deploy file="build/lib/wyona-org-security-impl-${security.version}-r${subversion.revision}.jar">
+      <remoteRepository url="${repository.url}">
+        <authentication username="${repository.username}" privateKey="${user.home}/.ssh/id_dsa"/>
+      </remoteRepository>
+      <pom refid="maven.project.impl"/>
+    </artifact:deploy>
+  </target>
+
+  <target name="patch-pom-core" depends="init">
+    <copy file="pom-core.xml" todir="build/lib"/>
+    <replace file="build/lib/pom-core.xml" value="${security.version}-r${subversion.revision}">
+      <replacetoken>@VERSION@</replacetoken>
+    </replace>
+  </target>
+
+  <target name="patch-pom-impl" depends="init">
+    <copy file="pom-impl.xml" todir="build/lib"/>
+    <replace file="build/lib/pom-impl.xml" value="${security.version}-r${subversion.revision}">
+      <replacetoken>@VERSION@</replacetoken>
+    </replace>
+  </target>
+
+  <target name="patch-pom-util" depends="init">
+    <copy file="pom-util.xml" todir="build/lib"/>
+    <replace file="build/lib/pom-util.xml" value="${security.version}-r${subversion.revision}">
+      <replacetoken>@VERSION@</replacetoken>
+    </replace>
   </target>
 
   <!-- the test target executes all tests in the test directory, or alternatively
