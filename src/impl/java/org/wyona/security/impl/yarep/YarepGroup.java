@@ -184,4 +184,21 @@ public class YarepGroup extends YarepItem implements Group {
             log.warn("Item is null. Can't remove item/user from the group '" + getID() + "'");
         }
     }
+    
+    /**
+     * Two groups are equal if they have the same id.
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof Group) {
+            String id1;
+            try {
+                id1 = getID();
+                String id2 = ((Group)obj).getID();
+                return id1.equals(id2);
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+        return false;
+    }
 }

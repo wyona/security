@@ -397,4 +397,21 @@ public class YarepUser extends YarepItem implements User {
     public void setHistory(UserHistory history) {
         log.error("TODO: Not implemented yet!");
     }
+    
+    /**
+     * Two users are equal if they have the same id.
+     */
+    public boolean equals(Object obj) {
+        if (obj instanceof User) {
+            String id1;
+            try {
+                id1 = getID();
+                String id2 = ((User)obj).getID();
+                return id1.equals(id2);
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+        return false;
+    }
 }
