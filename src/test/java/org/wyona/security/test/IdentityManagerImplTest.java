@@ -27,7 +27,7 @@ public class IdentityManagerImplTest extends TestCase {
         RepositoryFactory repoFactory = new RepositoryFactory();
         repo = repoFactory.newRepository("identities-repository", new File(
                 "repository2/repository.xml"));
-        identityManager = new YarepIdentityManagerImpl(repo);
+        identityManager = new YarepIdentityManagerImpl(repo, true);
     }
     
     /*
@@ -37,7 +37,7 @@ public class IdentityManagerImplTest extends TestCase {
         RepositoryFactory repoFactory = new RepositoryFactory();
         repo = repoFactory.newRepository("identities-repository", new File(
                 "repository1/config/repository-identities.xml"));
-        IdentityManager identityManager = new YarepIdentityManagerImpl(repo);
+        IdentityManager identityManager = new YarepIdentityManagerImpl(repo, true);
         String user = "lenya";
         String rightPassword = "levi";
         String wrongPassword = "lala";
@@ -52,7 +52,7 @@ public class IdentityManagerImplTest extends TestCase {
         RepositoryFactory repoFactory = new RepositoryFactory();
         repo = repoFactory.newRepository("identities-repository", new File(
         "repository1/config/repository-identities.xml"));
-        IdentityManager identityManager = new YarepIdentityManagerImpl(repo);
+        IdentityManager identityManager = new YarepIdentityManagerImpl(repo, true);
         String user = "alice";
         String rightPassword = "levi";
         String wrongPassword = "lala";

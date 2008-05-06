@@ -59,7 +59,7 @@ public class PolicyManagerImplTest extends TestCase {
     public void testAuthorization() throws Exception {
         RepositoryFactory repoFactory = new RepositoryFactory();
         Repository repoIdentities = repoFactory.newRepository("identities-repository", new File("repository2/repository.xml"));
-        IdentityManager identityManager = new YarepIdentityManagerImpl(repoIdentities);
+        IdentityManager identityManager = new YarepIdentityManagerImpl(repoIdentities, true);
 
         User lenya = identityManager.getUserManager().getUser("lenya");
         User alice = identityManager.getUserManager().getUser("alice");
