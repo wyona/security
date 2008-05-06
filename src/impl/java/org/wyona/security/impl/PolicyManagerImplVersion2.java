@@ -60,10 +60,10 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
     }
 
     /**
-     * @deprecated
+     * @deprecated Use authorize(String, Identity, Usecase) instead
      */
     public boolean authorize(String path, Identity identity, Role role) throws AuthorizationException {
-        log.warn("Deprecated method and not implemented!");
+        log.warn("Deprecated method and not implemented! Use method authorize(String, Identity, Usecase) instead!");
         return false;
     }
 
