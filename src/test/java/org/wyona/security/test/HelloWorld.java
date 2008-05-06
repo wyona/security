@@ -11,8 +11,6 @@ import org.wyona.security.core.api.Role;
 import org.wyona.security.core.api.Usecase;
 import org.wyona.security.core.api.Identity;
 
-import org.wyona.security.util.PolicyViewer;
-
 import org.wyona.yarep.core.Repository;
 import org.wyona.yarep.core.RepositoryException;
 import org.wyona.yarep.core.RepositoryFactory;
@@ -175,14 +173,6 @@ public class HelloWorld {
             System.out.println("Test PolicyManagerImpl2:");
             pmf = new org.wyona.security.impl.PolicyManagerFactoryImplVersion2();
             pm = pmf.newPolicyManager(policiesRepoVersion2);
-
-            boolean showParents = true;
-            System.out.println(PolicyViewer.getXHTMLView(pm, path.toString(), "phone", PolicyViewer.ORDERED_BY_USECASES, showParents));
-            System.out.println(PolicyViewer.getXHTMLView(pm, path.toString(), "phone", PolicyViewer.ORDERED_BY_IDENTITIES, showParents));
-            showParents = false;
-            //System.out.println(PolicyViewer.getXHTMLView(pm, path.toString(), "phone", PolicyViewer.ORDERED_BY_IDENTITIES, showParents));
-
-            //System.out.println(PolicyViewer.getXHTMLView(pm, "/hello/", null, PolicyViewer.ORDERED_BY_IDENTITIES));
         } catch (Exception e) {
             System.err.println(e);
             e.printStackTrace();
