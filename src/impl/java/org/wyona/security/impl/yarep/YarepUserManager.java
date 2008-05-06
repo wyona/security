@@ -105,7 +105,10 @@ public class YarepUserManager implements UserManager {
             log.warn("User '" + id + "' does not exist wihtin memory yet, but will be loaded now!");
         }
 
-        this.users.put(id, getUserFromPersistentRepository(id));
+        User user = getUserFromPersistentRepository(id);
+        if (user != null) {
+            this.users.put(id, user);
+        }
     }
 
     /**
