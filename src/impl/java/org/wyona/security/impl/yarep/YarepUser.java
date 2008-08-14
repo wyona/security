@@ -278,7 +278,7 @@ public class YarepUser extends YarepItem implements User {
      */
     public Group[] getGroups(boolean parents) throws AccessManagementException {
         if (parents) {
-            log.warn("Resolve parent groups for user '" + getID() + "' ...");
+            log.info("Resolve parent groups for user '" + getID() + "' ...");
             Group[] groups = getGroups();
             Vector allGroups = new Vector();
             for (int i = 0; i < groups.length; i++) {
