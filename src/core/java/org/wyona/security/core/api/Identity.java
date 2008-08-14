@@ -48,7 +48,7 @@ public class Identity implements java.io.Serializable {
         try {
             this.username = user.getID();
 
-            log.warn("Set groupnames via user object for user '" + user.getID() + "' such that also parent groups are loaded!");
+            log.info("Set groupnames via user object for user '" + user.getID() + "' such that also parent groups are loaded!");
             // NOTE: Setting true means that also parent groups shall be loaded (groups in groups)!
             Group[] groups = user.getGroups(true);
             groupnames = new String[groups.length];
