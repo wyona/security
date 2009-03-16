@@ -28,9 +28,10 @@ public class PolicyAggregator {
     }
 
     /**
-     *
+     * Aggregate policies
      */
     public static Policy aggregatePolicy(String path, PolicyManager pm) throws AuthorizationException {
+        //log.debug("Aggregate policy: " + path);
         Policy policy = pm.getPolicy(path, false);
         if (policy == null) {
             if (!path.equals("/")) {
