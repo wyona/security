@@ -1,6 +1,7 @@
 package org.wyona.security.impl;
 
 import org.wyona.security.core.GroupPolicy;
+import org.wyona.security.core.IdentityPolicy;
 import org.wyona.security.core.UsecasePolicy;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
@@ -82,12 +83,12 @@ public class PolicyImplVersion1 implements Policy {
         UsecasePolicy[] ups = getUsecasePolicies();
         for (int i = 0; i < ups.length; i++) {
             sb.append("  Usecase: " + ups[i].getName() + "\n");
-            Identity[] ids = ups[i].getIdentities();
-            for (int j = 0; j < ids.length; j++) {
-                if (ids[j].isWorld()) {
-                    sb.append("    WORLD (TODO: permission)\n");
+            IdentityPolicy[] idps = ups[i].getIdentityPolicies();
+            for (int j = 0; j < idps.length; j++) {
+                if (idps[j].getIdentity().isWorld()) {
+                    sb.append("    WORLD (" + idps[j].getPermission() + ")\n");
                 } else {
-                    sb.append("    User: " + ids[j].getUsername() + " (TODO: permission)\n");
+                    sb.append("    User: " + idps[j].getIdentity().getUsername() + " (" + idps[j].getPermission() + ")\n");
                 }
             }
             GroupPolicy[] gps = ups[i].getGroupPolicies();
