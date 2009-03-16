@@ -85,9 +85,9 @@ public class PolicyImplVersion1 implements Policy {
             Identity[] ids = ups[i].getIdentities();
             for (int j = 0; j < ids.length; j++) {
                 if (ids[j].isWorld()) {
-                    sb.append("    WORLD\n");
+                    sb.append("    WORLD (TODO: permission)\n");
                 } else {
-                    sb.append("    User: " + ids[j].getUsername() + "\n");
+                    sb.append("    User: " + ids[j].getUsername() + " (TODO: permission)\n");
                 }
             }
             GroupPolicy[] gps = ups[i].getGroupPolicies();
