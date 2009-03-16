@@ -3,7 +3,7 @@ package org.wyona.security.core;
 import org.wyona.security.core.api.Identity;
 
 /**
- *
+ * The XML representation of an IdentityPolicy is <user id="lenya" permission="false"/>
  */
 public class IdentityPolicy {
 
