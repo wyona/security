@@ -169,24 +169,37 @@ public class UsecasePolicy {
 
     
     /**
-     * Merge UsecasePolicy into this UsecasePolicy
+     * Merge another UsecasePolicy with this UsecasePolicy
+     * @param up UsecasePolicy to be merged with this UsecasePolicy
      */
     public void merge(UsecasePolicy up) {
         if (!getName().equals(up.getName())) {
-            log.error("Usecase policies do not have the same names: " + getName() + " != " + up.getName());
+            log.error("Usecase policies do not have the same names/IDs: " + getName() + " != " + up.getName());
             return;
         }
 
         // Merge identities
         IdentityPolicy[] upIdps = up.getIdentityPolicies();
         for (int i = 0; i < upIdps.length; i++) {
+            //log.debug("IdentityPolicy (UsecasePolicy: " + up.getName() + "): " + upIdps[i].getIdentity().getUsername());
             boolean identityAlreadyExists = false;
-            for (int k = 0; k < idps.size(); k++) {
-                if (((IdentityPolicy) idps.elementAt(k)).getIdentity().getUsername().equals(upIdps[i].getIdentity().getUsername())) {
-                    identityAlreadyExists = true;
-                    break;
+                for (int k = 0; k < idps.size(); k++) {
+                    IdentityPolicy idp = (IdentityPolicy) idps.elementAt(k);
+                    if (upIdps[i].getIdentity().getUsername() != null && idp.getIdentity().getUsername() != null && idp.getIdentity().getUsername().equals(upIdps[i].getIdentity().getUsername())) {
+                        identityAlreadyExists = true;
+                        if (upIdps[i].getPermission() != idp.getPermission()) {
+                            log.warn("Identity Policies '" + idp.getIdentity().getUsername() + "' of Usecase Policy '" + up.getName() + "' do not have the same permission!");
+                        }
+                        break;
+                    }
+                    if (upIdps[i].getIdentity().getUsername() == null && idp.getIdentity().getUsername() == null) {
+                        identityAlreadyExists = true;
+                        if (upIdps[i].getPermission() != idp.getPermission()) {
+                            log.warn("Identity Policies 'WORLD' of Usecase Policy '" + up.getName() + "' do not have the same permission!");
+                        }
+                        break;
+                    }
                 }
-            }
             if (!identityAlreadyExists) {
                 addIdentity(upIdps[i].getIdentity(), upIdps[i].getPermission());
             }
