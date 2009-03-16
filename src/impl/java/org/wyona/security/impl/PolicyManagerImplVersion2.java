@@ -280,11 +280,17 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
         log.warn("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");
         if (language.equals("de")) {
             if (usecaseId.equals("view")) {
-                return "Anschauen/Lesen";
+                return "Inhalt anschauen/lesen";
             } else if (usecaseId.equals("open")) {
-                return "Open content for editing";
+                return "Inhalt zum Bearbeiten oeffnen";
+            } else if (usecaseId.equals("write")) {
+                return "(Bearbeiteter) Inhalt abspeichern";
+            } else if (usecaseId.equals("policy.read")) {
+                return "Zugriffsberechtigungen anschauen/lesen";
+            } else if (usecaseId.equals("policy.update")) {
+                return "Zugriffsberechtigungen bearbeiten";
             } else {
-                return "No label for \"" + usecaseId + "\"";
+                return "No label for \"" + usecaseId + "\" (see " + this.getClass().getName() + ")";
             }
         } else {
             if (usecaseId.equals("view")) {
@@ -294,7 +300,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
             } else if (usecaseId.equals("write")) {
                 return "Write/Save";
             } else {
-                return "No label for \"" + usecaseId + "\"";
+                return "No label for \"" + usecaseId + "\" (see " + this.getClass().getName() + ")";
             }
         }
     }
