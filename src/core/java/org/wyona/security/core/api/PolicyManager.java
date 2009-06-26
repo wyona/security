@@ -31,6 +31,7 @@ public interface PolicyManager {
    
     /**
      * Get policies repository
+     * @deprecated It's not good to reveal the actual data repository
      */
      public Repository getPoliciesRepository();
 
