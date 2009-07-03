@@ -21,7 +21,7 @@ fi
 # ----- Set Environment Variables
 ORIGINAL_ANT_HOME=$ANT_HOME
 unset ANT_HOME
-ANT_HOME=$PWD/tools/apache-ant-1.6.2
+ANT_HOME=$PWD/tools/apache-ant
 #echo $ANT_HOME
 
 ORIGINAL_PATH=$PATH
@@ -31,7 +31,7 @@ PATH=$PWD/tools/maven-2.0.4/bin:$ANT_HOME/bin:$PATH
 # ----- Build Security ...
 #mvn --version
 ant -version
-ant -f build.xml $@
+ant -lib tools/apache-ant_extras -f build.xml $@
 
 # ----- Reset Environment Variables
 ANT_HOME=$ORIGINAL_ANT_HOME
