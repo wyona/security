@@ -8,6 +8,12 @@ public interface UserManager {
     /**
      * Gets all users in no particular order.
      * 
+     * XXX: this does not scale UI-wise for many users:
+     *  we should probably add a method like
+     *  <code>Iterator&lt;User&gt; findUsers(String pattern)</code>,
+     *  <var>pattern</var> being an implementation-specific search string.
+     *  We may also need server-side sort and paging.
+     *  
      * @return array of users, empty array if no users exist.
      * @throws AccessManagementException
      */
@@ -16,6 +22,8 @@ public interface UserManager {
     /**
      * Gets all users in no particular order, whereas provides a parameter to tell the implementation to refresh possibly cached entries
      * 
+     * XXX: this does not scale UI-wise for many users: cf. {@link UserManager#getUsers()} for rationale.
+     *  
      * @return array of users, empty array if no users exist.
      * @throws AccessManagementException
      */

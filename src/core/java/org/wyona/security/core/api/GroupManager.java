@@ -7,6 +7,8 @@ public interface GroupManager {
     /**
      * Get all groups in no particular order.
      * 
+     * XXX: this does not scale UI-wise for many users: cf. {@link UserManager#getUsers()} for rationale.
+     *  
      * @return array of groups, empty array if there are no groups.
      * @throws AccessManagementException
      */
@@ -23,7 +25,7 @@ public interface GroupManager {
 
     /**
      * Creates a new group.
-     * The group is saved automatically.u
+     * The group is saved automatically.
      * 
      * @param id
      * @param name
