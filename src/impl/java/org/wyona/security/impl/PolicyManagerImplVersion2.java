@@ -260,7 +260,21 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      * @see
      */
     public void setPolicy(String path, Policy policy) throws java.lang.UnsupportedOperationException {
-        log.warn("TODO: Not implemented yet!");
+        log.warn("TODO: Implementation not finished yet!");
+
+        Repository repo = getPoliciesRepository();
+        String policyPath = getPolicyPath(path);
+        try {
+            if (!repo.existsNode(policyPath)) {
+                log.warn("TODO: Create new policy: " + policyPath);              
+            } else {
+                log.warn("Policy '" + policyPath + "' already exists and hence creation request will be ignored!");              
+            }
+        } catch(Exception e) {
+            log.error(e, e);
+            new java.lang.UnsupportedOperationException(e.getMessage());
+        }
+
         throw new java.lang.UnsupportedOperationException("Setting policy by this policy manager '" + this.getClass().getName() + "' not implemented yet!");
     }
 
