@@ -277,7 +277,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      * @see
      */
     public String getUsecaseLabel(String usecaseId, String language) {
-        log.warn("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");
+        log.debug("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");
         if (language.equals("de")) {
             if (usecaseId.equals("view")) {
                 return "Inhalt anschauen/lesen";
@@ -285,6 +285,14 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                 return "Inhalt zum Bearbeiten oeffnen";
             } else if (usecaseId.equals("write")) {
                 return "(Bearbeiteter) Inhalt abspeichern";
+            } else if (usecaseId.equals("resource.create")) {
+                return "Inhalt neu kreieren";
+            } else if (usecaseId.equals("delete")) {
+                return "Inhalt loeschen";
+            } else if (usecaseId.equals("introspection")) {
+                return "Introspection anschauen/lesen";
+            } else if (usecaseId.equals("toolbar")) {
+                return "Yanel Toolbar verwenden";
             } else if (usecaseId.equals("policy.read")) {
                 return "Zugriffsberechtigungen anschauen/lesen";
             } else if (usecaseId.equals("policy.update")) {
@@ -299,6 +307,18 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                 return "Open content for editing";
             } else if (usecaseId.equals("write")) {
                 return "Write/Save";
+            } else if (usecaseId.equals("resource.create")) {
+                return "Create a resource or a collection";
+            } else if (usecaseId.equals("delete")) {
+                return "Delete a resource or a collection";
+            } else if (usecaseId.equals("introspection")) {
+                return "View introspection";
+            } else if (usecaseId.equals("toolbar")) {
+                return "Access Yanel toolbar";
+            } else if (usecaseId.equals("policy.read")) {
+                return "View access policy";
+            } else if (usecaseId.equals("policy.update")) {
+                return "Edit access policy";
             } else {
                 return "No label for \"" + usecaseId + "\" (see " + this.getClass().getName() + ")";
             }
