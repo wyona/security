@@ -260,22 +260,60 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      * @see
      */
     public void setPolicy(String path, Policy policy) throws java.lang.UnsupportedOperationException {
-        log.warn("TODO: Implementation not finished yet!");
 
         Repository repo = getPoliciesRepository();
         String policyPath = getPolicyPath(path);
         try {
+            Node node;
             if (!repo.existsNode(policyPath)) {
-                log.warn("TODO: Create new policy: " + policyPath);              
+                log.warn("Create new policy: " + policyPath);              
+                node = YarepUtil.addNodes(repo, policyPath, org.wyona.yarep.core.NodeType.RESOURCE);
             } else {
                 log.warn("Policy '" + policyPath + "' already exists and hence creation request will be ignored!");              
+                node = repo.getNode(policyPath);
             }
+
+            StringBuilder sb = new StringBuilder("<policy xmlns=\"http://www.wyona.org/security/1.0\"");
+            boolean inheritPolicy = policy.useInheritedPolicies();
+            if (!inheritPolicy) {
+                sb.append(" use-inherited-policies=\"false\"");
+            }
+            sb.append(">");
+
+            org.wyona.security.core.UsecasePolicy[] up = policy.getUsecasePolicies();
+            for (int i = 0; i < up.length; i++) {
+                org.wyona.security.core.IdentityPolicy[] idps = up[i].getIdentityPolicies();
+                org.wyona.security.core.GroupPolicy[] gps = up[i].getGroupPolicies();
+                if ((idps != null && idps.length > 0) || (gps!= null && gps.length > 0)) {
+                    sb.append("\n  <usecase id=\""+up[i].getName()+"\">");
+                    log.warn("TODO: What about WORLD?!");
+                    //sb.append("\n    <world permission=\"true\"/>");
+                    for (int k = 0; k < idps.length; k++) {
+                        if (inheritPolicy && idps[k].getPermission() == false) { // TODO: Check inheritance flag of identity policy
+                            sb.append("\n    <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), idps[k].getIdentity(), new Usecase(up[i].getName())) + "\"/>");
+                        } else {
+                            sb.append("\n    <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + idps[k].getPermission() + "\"/>");
+                        }
+                    }
+                    for (int k = 0; k < gps.length; k++) {
+                        if (inheritPolicy && gps[k].getPermission() == false) { // TODO: Check inheritance flag of group policy
+                            sb.append("\n    <group id=\"" + gps[k].getId() + "\" permission=\"" + true + "\"/>");
+                            //sb.append("\n    <group id=\"" + gps[k].getId() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), TODO, new Usecase(up[i].getName())) + "\"/>");
+                        } else {
+                            sb.append("\n    <group id=\"" + gps[k].getId() + "\" permission=\"" + gps[k].getPermission() + "\"/>");
+                        }
+                    }
+                    sb.append("\n  </usecase>");
+                }
+            }
+
+            sb.append("\n</policy>");
+
+            org.apache.commons.io.IOUtils.copy(new java.io.StringBufferInputStream(sb.toString()), node.getOutputStream());
         } catch(Exception e) {
             log.error(e, e);
             new java.lang.UnsupportedOperationException(e.getMessage());
         }
-
-        throw new java.lang.UnsupportedOperationException("Setting policy by this policy manager '" + this.getClass().getName() + "' not implemented yet!");
     }
 
     /**
