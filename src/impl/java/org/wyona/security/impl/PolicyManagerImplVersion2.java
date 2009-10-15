@@ -290,6 +290,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                     //sb.append("\n    <world permission=\"true\"/>");
                     for (int k = 0; k < idps.length; k++) {
                         if (inheritPolicy && idps[k].getPermission() == false) { // TODO: Check inheritance flag of identity policy
+                            log.warn("DEBUG: Identity: " + idps[k].getIdentity() + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(policy.getParentPolicy(), idps[k].getIdentity(), new Usecase(up[i].getName())));
                             sb.append("\n    <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), idps[k].getIdentity(), new Usecase(up[i].getName())) + "\"/>");
                         } else {
                             sb.append("\n    <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + idps[k].getPermission() + "\"/>");
