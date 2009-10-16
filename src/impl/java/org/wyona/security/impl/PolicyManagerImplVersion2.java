@@ -76,7 +76,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
     }
    
     /**
-     *
+     * @see org.wyona.security.core.api.PolicyManager#authorize(String, Identity, Usecase)
      */
     public boolean authorize(String path, Identity identity, Usecase usecase) throws AuthorizationException {
         if(path == null || identity == null || usecase == null) {
@@ -85,16 +85,16 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
         }
 
         try {
-            return authorize(policiesRepository, path, identity, usecase);
+            return authorize(getPoliciesRepository(), path, identity, usecase);
         } catch(Exception e) {
             log.error(e.getMessage(), e);
-            throw new AuthorizationException("Error authorizing " + policiesRepository.getID() + 
+            throw new AuthorizationException("Error authorizing " + getPoliciesRepository().getID() + 
                     ", " + path + ", " + identity + ", " + usecase, e);
         }
     }
 
     /**
-     *
+     * @param repo Access control policy repository
      */
     private boolean authorize(Repository repo, String path, Identity identity, Usecase usecase) throws Exception {
         if(repo == null) {
@@ -290,8 +290,12 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                     //sb.append("\n    <world permission=\"true\"/>");
                     for (int k = 0; k < idps.length; k++) {
                         if (inheritPolicy && idps[k].getPermission() == false) { // TODO: Check inheritance flag of identity policy
+                            log.warn("DEBUG: Identity: " + idps[k].getIdentity() + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(PathUtil.getParent(path), idps[k].getIdentity(), new Usecase(up[i].getName())));
+                            sb.append("\n    <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + this.authorize(PathUtil.getParent(path), idps[k].getIdentity(), new Usecase(up[i].getName())) + "\"/>");
+/*
                             log.warn("DEBUG: Identity: " + idps[k].getIdentity() + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(policy.getParentPolicy(), idps[k].getIdentity(), new Usecase(up[i].getName())));
                             sb.append("\n    <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), idps[k].getIdentity(), new Usecase(up[i].getName())) + "\"/>");
+*/
                         } else {
                             sb.append("\n    <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + idps[k].getPermission() + "\"/>");
                         }
