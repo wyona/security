@@ -6,6 +6,7 @@ import org.wyona.security.core.UsecasePolicy;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
 import org.wyona.security.core.api.Identity;
+import org.wyona.security.core.api.IdentityManager;
 import org.wyona.security.core.api.Policy;
 
 import org.apache.log4j.Logger;
@@ -48,9 +49,10 @@ public class PolicyParser implements Policy {
     }
 
     /**
-     *
+     * @param in Policy as XML as input stream
+     * @param idManager Identity manager in order to resolve dependencies between users and groups
      */
-    public Policy parseXML(java.io.InputStream in) throws Exception {
+    public Policy parseXML(java.io.InputStream in, IdentityManager idManager) throws Exception {
         boolean enableNamespaces = true;
         builder = new DefaultConfigurationBuilder(enableNamespaces);
         Configuration config = builder.build(in);
@@ -85,6 +87,13 @@ public class PolicyParser implements Policy {
         // TODO: Check for hosts
 
         return this;
+    }
+
+    /**
+     * @deprecated Use parseXML(InputStream, IdentityManager) instead
+     */
+    public Policy parseXML(java.io.InputStream in) throws Exception {
+        return parseXML(in, null);
     }
 
     /**

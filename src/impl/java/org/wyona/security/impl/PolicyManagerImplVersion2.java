@@ -24,7 +24,7 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 
 /**
- *
+ * Policy manager implementation version 2
  */
 public class PolicyManagerImplVersion2 implements PolicyManager {
 
@@ -52,7 +52,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
          
      
     /**
-     * @deprecated
+     * @deprecated Use authorize(String, Identity, Usecase) instead
      */
     public boolean authorize(Path path, Identity identity, Role role) throws AuthorizationException {
         return authorize(path.toString(), identity, role);
@@ -68,7 +68,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
     }
 
     /**
-     *
+     * @see org.wyona.security.core.api.PolicyManager#authorize(Policy, Identity, Usecase)
      */
     public boolean authorize(Policy policy, Identity identity, Usecase usecase) throws AuthorizationException {
         log.error("Not implemented yet!");
@@ -88,8 +88,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
             return authorize(getPoliciesRepository(), path, identity, usecase);
         } catch(Exception e) {
             log.error(e.getMessage(), e);
-            throw new AuthorizationException("Error authorizing " + getPoliciesRepository().getID() + 
-                    ", " + path + ", " + identity + ", " + usecase, e);
+            throw new AuthorizationException("Error authorizing " + getPoliciesRepository().getID() + ", " + path + ", " + identity + ", " + usecase, e);
         }
     }
 
@@ -257,22 +256,13 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
     }
 
     /**
-     * @see
+     * @see org.wyona.security.core.api.PolicyManager#setPolicy(String, Policy)
      */
     public void setPolicy(String path, Policy policy) throws java.lang.UnsupportedOperationException {
 
         Repository repo = getPoliciesRepository();
         String policyPath = getPolicyPath(path);
         try {
-            Node node;
-            if (!repo.existsNode(policyPath)) {
-                log.warn("Create new policy: " + policyPath);              
-                node = YarepUtil.addNodes(repo, policyPath, org.wyona.yarep.core.NodeType.RESOURCE);
-            } else {
-                log.warn("Policy '" + policyPath + "' already exists and hence creation request will be ignored!");              
-                node = repo.getNode(policyPath);
-            }
-
             StringBuilder sb = new StringBuilder("<policy xmlns=\"http://www.wyona.org/security/1.0\"");
             boolean inheritPolicy = policy.useInheritedPolicies();
             if (!inheritPolicy) {
@@ -290,8 +280,12 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                     //sb.append("\n    <world permission=\"true\"/>");
                     for (int k = 0; k < idps.length; k++) {
                         if (inheritPolicy && idps[k].getPermission() == false) { // TODO: Check inheritance flag of identity policy
-                            log.warn("DEBUG: Identity: " + idps[k].getIdentity() + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(PathUtil.getParent(path), idps[k].getIdentity(), new Usecase(up[i].getName())));
-                            sb.append("\n    <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + this.authorize(PathUtil.getParent(path), idps[k].getIdentity(), new Usecase(up[i].getName())) + "\"/>");
+                            Identity identity = idps[k].getIdentity();
+                            if (identity.getGroupnames() != null) {
+                                log.warn("DEBUG: Number of groups: " + identity.getGroupnames().length);
+                            }
+                            log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(PathUtil.getParent(path), identity, new Usecase(up[i].getName())));
+                            sb.append("\n    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(PathUtil.getParent(path), identity, new Usecase(up[i].getName())) + "\"/>");
 /*
                             log.warn("DEBUG: Identity: " + idps[k].getIdentity() + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(policy.getParentPolicy(), idps[k].getIdentity(), new Usecase(up[i].getName())));
                             sb.append("\n    <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), idps[k].getIdentity(), new Usecase(up[i].getName())) + "\"/>");
@@ -302,6 +296,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                     }
                     for (int k = 0; k < gps.length; k++) {
                         if (inheritPolicy && gps[k].getPermission() == false) { // TODO: Check inheritance flag of group policy
+                            // TODO: Check group authorization
                             sb.append("\n    <group id=\"" + gps[k].getId() + "\" permission=\"" + true + "\"/>");
                             //sb.append("\n    <group id=\"" + gps[k].getId() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), TODO, new Usecase(up[i].getName())) + "\"/>");
                         } else {
@@ -313,6 +308,15 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
             }
 
             sb.append("\n</policy>");
+
+            Node node;
+            if (!repo.existsNode(policyPath)) {
+                log.warn("Create new policy: " + policyPath);              
+                node = YarepUtil.addNodes(repo, policyPath, org.wyona.yarep.core.NodeType.RESOURCE);
+            } else {
+                log.warn("Policy '" + policyPath + "' already exists and hence creation request will be ignored!");              
+                node = repo.getNode(policyPath);
+            }
 
             org.apache.commons.io.IOUtils.copy(new java.io.StringBufferInputStream(sb.toString()), node.getOutputStream());
         } catch(Exception e) {
