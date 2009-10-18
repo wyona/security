@@ -70,13 +70,11 @@ public class PolicyParser implements Policy {
                 String permission = rightConfigs[k].getAttribute("permission");
                 if (idManager != null) {
                     Identity identity = new Identity(idManager.getUserManager().getUser(userConfigs[i].getAttribute("id")));
-/*
                     if (identity.getGroupnames() != null) {
-                        log.warn("DEBUG: Number of groups of user '" + identity.getUsername() + "': " + identity.getGroupnames().length);
+                        log.debug("Number of groups of user '" + identity.getUsername() + "': " + identity.getGroupnames().length);
                     } else {
-                        log.warn("User '" + identity.getUsername() + "' has no groups!");
+                        log.debug("User '" + identity.getUsername() + "' has no groups!");
                     }
-*/
                     up.addIdentity(identity, new Boolean(permission).booleanValue());
                 } else {
                     log.warn("Groups are not associated with user!");
