@@ -282,9 +282,11 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                         if (inheritPolicy && idps[k].getPermission() == false) { // TODO: Check inheritance flag of identity policy
                             Identity identity = idps[k].getIdentity();
                             if (identity.getGroupnames() != null) {
-                                log.warn("DEBUG: Number of groups: " + identity.getGroupnames().length);
+                                log.debug("Number of groups: " + identity.getGroupnames().length);
+                            } else {
+                                log.debug("User '" + identity.getUsername() + "' has no groups!");
                             }
-                            log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(PathUtil.getParent(path), identity, new Usecase(up[i].getName())));
+                            log.debug("Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(PathUtil.getParent(path), identity, new Usecase(up[i].getName())));
                             sb.append("\n    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(PathUtil.getParent(path), identity, new Usecase(up[i].getName())) + "\"/>");
 /*
                             log.warn("DEBUG: Identity: " + idps[k].getIdentity() + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(policy.getParentPolicy(), idps[k].getIdentity(), new Usecase(up[i].getName())));
