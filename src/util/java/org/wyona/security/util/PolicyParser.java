@@ -68,7 +68,20 @@ public class PolicyParser implements Policy {
             for (int k = 0; k < rightConfigs.length; k++) {
                 UsecasePolicy up = new UsecasePolicy(rightConfigs[k].getAttribute("id"));
                 String permission = rightConfigs[k].getAttribute("permission");
-                up.addIdentity(new Identity(userConfigs[i].getAttribute("id"), null), new Boolean(permission).booleanValue());
+                if (idManager != null) {
+                    Identity identity = new Identity(idManager.getUserManager().getUser(userConfigs[i].getAttribute("id")));
+/*
+                    if (identity.getGroupnames() != null) {
+                        log.warn("DEBUG: Number of groups of user '" + identity.getUsername() + "': " + identity.getGroupnames().length);
+                    } else {
+                        log.warn("User '" + identity.getUsername() + "' has no groups!");
+                    }
+*/
+                    up.addIdentity(identity, new Boolean(permission).booleanValue());
+                } else {
+                    log.warn("Groups are not associated with user!");
+                    up.addIdentity(new Identity(userConfigs[i].getAttribute("id")), new Boolean(permission).booleanValue());
+                }
                 addUsecasePolicy(up);
             }
         }
@@ -134,7 +147,16 @@ public class PolicyParser implements Policy {
                     }
                 }
                 if (!identityExists) {
-                    existingUsecasePolicy.addIdentity(new Identity(identityPolicies[k].getIdentity().getUsername(), null), identityPolicies[k].getPermission());
+/*
+                    if (idManager != null) {
+                        existingUsecasePolicy.addIdentity(new Identity(idManager.getUserManager().getUser(identityPolicies[k].getIdentity().getUsername())), identityPolicies[k].getPermission());
+                    } else {
+*/
+                        log.warn("Groups are not associated with user!");
+                        existingUsecasePolicy.addIdentity(new Identity(identityPolicies[k].getIdentity().getUsername()), identityPolicies[k].getPermission());
+/*
+                    }
+*/
                 }
             }
 
