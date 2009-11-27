@@ -332,7 +332,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      */
     public String[] getUsecases() {
         log.warn("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");
-        String[] usecases = {"view", "open", "write", "resource.create", "delete", "introspection", "toolbar", "policy.read", "policy.update"};
+        String[] usecases = {"view", "open", "write", "resource.create", "delete", "yanel.resource.meta", "introspection", "toolbar", "policy.read", "policy.update"};
         return usecases;
     }
 
