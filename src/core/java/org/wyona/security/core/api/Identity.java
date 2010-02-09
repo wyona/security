@@ -1,13 +1,13 @@
 package org.wyona.security.core.api;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
- *
+ * World or user with a name
  */
 public class Identity implements java.io.Serializable {
 
-    private static Category log = Category.getInstance(Identity.class);
+    private static Logger log = Logger.getLogger(Identity.class);
     
     protected String username;
     protected String[] groupnames;
