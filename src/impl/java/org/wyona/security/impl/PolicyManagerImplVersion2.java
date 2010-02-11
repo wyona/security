@@ -259,10 +259,37 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      * @see org.wyona.security.core.api.PolicyManager#setPolicy(String, Policy)
      */
     public void setPolicy(String path, Policy policy) throws java.lang.UnsupportedOperationException {
-
-        Repository repo = getPoliciesRepository();
-        String policyPath = getPolicyPath(path);
         try {
+            Repository repo = getPoliciesRepository();
+            String policyPath = getPolicyPath(path);
+            log.warn("DEBUG: Set policy: " + policyPath);
+            Node node;
+            if (!repo.existsNode(policyPath)) {
+                log.warn("Create new policy: " + policyPath);              
+                node = YarepUtil.addNodes(repo, policyPath, org.wyona.yarep.core.NodeType.RESOURCE);
+            } else {
+                log.info("Policy '" + policyPath + "' already exists and hence creation request will be ignored!");
+                node = repo.getNode(policyPath);
+            }
+
+            String parentPath = PathUtil.getParent(path); // TODO: What about the root policy?!
+            log.warn("DEBUG: Parent path: " + parentPath);
+            StringBuilder sb = generatePolicyXML(policy, parentPath);
+            org.apache.commons.io.IOUtils.copy(new java.io.StringBufferInputStream(sb.toString()), node.getOutputStream());
+        } catch(Exception e) {
+            log.error(e, e);
+            new java.lang.UnsupportedOperationException(e.getMessage());
+        }
+    }
+
+    /**
+     * Generate policy XML from a policy object
+     * @param policy Policy object
+     * @param parentPath Parent path of this policy object
+     */
+    private StringBuilder generatePolicyXML(Policy policy, String parentPath) {
+    //private StringBuilder generatePolicyXML(Policy policy, String parentPath) throws java.lang.UnsupportedOperationException {
+        //try {
             StringBuilder sb = new StringBuilder("<policy xmlns=\"http://www.wyona.org/security/1.0\"");
             boolean inheritPolicy = policy.useInheritedPolicies();
             if (!inheritPolicy) {
@@ -286,12 +313,17 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                             } else {
                                 log.debug("User '" + identity.getUsername() + "' has no groups!");
                             }
-                            log.debug("Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(PathUtil.getParent(path), identity, new Usecase(up[i].getName())));
-                            sb.append("\n    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(PathUtil.getParent(path), identity, new Usecase(up[i].getName())) + "\"/>");
+
+                            try {
+                                log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(parentPath, identity, new Usecase(up[i].getName())));
+                                sb.append("\n    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
 /*
-                            log.warn("DEBUG: Identity: " + idps[k].getIdentity() + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(policy.getParentPolicy(), idps[k].getIdentity(), new Usecase(up[i].getName())));
-                            sb.append("\n    <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), idps[k].getIdentity(), new Usecase(up[i].getName())) + "\"/>");
+                                log.warn("DEBUG: Identity: " + idps[k].getIdentity() + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(policy.getParentPolicy(), idps[k].getIdentity(), new Usecase(up[i].getName())));
+                                sb.append("\n    <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), idps[k].getIdentity(), new Usecase(up[i].getName())) + "\"/>");
 */
+                             } catch(Exception e) {
+                                 log.error(e, e);
+                             }
                         } else {
                             sb.append("\n    <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + idps[k].getPermission() + "\"/>");
                         }
@@ -310,21 +342,13 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
             }
 
             sb.append("\n</policy>");
-
-            Node node;
-            if (!repo.existsNode(policyPath)) {
-                log.warn("Create new policy: " + policyPath);              
-                node = YarepUtil.addNodes(repo, policyPath, org.wyona.yarep.core.NodeType.RESOURCE);
-            } else {
-                log.warn("Policy '" + policyPath + "' already exists and hence creation request will be ignored!");              
-                node = repo.getNode(policyPath);
-            }
-
-            org.apache.commons.io.IOUtils.copy(new java.io.StringBufferInputStream(sb.toString()), node.getOutputStream());
+            return sb;
+/*
         } catch(Exception e) {
             log.error(e, e);
             new java.lang.UnsupportedOperationException(e.getMessage());
         }
+*/
     }
 
     /**
