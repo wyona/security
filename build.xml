@@ -222,7 +222,10 @@
 
     <artifact:deploy file="build/lib/wyona-org-security-core-${security.version}-r${subversion.revision}.jar">
       <remoteRepository url="${repository.url}">
+        <authentication username="${repository.username}" password="${repository.password}"/>
+<!--
         <authentication username="${repository.username}" privateKey="${user.home}/.ssh/id_dsa"/>
+-->
       </remoteRepository>
       <pom refid="maven.project.core"/>
     </artifact:deploy>
@@ -235,7 +238,10 @@
 
     <artifact:deploy file="build/lib/wyona-org-security-util-${security.version}-r${subversion.revision}.jar">
       <remoteRepository url="${repository.url}">
+        <authentication username="${repository.username}" password="${repository.password}"/>
+<!--
         <authentication username="${repository.username}" privateKey="${user.home}/.ssh/id_dsa"/>
+-->
       </remoteRepository>
       <pom refid="maven.project.util"/>
     </artifact:deploy>
@@ -248,7 +254,10 @@
 
     <artifact:deploy file="build/lib/wyona-org-security-impl-${security.version}-r${subversion.revision}.jar">
       <remoteRepository url="${repository.url}">
+        <authentication username="${repository.username}" password="${repository.password}"/>
+<!--
         <authentication username="${repository.username}" privateKey="${user.home}/.ssh/id_dsa"/>
+-->
       </remoteRepository>
       <pom refid="maven.project.impl"/>
     </artifact:deploy>
