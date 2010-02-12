@@ -35,6 +35,8 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
 
     private static String USECASE_ELEMENT_NAME = "usecase";
 
+    private static final String NEWLINE = System.getProperty("line.separator");
+
     /**
      *
      */
@@ -291,27 +293,32 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      * @param parentPath Parent path of this policy object
      */
     private StringBuilder generatePolicyXML(Policy policy, String parentPath) {
-            StringBuilder sb = new StringBuilder("<policy xmlns=\"http://www.wyona.org/security/1.0\"");
-            boolean inheritPolicy = policy.useInheritedPolicies();
-            if (!inheritPolicy) {
-                sb.append(" use-inherited-policies=\"false\"");
-            }
-            sb.append(">");
+        StringBuilder sb = new StringBuilder("<?xml version=\"1.0\"?>");
+
+        sb.append(NEWLINE + NEWLINE);
+
+        sb.append("<policy xmlns=\"http://www.wyona.org/security/1.0\"");
+        boolean inheritPolicy = policy.useInheritedPolicies();
+        if (!inheritPolicy) {
+            sb.append(" use-inherited-policies=\"false\"");
+        }
+        sb.append(">");
 
             org.wyona.security.core.UsecasePolicy[] up = policy.getUsecasePolicies();
             for (int i = 0; i < up.length; i++) {
                 org.wyona.security.core.IdentityPolicy[] idps = up[i].getIdentityPolicies();
                 org.wyona.security.core.GroupPolicy[] gps = up[i].getGroupPolicies();
                 if ((idps != null && idps.length > 0) || (gps!= null && gps.length > 0)) {
-                    sb.append("\n  <usecase id=\"" + up[i].getName() + "\">");
-
-                    log.warn("TODO: What about WORLD?!");
+                    sb.append(NEWLINE);
+                    sb.append("  <usecase id=\"" + up[i].getName() + "\">");
 
                     // Iterate over all users (including WORLD)
                     for (int k = 0; k < idps.length; k++) {
                         Identity identity = idps[k].getIdentity();
 
-                        if (inheritPolicy && idps[k].getPermission() == false) { // TODO: Check inheritance flag of identity policy
+                        // INFO: The policy editor can not differentiate yet whether a permissions has been set to false explicitely or has just not been set. Hence if inherit policy is true, then check on parent policies
+                        // TODO: Resolve ambiguity within policy editor!
+                        if (idps[k].getPermission() == false && inheritPolicy) { // TODO: Check inheritance flag of identity policy
                             if (identity.getGroupnames() != null) {
                                 log.debug("Number of groups: " + identity.getGroupnames().length);
                             } else {
@@ -320,16 +327,21 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
 
                             try {
                                 if (identity.isWorld()) {
-                                    sb.append("\n    <world permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
+                                    sb.append(NEWLINE);
+                                    sb.append("    <world permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
                                 } else {
                                     if (parentPath != null) {
-                                    log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(parentPath, identity, new Usecase(up[i].getName())));
-                                    sb.append("\n    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
+                                        log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(parentPath, identity, new Usecase(up[i].getName())));
+                                        sb.append(NEWLINE);
+                                        sb.append("    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
+
 /* QUESTION: hm?
-                                    log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(policy.getParentPolicy(), identity, new Usecase(up[i].getName())));
-                                    sb.append("\n    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), identity, new Usecase(up[i].getName())) + "\"/>");
+                                        log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(policy.getParentPolicy(), identity, new Usecase(up[i].getName())));
+                                        sb.append(NEWLINE);
+                                        sb.append("    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), identity, new Usecase(up[i].getName())) + "\"/>");
 */
                                      } else {
+                                         // TODO: Resolve ambiguity!
                                          log.warn("Seems like root policy is set (because parent path is null): " + identity.getUsername() + ", " + up[i].getName());
                                      }
                                  }
@@ -338,9 +350,11 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                              }
                         } else {
                             if (identity.isWorld()) {
-                                sb.append("\n    <world permission=\"" + idps[k].getPermission() + "\"/>");
+                                sb.append(NEWLINE);
+                                sb.append("    <world permission=\"" + idps[k].getPermission() + "\"/>");
                             } else {
-                                sb.append("\n    <user id=\"" + identity.getUsername() + "\" permission=\"" + idps[k].getPermission() + "\"/>");
+                                sb.append(NEWLINE);
+                                sb.append("    <user id=\"" + identity.getUsername() + "\" permission=\"" + idps[k].getPermission() + "\"/>");
                             }
                         }
                     }
@@ -349,17 +363,21 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                     for (int k = 0; k < gps.length; k++) {
                         if (inheritPolicy && gps[k].getPermission() == false) { // TODO: Check inheritance flag of group policy
                             // TODO: Check group authorization
-                            sb.append("\n    <group id=\"" + gps[k].getId() + "\" permission=\"" + true + "\"/>");
-                            //sb.append("\n    <group id=\"" + gps[k].getId() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), TODO, new Usecase(up[i].getName())) + "\"/>");
+                            sb.append(NEWLINE);
+                            sb.append("    <group id=\"" + gps[k].getId() + "\" permission=\"" + true + "\"/>");
+                            //sb.append("    <group id=\"" + gps[k].getId() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), TODO, new Usecase(up[i].getName())) + "\"/>");
                         } else {
-                            sb.append("\n    <group id=\"" + gps[k].getId() + "\" permission=\"" + gps[k].getPermission() + "\"/>");
+                            sb.append(NEWLINE);
+                            sb.append("    <group id=\"" + gps[k].getId() + "\" permission=\"" + gps[k].getPermission() + "\"/>");
                         }
                     }
-                    sb.append("\n  </usecase>");
+                    sb.append(NEWLINE);
+                    sb.append("  </usecase>");
                 }
             }
 
-            sb.append("\n</policy>");
+            sb.append(NEWLINE);
+            sb.append("</policy>");
             return sb;
     }
 
