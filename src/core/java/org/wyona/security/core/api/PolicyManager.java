@@ -43,6 +43,7 @@ public interface PolicyManager {
     public Policy getPolicy(String path, boolean aggregate) throws AuthorizationException;
 
     /**
+     * Set new or modified policy
      * @param path Path of content, e.g. /hello/world.html
      * @param policy New or modified policy
      */
