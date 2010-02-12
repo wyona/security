@@ -139,19 +139,32 @@ public class PolicyParser implements Policy {
                 boolean identityExists = false;
                 IdentityPolicy[] existingIdentityPolicies = existingUsecasePolicy.getIdentityPolicies();
                 for (int i = 0; i < existingIdentityPolicies.length; i++) {
-                    if (identityPolicies[k].getIdentity().getUsername().equals(existingIdentityPolicies[i].getIdentity().getUsername())) {
-                        identityExists = true;
-                        break;
+                    if (identityPolicies[k].getIdentity().isWorld()) {
+                        if (existingIdentityPolicies[i].getIdentity().isWorld()) {
+                            log.warn("WORLD policy already exists for usecase: " + up.getName());
+                            identityExists = true;
+                            break;
+                        }
+                    } else {
+                        if (identityPolicies[k].getIdentity().getUsername().equals(existingIdentityPolicies[i].getIdentity().getUsername())) {
+                            identityExists = true;
+                            break;
+                        }
                     }
                 }
+
                 if (!identityExists) {
 /*
                     if (idManager != null) {
                         existingUsecasePolicy.addIdentity(new Identity(idManager.getUserManager().getUser(identityPolicies[k].getIdentity().getUsername())), identityPolicies[k].getPermission());
                     } else {
 */
-                        log.warn("Groups are not associated with user!");
+                    if (identityPolicies[k].getIdentity().isWorld()) {
+                        existingUsecasePolicy.addIdentity(new Identity(), identityPolicies[k].getPermission());
+                    } else {
+                        log.warn("Groups are not associated with user: " + identityPolicies[k].getIdentity().getUsername());
                         existingUsecasePolicy.addIdentity(new Identity(identityPolicies[k].getIdentity().getUsername()), identityPolicies[k].getPermission());
+                    }
 /*
                     }
 */
