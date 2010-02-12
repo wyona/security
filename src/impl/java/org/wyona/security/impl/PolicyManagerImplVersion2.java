@@ -272,8 +272,11 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                 node = repo.getNode(policyPath);
             }
 
-            String parentPath = PathUtil.getParent(path); // TODO: What about the root policy?!
+            String parentPath = PathUtil.getParent(path);
             log.warn("DEBUG: Parent path: " + parentPath);
+            if (parentPath == null) {
+                log.warn("Seems like root policy is set (because parent path is null). Path: " + path);
+            }
             StringBuilder sb = generatePolicyXML(policy, parentPath);
             org.apache.commons.io.IOUtils.copy(new java.io.StringBufferInputStream(sb.toString()), node.getOutputStream());
         } catch(Exception e) {
@@ -288,8 +291,6 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      * @param parentPath Parent path of this policy object
      */
     private StringBuilder generatePolicyXML(Policy policy, String parentPath) {
-    //private StringBuilder generatePolicyXML(Policy policy, String parentPath) throws java.lang.UnsupportedOperationException {
-        //try {
             StringBuilder sb = new StringBuilder("<policy xmlns=\"http://www.wyona.org/security/1.0\"");
             boolean inheritPolicy = policy.useInheritedPolicies();
             if (!inheritPolicy) {
@@ -302,12 +303,15 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                 org.wyona.security.core.IdentityPolicy[] idps = up[i].getIdentityPolicies();
                 org.wyona.security.core.GroupPolicy[] gps = up[i].getGroupPolicies();
                 if ((idps != null && idps.length > 0) || (gps!= null && gps.length > 0)) {
-                    sb.append("\n  <usecase id=\""+up[i].getName()+"\">");
+                    sb.append("\n  <usecase id=\"" + up[i].getName() + "\">");
+
                     log.warn("TODO: What about WORLD?!");
-                    //sb.append("\n    <world permission=\"true\"/>");
+
+                    // Iterate over all users (including WORLD)
                     for (int k = 0; k < idps.length; k++) {
+                        Identity identity = idps[k].getIdentity();
+
                         if (inheritPolicy && idps[k].getPermission() == false) { // TODO: Check inheritance flag of identity policy
-                            Identity identity = idps[k].getIdentity();
                             if (identity.getGroupnames() != null) {
                                 log.debug("Number of groups: " + identity.getGroupnames().length);
                             } else {
@@ -315,19 +319,33 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                             }
 
                             try {
-                                log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(parentPath, identity, new Usecase(up[i].getName())));
-                                sb.append("\n    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
-/*
-                                log.warn("DEBUG: Identity: " + idps[k].getIdentity() + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(policy.getParentPolicy(), idps[k].getIdentity(), new Usecase(up[i].getName())));
-                                sb.append("\n    <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), idps[k].getIdentity(), new Usecase(up[i].getName())) + "\"/>");
+                                if (identity.isWorld()) {
+                                    sb.append("\n    <world permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
+                                } else {
+                                    if (parentPath != null) {
+                                    log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(parentPath, identity, new Usecase(up[i].getName())));
+                                    sb.append("\n    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
+/* QUESTION: hm?
+                                    log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(policy.getParentPolicy(), identity, new Usecase(up[i].getName())));
+                                    sb.append("\n    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), identity, new Usecase(up[i].getName())) + "\"/>");
 */
+                                     } else {
+                                         log.warn("Seems like root policy is set (because parent path is null): " + identity.getUsername() + ", " + up[i].getName());
+                                     }
+                                 }
                              } catch(Exception e) {
                                  log.error(e, e);
                              }
                         } else {
-                            sb.append("\n    <user id=\"" + idps[k].getIdentity().getUsername() + "\" permission=\"" + idps[k].getPermission() + "\"/>");
+                            if (identity.isWorld()) {
+                                sb.append("\n    <world permission=\"" + idps[k].getPermission() + "\"/>");
+                            } else {
+                                sb.append("\n    <user id=\"" + identity.getUsername() + "\" permission=\"" + idps[k].getPermission() + "\"/>");
+                            }
                         }
                     }
+
+                    // Iterate over all groups
                     for (int k = 0; k < gps.length; k++) {
                         if (inheritPolicy && gps[k].getPermission() == false) { // TODO: Check inheritance flag of group policy
                             // TODO: Check group authorization
@@ -343,12 +361,6 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
 
             sb.append("\n</policy>");
             return sb;
-/*
-        } catch(Exception e) {
-            log.error(e, e);
-            new java.lang.UnsupportedOperationException(e.getMessage());
-        }
-*/
     }
 
     /**
@@ -357,7 +369,8 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
     public String[] getUsecases() {
         log.warn("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");
         // TODO: What about configurable usecases such as for example workflow.approve, workflow.publish ...?
-        String[] usecases = {"view", "open", "write", "resource.create", "delete", "yanel.resource.meta", "introspection", "toolbar", "policy.read", "policy.update"};
+        //String[] usecases = {"view", "open", "write", "resource.create", "delete", "yanel.resource.meta", "introspection", "toolbar", "policy.read", "policy.update"};
+        String[] usecases = {"view", "open", "write", "resource.create", "delete", "yanel.resource.meta", "introspection", "toolbar", "policy.read", "policy.update", "workflow.write", "workflow.approve", "workflow.publish"};
         return usecases;
     }
 
@@ -368,7 +381,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
         log.debug("TODO: Implementation not finished yet! Read from configuration instead hardcoded!");
         if (language.equals("de")) {
             if (usecaseId.equals("view")) {
-                return "Inhalt anschauen/lesen";
+                return "Inhalt lesen";
             } else if (usecaseId.equals("open")) {
                 return "Inhalt zum Bearbeiten oeffnen";
             } else if (usecaseId.equals("write")) {
@@ -377,6 +390,8 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                 return "Inhalt neu kreieren";
             } else if (usecaseId.equals("delete")) {
                 return "Inhalt loeschen";
+            } else if (usecaseId.equals("yanel.resource.meta")) {
+                return "Meta Informationen lesen";
             } else if (usecaseId.equals("introspection")) {
                 return "Introspection anschauen/lesen";
             } else if (usecaseId.equals("toolbar")) {
@@ -399,6 +414,8 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                 return "Create a resource or a collection";
             } else if (usecaseId.equals("delete")) {
                 return "Delete a resource or a collection";
+            } else if (usecaseId.equals("yanel.resource.meta")) {
+                return "View/Read meta information";
             } else if (usecaseId.equals("introspection")) {
                 return "View introspection";
             } else if (usecaseId.equals("toolbar")) {
