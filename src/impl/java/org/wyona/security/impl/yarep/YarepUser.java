@@ -213,16 +213,12 @@ public class YarepUser extends YarepItem implements User {
             return getPassword().equals(Password.getMD5(plainTextPassword, getSalt()));
         }
     }
-    
-    protected boolean isExpired(){
-        boolean expired = false;
-        if(getExpirationDate() != null){
-            expired = getExpirationDate().before(new Date()); 
-        }else{
-            // Never expires
-        }
-        
-        return expired;
+
+    /**
+     * @deprecated Use org.wyona.security.impl.util.UserUtil#isExpired(User) instead
+     */
+    protected boolean isExpired() {
+        return org.wyona.security.impl.util.UserUtil.isExpired(this);
     }
     
     public String getDescription() {
