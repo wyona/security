@@ -14,12 +14,12 @@ public class UserUtil {
     /**
      * Check whether user is expired
      */
-    public boolean isExpired(User user){
+    public static boolean isExpired(User user){
         boolean expired = false;
         if(user.getExpirationDate() != null){
             expired = user.getExpirationDate().before(new java.util.Date()); // INFO: Compare with NOW/Today
         } else {
-            log.warn("DEBUG: User '' has no expiration date and hence never expires.");
+            log.debug("User '' has no expiration date and hence never expires.");
         }
         return expired;
     }
