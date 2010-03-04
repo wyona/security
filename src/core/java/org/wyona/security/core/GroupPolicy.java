@@ -1,41 +1,27 @@
 package org.wyona.security.core;
 
 /**
- *
+ * {@inheritDoc}
+ * 
+ * The XML representation of a GroupPolicy is e.g. {@code <group id="staff" permission="false"/>}.
  */
-public class GroupPolicy {
+public class GroupPolicy extends ItemPolicy {
 
     private String groupId;
-    private boolean permission;
 
     /**
      *
      */
     public GroupPolicy(String groupId, boolean permission) {
+        super(permission);
         this.groupId = groupId;
-        this.permission = permission;
     }
 
     /**
-     *
+     * Gets the ID of the group (never <samp>null</samp>).
      */
+    @Override
     public String getId() {
         return groupId;
-    }
-
-    /**
-     *
-     */
-    public boolean getPermission() {
-        return permission;
-    }
-    
-    /**
-     * Sets the permission for this policy.
-     * The modification is not persistent, it only modifies the policy object in the memory.  
-     * @param permission
-     */
-    public void setPermission(boolean permission) {
-        this.permission = permission;
     }
 }
