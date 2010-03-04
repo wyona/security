@@ -62,7 +62,7 @@ public class Identity implements java.io.Serializable {
     }
 
     /**
-     * 
+     * Get name of user or null for World
      */
     public String getUsername() {
         return username;
@@ -121,7 +121,7 @@ public class Identity implements java.io.Serializable {
     }
 
     /**
-     *
+     * Check whether this identity is world
      */
     public boolean isWorld() {
         return isWorld;
