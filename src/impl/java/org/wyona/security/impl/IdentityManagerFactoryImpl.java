@@ -5,17 +5,17 @@ import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.IdentityManager;
 import org.wyona.yarep.core.Repository;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 
 /**
  *
  */
 public class IdentityManagerFactoryImpl extends IdentityManagerFactory {
 
-    private static Category log = Category.getInstance(IdentityManagerFactoryImpl.class);
+    private static Logger log = Logger.getLogger(IdentityManagerFactoryImpl.class);
 
     /**
-     *
+     * Get default identity manager implementation
      */
     public IdentityManager newIdentityManager(Repository identitiesRepository) {
         IdentityManager im = null;
