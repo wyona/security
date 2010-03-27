@@ -27,8 +27,10 @@ public class LDAPIdentityManagerFactoryImpl extends IdentityManagerFactory {
     public IdentityManager newIdentityManager(org.w3c.dom.Document configuration, javax.xml.transform.URIResolver resolver) {
         try {
             boolean load = false;
-            return new org.wyona.security.impl.ldap.LDAPIdentityManagerImpl(getRepository(configuration), load);
+            return new org.wyona.security.impl.ldap.LDAPIdentityManagerImpl(getRepository(configuration, resolver), load);
         } catch (AccessManagementException e) {
+            log.error(e, e);
+        } catch (Exception e) {
             log.error(e, e);
         }
         return null;
@@ -38,8 +40,20 @@ public class LDAPIdentityManagerFactoryImpl extends IdentityManagerFactory {
      * Get Yarep repository
      * @param configuration XML configuration, e.g. <identity-manager-config xmlns="http://www.wyona.org/security/1.0">config/ac-identities-repository.xml</identity-manager-config>
      */
-    private Repository getRepository(org.w3c.dom.Document configuration) {
-        log.warn("DEBUG: Configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null));
-        return null;
+    private Repository getRepository(org.w3c.dom.Document configuration, javax.xml.transform.URIResolver resolver) throws Exception {
+        log.debug("Configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null));
+        String[] relativeRepoPath = org.wyona.commons.xml.XMLHelper.valueOf(configuration, "/*[local-name()='identity-manager-config']");
+        if(relativeRepoPath != null && relativeRepoPath.length > 0) {
+            log.debug("Relative repository path: " + relativeRepoPath[0]);
+        } else {
+            throw new Exception("No repo path found within configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null));
+        }
+        java.io.File repoConfigFile = new java.io.File(resolver.resolve(relativeRepoPath[0], null).getSystemId());
+        if (repoConfigFile.isFile()) {
+            log.debug("Repository configuration file: " + repoConfigFile.getAbsolutePath());
+            return new org.wyona.yarep.core.RepositoryFactory().newRepository("identities", repoConfigFile);
+        } else {
+            throw new Exception("No such file or directory: " + repoConfigFile.getAbsolutePath());
+        }
     }
 }
