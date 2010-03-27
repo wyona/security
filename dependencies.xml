@@ -8,7 +8,7 @@
     <artifact:dependencies pathId="maven2.classpath" filesetId="maven2.fileset">
       <remoteRepository refid="wyona.remote.repository"/>
       <dependency groupId="log4j" artifactId="log4j" version="1.2.8"/>
-      <dependency groupId="wyona-org-commons" artifactId="wyona-org-commons" version="0.0.1-dev-r22019"/>
+      <dependency groupId="wyona-org-commons" artifactId="wyona-org-commons" version="1.0-dev-r48003"/>
       <dependency groupId="yarep" artifactId="yarep-core" version="1.0-dev-r35545"/>
 
       <!-- Runtime libraries -->
