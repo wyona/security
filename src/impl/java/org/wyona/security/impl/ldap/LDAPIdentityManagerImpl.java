@@ -35,7 +35,7 @@ public class LDAPIdentityManagerImpl implements IdentityManager {
     public LDAPIdentityManagerImpl(Repository identitiesRepository, boolean load) throws AccessManagementException {
         this.identitiesRepository = identitiesRepository;
 
-        userManager = new org.wyona.security.impl.yarep.YarepUserManager(this, identitiesRepository);
+        userManager = new LDAPUserManagerImpl(this, identitiesRepository);
         groupManager = new org.wyona.security.impl.yarep.YarepGroupManager(this, identitiesRepository);
 
         userManager.getUsers(load);

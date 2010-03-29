@@ -14,26 +14,46 @@ import org.wyona.yarep.core.RepositoryFactory;
 
 import junit.framework.TestCase;
 
+import org.apache.log4j.Logger;
+
 /**
  * Test of the LDAPIdentityManagerImpl
  */
 public class LDAPIdentityManagerImplTest extends TestCase {
 
-    protected Repository repo;
-    protected IdentityManager identityManager;
+    private static Logger log = Logger.getLogger(LDAPIdentityManagerImplTest.class);
+
+    private Repository repo;
+    private IdentityManager identityManager;
     
     public void setUp() throws Exception {
         RepositoryFactory repoFactory = new RepositoryFactory();
-        repo = repoFactory.newRepository("identities-repository", new File("repository-ldap-local-cache/repository.xml"));
+        repo = repoFactory.newRepository("ldap-identities-repository", new File("repository-ldap-local-cache/repository.xml"));
         identityManager = new LDAPIdentityManagerImpl(repo, true);
     }
-    
+
+    /**
+     * Get all users
+     */
+    public void testGetAllUsers() throws Exception {
+        User[] users = identityManager.getUserManager().getUsers(false);
+        assertNotNull(users);
+        log.warn("DEBUG: Number of users: " + users.length);
+        for (int i = 0; i < users.length; i++) {
+            log.warn("DEBUG: User: " + users[i].getName());
+        }
+        assertEquals(users.length, 1);
+        //assertEquals("bob@wyona.org", user.getEmail());
+    }
+
+/*
     public void testGetUser() throws Exception {
         String userID = "bob";
         User user = identityManager.getUserManager().getUser(userID);
         assertNotNull(user);
         assertEquals("bob@wyona.org", user.getEmail());
     }
+*/
 
 /*
     public void testGetUserGroups() throws Exception {

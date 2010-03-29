@@ -1,7 +1,11 @@
 package org.wyona.security.impl.ldap;
 
+import org.wyona.security.core.api.AccessManagementException;
+import org.wyona.security.core.api.IdentityManager;
 import org.wyona.security.core.api.User;
 import org.wyona.security.core.api.UserManager;
+
+import org.wyona.yarep.core.Repository;
 
 import org.apache.log4j.Logger;
 
@@ -11,6 +15,19 @@ import org.apache.log4j.Logger;
 public class LDAPUserManagerImpl implements UserManager {
 
     private static Logger log = Logger.getLogger(LDAPUserManagerImpl.class);
+
+    private Repository identitiesRepository;
+    private IdentityManager identityManager;
+
+    /**
+     * Constructor
+     * @param identityManager Identity manager from which this user manager implementation is called
+     * @param identitiesRepository Repository containing "cached" LDAP users
+     */
+    public LDAPUserManagerImpl(IdentityManager identityManager, Repository identitiesRepository) {
+        this.identityManager = identityManager;
+        this.identitiesRepository = identitiesRepository;
+    }
 
     /**
      * @see org.wyona.security.core.api.UserManager#existsUser(String)
@@ -54,9 +71,14 @@ public class LDAPUserManagerImpl implements UserManager {
     /**
      * @see org.wyona.security.core.api.UserManager#getUsers(boolean)
      */
-    public User[] getUsers(boolean refresh) {
-        log.error("TODO: Implementation not finished yet!");
-        return null;
+    public User[] getUsers(boolean refresh) throws AccessManagementException {
+        if (refresh) {
+            log.error("TODO: Implementation not finished yet!");
+            return null;
+        } else {
+            log.error("TODO: Implementation not finished yet!");
+            return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository).getUsers(true);
+        }
     }
 
     /**
