@@ -24,15 +24,15 @@ public class LDAPIdentityManagerImplTest extends TestCase {
     
     public void setUp() throws Exception {
         RepositoryFactory repoFactory = new RepositoryFactory();
-        repo = repoFactory.newRepository("identities-repository", new File("repository2/repository.xml"));
+        repo = repoFactory.newRepository("identities-repository", new File("repository-ldap-local-cache/repository.xml"));
         identityManager = new LDAPIdentityManagerImpl(repo, true);
     }
     
     public void testGetUser() throws Exception {
-        String userID = "lenya";
+        String userID = "bob";
         User user = identityManager.getUserManager().getUser(userID);
         assertNotNull(user);
-        assertEquals("lenya@wyona.org", user.getEmail());
+        assertEquals("bob@wyona.org", user.getEmail());
     }
 
 /*
