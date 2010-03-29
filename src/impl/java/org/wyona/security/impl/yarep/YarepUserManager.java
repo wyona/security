@@ -54,7 +54,7 @@ public class YarepUserManager implements UserManager {
      * @throws AccessManagementException
      */
     private synchronized void loadUsers() throws AccessManagementException {
-        log.info("Load users from repository '" + identitiesRepository.getName() + "'");
+        log.info("Load users from repository '" + identitiesRepository.getConfigFile() + "'");
         this.users = new HashMap();
         try {
             Node usersParentNode = getUsersParentNode();
