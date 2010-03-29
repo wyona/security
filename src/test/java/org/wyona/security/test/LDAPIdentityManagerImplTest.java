@@ -51,7 +51,8 @@ public class LDAPIdentityManagerImplTest extends TestCase {
      */
     public void testGetAllUsersFromLDAP() throws Exception {
         User[] users = identityManager.getUserManager().getUsers(true);
-        assertNull(users);
+        assertNotNull(users);
+        //assertNull(users);
 /*
         log.warn("DEBUG: Number of users: " + users.length);
         for (int i = 0; i < users.length; i++) {
