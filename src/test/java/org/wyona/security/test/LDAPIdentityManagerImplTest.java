@@ -33,17 +33,33 @@ public class LDAPIdentityManagerImplTest extends TestCase {
     }
 
     /**
-     * Get all users
+     * Get all users from cache (Yarep repository)
      */
-    public void testGetAllUsers() throws Exception {
+    public void testGetAllUsersFromCache() throws Exception {
         User[] users = identityManager.getUserManager().getUsers(false);
         assertNotNull(users);
+        log.debug("Number of users: " + users.length);
+        for (int i = 0; i < users.length; i++) {
+            log.debug("User: " + users[i].getName());
+        }
+        assertEquals(1, users.length);
+        assertEquals("bob@wyona.org", users[0].getEmail());
+    }
+
+    /**
+     * Get all users from LDAP
+     */
+    public void testGetAllUsersFromLDAP() throws Exception {
+        User[] users = identityManager.getUserManager().getUsers(true);
+        assertNull(users);
+/*
         log.warn("DEBUG: Number of users: " + users.length);
         for (int i = 0; i < users.length; i++) {
             log.warn("DEBUG: User: " + users[i].getName());
         }
-        assertEquals(users.length, 1);
-        //assertEquals("bob@wyona.org", user.getEmail());
+        assertEquals(1, users.length);
+        assertEquals("bob@wyona.org", users[0].getEmail());
+*/
     }
 
 /*
