@@ -32,10 +32,10 @@ public class LDAPIdentityManagerImpl implements IdentityManager {
      *  @param identitiesRepository Peristent repository where users and groups are stored
      *  @param load Load users and groups into memory during initialization
      */
-    public LDAPIdentityManagerImpl(Repository identitiesRepository, boolean load) throws AccessManagementException {
+    public LDAPIdentityManagerImpl(Repository identitiesRepository, boolean load, LDAPClient ldapClient) throws AccessManagementException {
         this.identitiesRepository = identitiesRepository;
 
-        userManager = new LDAPUserManagerImpl(this, identitiesRepository, new org.wyona.security.impl.ldap.LDAPClientImpl());
+        userManager = new LDAPUserManagerImpl(this, identitiesRepository, ldapClient);
         groupManager = new org.wyona.security.impl.yarep.YarepGroupManager(this, identitiesRepository);
 
         userManager.getUsers(load);

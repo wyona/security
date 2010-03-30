@@ -29,7 +29,9 @@ public class LDAPIdentityManagerImplTest extends TestCase {
     public void setUp() throws Exception {
         RepositoryFactory repoFactory = new RepositoryFactory();
         repo = repoFactory.newRepository("ldap-identities-repository", new File("repository-ldap-local-cache/repository.xml"));
-        identityManager = new LDAPIdentityManagerImpl(repo, true);
+        //org.wyona.security.impl.ldap.LDAPClient ldapClient = new org.wyona.security.impl.ldap.LDAPClientImplV2();
+        org.wyona.security.impl.ldap.LDAPClient ldapClient = new org.wyona.security.impl.ldap.LDAPClientImpl();
+        identityManager = new LDAPIdentityManagerImpl(repo, true, ldapClient);
     }
 
     /**

@@ -27,7 +27,7 @@ public class LDAPIdentityManagerFactoryImpl extends IdentityManagerFactory {
     public IdentityManager newIdentityManager(org.w3c.dom.Document configuration, javax.xml.transform.URIResolver resolver) {
         try {
             boolean load = false;
-            return new org.wyona.security.impl.ldap.LDAPIdentityManagerImpl(getRepository(configuration, resolver), load);
+            return new org.wyona.security.impl.ldap.LDAPIdentityManagerImpl(getRepository(configuration, resolver), load, new org.wyona.security.impl.ldap.LDAPClientImpl());
         } catch (AccessManagementException e) {
             log.error(e, e);
         } catch (Exception e) {
