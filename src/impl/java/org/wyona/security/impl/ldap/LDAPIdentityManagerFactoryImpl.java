@@ -27,7 +27,8 @@ public class LDAPIdentityManagerFactoryImpl extends IdentityManagerFactory {
     public IdentityManager newIdentityManager(org.w3c.dom.Document configuration, javax.xml.transform.URIResolver resolver) {
         try {
             boolean load = false;
-            return new org.wyona.security.impl.ldap.LDAPIdentityManagerImpl(getRepository(configuration, resolver), load, new org.wyona.security.impl.ldap.LDAPClientImpl());
+            org.wyona.security.impl.ldap.LDAPClient ldapClient = new org.wyona.security.impl.ldap.LDAPClientImpl();
+            return new org.wyona.security.impl.ldap.LDAPIdentityManagerImpl(getRepository(configuration, resolver), load, ldapClient);
         } catch (AccessManagementException e) {
             log.error(e, e);
         } catch (Exception e) {
@@ -42,11 +43,12 @@ public class LDAPIdentityManagerFactoryImpl extends IdentityManagerFactory {
      */
     private Repository getRepository(org.w3c.dom.Document configuration, javax.xml.transform.URIResolver resolver) throws Exception {
         log.debug("Configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null));
-        String[] relativeRepoPath = org.wyona.commons.xml.XMLHelper.valueOf(configuration, "/*[local-name()='identity-manager-config']");
+        String xpath = "/*[local-name()='identity-manager-config']/*[local-name()='config']/*[local-name()='yarep-repo']";
+        String[] relativeRepoPath = org.wyona.commons.xml.XMLHelper.valueOf(configuration, xpath);
         if(relativeRepoPath != null && relativeRepoPath.length > 0) {
             log.debug("Relative repository path: " + relativeRepoPath[0]);
         } else {
-            throw new Exception("No repo path found within configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null));
+            throw new Exception("No repo path found within configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null) + ", " + xpath);
         }
         java.io.File repoConfigFile = new java.io.File(resolver.resolve(relativeRepoPath[0], null).getSystemId());
         if (repoConfigFile.isFile()) {
