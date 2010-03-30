@@ -34,40 +34,41 @@ public class LDAPUserManagerImpl implements UserManager {
     /**
      * @see org.wyona.security.core.api.UserManager#existsUser(String)
      */
-    public boolean existsUser(String userName) {
-        log.error("TODO: Implementation not finished yet!");
-        return false;
+    public boolean existsUser(String userName) throws AccessManagementException {
+        log.error("TODO: LDAP Yarep Implementation not finished yet! Use Yarep-only implementation instead.");
+        return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository).existsUser(userName);
     }
 
     /**
      * @see org.wyona.security.core.api.UserManager#removeUser(String)
      */
-    public void removeUser(String userName) {
-        log.error("TODO: Implementation not finished yet!");
+    public void removeUser(String userName) throws AccessManagementException {
+        log.error("TODO: LDAP Yarep Implementation not finished yet! Use Yarep-only implementation instead.");
+        new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository).removeUser(userName);
     }
 
     /**
      * @see org.wyona.security.core.api.UserManager#createUser(String, String, String, String)
      */
-    public User createUser(String id, String name, String email, String password) {
-        log.error("TODO: Implementation not finished yet!");
-        return null;
+    public User createUser(String id, String name, String email, String password) throws AccessManagementException {
+        log.error("TODO: LDAP Yarep Implementation not finished yet! Use Yarep-only implementation instead.");
+        return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository).createUser(id, name, email, password);
     }
 
     /**
      * @see org.wyona.security.core.api.UserManager#getUser(String)
      */
-    public User getUser(String id) {
-        log.error("TODO: Implementation not finished yet!");
-        return null;
+    public User getUser(String id) throws AccessManagementException {
+        log.error("TODO: LDAP Yarep Implementation not finished yet! Use Yarep-only implementation instead.");
+        return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository).getUser(id);
     }
 
     /**
      * @see org.wyona.security.core.api.UserManager#getUser(String, boolean)
      */
-    public User getUser(String id, boolean refresh) {
-        log.error("TODO: Implementation not finished yet!");
-        return null;
+    public User getUser(String id, boolean refresh) throws AccessManagementException {
+        log.error("TODO: LDAP Yarep Implementation not finished yet! Use Yarep-only implementation instead.");
+        return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository).getUser(id, refresh);
     }
 
     /**
@@ -90,7 +91,7 @@ public class LDAPUserManagerImpl implements UserManager {
                 throw new AccessManagementException(e.getMessage(), e);
             }
         } else {
-            log.error("TODO: Yarep Implementation not finished yet!");
+            log.error("TODO: LDAP Yarep Implementation not finished yet! Use Yarep-only implementation instead.");
             return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository).getUsers(true);
         }
     }
@@ -98,8 +99,8 @@ public class LDAPUserManagerImpl implements UserManager {
     /**
      * @see org.wyona.security.core.api.UserManager#getUsers()
      */
-    public User[] getUsers() {
-        log.error("TODO: Implementation not finished yet!");
-        return null;
+    public User[] getUsers() throws AccessManagementException {
+        log.warn("TODO: Make default value of load flag configurable");
+        return getUsers(false);
     }
 }
