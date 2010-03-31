@@ -29,13 +29,13 @@ public class LDAPIdentityManagerFactoryImpl extends IdentityManagerFactory {
         try {
             boolean load = true;
             //boolean load = false;
-/*
-            LDAPClient ldapClient = new org.wyona.security.impl.ldap.LDAPClientImplV2();
-*/
             LDAPClient ldapClient = getLDAPClientImplementation(configuration);
             ldapClient.setProviderURL(getProviderURL(configuration));
-            ldapClient.setAuthenticationMechanism("simple");
-            //ldapClient.setSecurityProtocol("ssl");
+            ldapClient.setAuthenticationMechanism(getAuthenticationMechanism(configuration));
+            String securityProtocol = getSecurityProtocol(configuration);
+            if (securityProtocol != null) {
+                ldapClient.setSecurityProtocol(securityProtocol);
+            }
 
             return new org.wyona.security.impl.ldap.LDAPIdentityManagerImpl(getRepository(configuration, resolver), load, ldapClient);
         } catch (AccessManagementException e) {
@@ -95,6 +95,37 @@ public class LDAPIdentityManagerFactoryImpl extends IdentityManagerFactory {
             return (LDAPClient) Class.forName(ldapClientImplementationClassName[0]).newInstance();
         } else {
             throw new Exception("No LDAP client implementation class name found within configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null) + ", " + xpath);
+        }
+    }
+
+    /**
+     * Get security authentication mechanism
+     * @param configuration XML configuration, e.g. <identity-manager-config xmlns="http://www.wyona.org/security/1.0">...</identity-manager-config>
+     */
+    private String getAuthenticationMechanism(org.w3c.dom.Document configuration) throws Exception {
+        log.debug("Configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null));
+        String xpath = "/*[local-name()='identity-manager-config']/*[local-name()='config']/*[local-name()='security-authentication']";
+        String[] am = org.wyona.commons.xml.XMLHelper.valueOf(configuration, xpath);
+        if(am != null && am.length > 0) {
+            return am[0];
+        } else {
+            throw new Exception("No security authentication mechanism found within configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null) + ", " + xpath);
+        }
+    }
+
+    /**
+     * Get security protocol
+     * @param configuration XML configuration, e.g. <identity-manager-config xmlns="http://www.wyona.org/security/1.0">...</identity-manager-config>
+     */
+    private String getSecurityProtocol(org.w3c.dom.Document configuration) throws Exception {
+        log.debug("Configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null));
+        String xpath = "/*[local-name()='identity-manager-config']/*[local-name()='config']/*[local-name()='security-protocol']";
+        String[] sp = org.wyona.commons.xml.XMLHelper.valueOf(configuration, xpath);
+        if(sp != null && sp.length > 0) {
+            return sp[0];
+        } else {
+            log.warn("No security protocol found within configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null) + ", " + xpath);
+            return null;
         }
     }
 }
