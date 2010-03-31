@@ -3,6 +3,7 @@ package org.wyona.security.impl.ldap;
 import org.wyona.security.core.IdentityManagerFactory;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.IdentityManager;
+import org.wyona.security.impl.ldap.LDAPClient;
 import org.wyona.yarep.core.Repository;
 
 import org.apache.log4j.Logger;
@@ -29,11 +30,10 @@ public class LDAPIdentityManagerFactoryImpl extends IdentityManagerFactory {
             boolean load = true;
             //boolean load = false;
 /*
-            org.wyona.security.impl.ldap.LDAPClient ldapClient = new org.wyona.security.impl.ldap.LDAPClientImplV2();
+            LDAPClient ldapClient = new org.wyona.security.impl.ldap.LDAPClientImplV2();
 */
-            org.wyona.security.impl.ldap.LDAPClient ldapClient = new org.wyona.security.impl.ldap.LDAPClientImpl();
+            LDAPClient ldapClient = getLDAPClientImplementation(configuration);
             ldapClient.setProviderURL(getProviderURL(configuration));
-
             ldapClient.setAuthenticationMechanism("simple");
             //ldapClient.setSecurityProtocol("ssl");
 
@@ -80,6 +80,21 @@ public class LDAPIdentityManagerFactoryImpl extends IdentityManagerFactory {
             return providerURL[0];
         } else {
             throw new Exception("No provider URL found within configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null) + ", " + xpath);
+        }
+    }
+
+    /**
+     * Get LDAP client implementation
+     * @param configuration XML configuration, e.g. <identity-manager-config xmlns="http://www.wyona.org/security/1.0">...</identity-manager-config>
+     */
+    private LDAPClient getLDAPClientImplementation(org.w3c.dom.Document configuration) throws Exception {
+        log.debug("Configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null));
+        String xpath = "/*[local-name()='identity-manager-config']/*[local-name()='config']/*[local-name()='client-implementation']";
+        String[] ldapClientImplementationClassName = org.wyona.commons.xml.XMLHelper.valueOf(configuration, xpath);
+        if(ldapClientImplementationClassName != null && ldapClientImplementationClassName.length > 0) {
+            return (LDAPClient) Class.forName(ldapClientImplementationClassName[0]).newInstance();
+        } else {
+            throw new Exception("No LDAP client implementation class name found within configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null) + ", " + xpath);
         }
     }
 }
