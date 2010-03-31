@@ -26,13 +26,13 @@ public class LDAPIdentityManagerFactoryImpl extends IdentityManagerFactory {
      */
     public IdentityManager newIdentityManager(org.w3c.dom.Document configuration, javax.xml.transform.URIResolver resolver) {
         try {
-            boolean load = false;
+            boolean load = true;
+            //boolean load = false;
 /*
             org.wyona.security.impl.ldap.LDAPClient ldapClient = new org.wyona.security.impl.ldap.LDAPClientImplV2();
-            ldapClient.setProviderURL("ldap://127.0.0.1:10389");
 */
             org.wyona.security.impl.ldap.LDAPClient ldapClient = new org.wyona.security.impl.ldap.LDAPClientImpl();
-            ldapClient.setProviderURL("ldap://192.168.200.109:389");
+            ldapClient.setProviderURL(getProviderURL(configuration));
 
             ldapClient.setAuthenticationMechanism("simple");
             //ldapClient.setSecurityProtocol("ssl");
@@ -48,7 +48,7 @@ public class LDAPIdentityManagerFactoryImpl extends IdentityManagerFactory {
 
     /**
      * Get Yarep repository
-     * @param configuration XML configuration, e.g. <identity-manager-config xmlns="http://www.wyona.org/security/1.0">config/ac-identities-repository.xml</identity-manager-config>
+     * @param configuration XML configuration, e.g. <identity-manager-config xmlns="http://www.wyona.org/security/1.0">...</identity-manager-config>
      */
     private Repository getRepository(org.w3c.dom.Document configuration, javax.xml.transform.URIResolver resolver) throws Exception {
         log.debug("Configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null));
@@ -65,6 +65,21 @@ public class LDAPIdentityManagerFactoryImpl extends IdentityManagerFactory {
             return new org.wyona.yarep.core.RepositoryFactory().newRepository("identities", repoConfigFile);
         } else {
             throw new Exception("No such file or directory: " + repoConfigFile.getAbsolutePath());
+        }
+    }
+
+    /**
+     * Get LDAP provider URL
+     * @param configuration XML configuration, e.g. <identity-manager-config xmlns="http://www.wyona.org/security/1.0">...</identity-manager-config>
+     */
+    private String getProviderURL(org.w3c.dom.Document configuration) throws Exception {
+        log.debug("Configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null));
+        String xpath = "/*[local-name()='identity-manager-config']/*[local-name()='config']/*[local-name()='provider-url']";
+        String[] providerURL = org.wyona.commons.xml.XMLHelper.valueOf(configuration, xpath);
+        if(providerURL != null && providerURL.length > 0) {
+            return providerURL[0];
+        } else {
+            throw new Exception("No provider URL found within configuration: " + org.wyona.commons.xml.XMLHelper.documentToString(configuration, false, true, null) + ", " + xpath);
         }
     }
 }
