@@ -17,6 +17,15 @@ public class LDAPClientImpl implements LDAPClient {
 
     private static Logger log = Logger.getLogger(LDAPClientImpl.class);
 
+    private String url;
+
+    /**
+     * @see org.wyona.security.impl.ldap.LDAPClient#setProviderURL(String)
+     */
+    public void setProviderURL(String url) throws Exception {
+        this.url = url;
+    }
+
     /**
      * @see org.wyona.security.impl.ldap.LDAPClient#getAllUsernames()
      */
@@ -55,11 +64,15 @@ public class LDAPClientImpl implements LDAPClient {
     /**
      * Get initial LDAP context
      */
-    private static InitialLdapContext getInitialLdapContext() throws Exception {
+    private InitialLdapContext getInitialLdapContext() throws Exception {
         Properties ldapProps = new Properties();
 
         ldapProps.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory"); // TODO: Make LDAP context factory configurable
-        ldapProps.put(Context.PROVIDER_URL, "ldap://192.168.200.109:389"); // TODO: Make URL configurable
+        if (url != null) {
+            ldapProps.put(Context.PROVIDER_URL, url);
+        } else {
+            throw new Exception("No provider URL configured!");
+        }
         ldapProps.put(Context.SECURITY_AUTHENTICATION, "simple"); // TODO: Make Security Authentication configurable
 
         String securityProtocol = null;
