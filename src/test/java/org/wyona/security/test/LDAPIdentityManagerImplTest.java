@@ -31,6 +31,9 @@ public class LDAPIdentityManagerImplTest extends TestCase {
         repo = repoFactory.newRepository("ldap-identities-repository", new File("repository-ldap-local-cache/repository.xml"));
         //org.wyona.security.impl.ldap.LDAPClient ldapClient = new org.wyona.security.impl.ldap.LDAPClientImplV2();
         org.wyona.security.impl.ldap.LDAPClient ldapClient = new org.wyona.security.impl.ldap.LDAPClientImpl();
+        ldapClient.setProviderURL("ldap://192.168.200.109:389");
+        ldapClient.setAuthenticationMechanism("simple");
+        //ldapClient.setSecurityProtocol("ssl");
 
 /* TODO: Setup LDAP server on Hudson machine */
         identityManager = new LDAPIdentityManagerImpl(repo, false, ldapClient);
