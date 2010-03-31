@@ -18,12 +18,28 @@ public class LDAPClientImpl implements LDAPClient {
     private static Logger log = Logger.getLogger(LDAPClientImpl.class);
 
     private String url;
+    private String authenticationMechanism;
+    private String securityProtocol;
 
     /**
      * @see org.wyona.security.impl.ldap.LDAPClient#setProviderURL(String)
      */
     public void setProviderURL(String url) throws Exception {
         this.url = url;
+    }
+
+    /**
+     * @see org.wyona.security.impl.ldap.LDAPClient#setAuthenticationMechanism(String)
+     */
+    public void setAuthenticationMechanism(String am) throws Exception {
+        this.authenticationMechanism = am;
+    }
+
+    /**
+     * @see org.wyona.security.impl.ldap.LDAPClient#setSecurityProtocol(String)
+     */
+    public void setSecurityProtocol(String p) throws Exception {
+        this.securityProtocol = p;
     }
 
     /**
@@ -67,18 +83,22 @@ public class LDAPClientImpl implements LDAPClient {
     private InitialLdapContext getInitialLdapContext() throws Exception {
         Properties ldapProps = new Properties();
 
-        ldapProps.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory"); // TODO: Make LDAP context factory configurable
+        ldapProps.put(Context.INITIAL_CONTEXT_FACTORY, "com.sun.jndi.ldap.LdapCtxFactory");
         if (url != null) {
             ldapProps.put(Context.PROVIDER_URL, url);
         } else {
             throw new Exception("No provider URL configured!");
         }
-        ldapProps.put(Context.SECURITY_AUTHENTICATION, "simple"); // TODO: Make Security Authentication configurable
+        if  (authenticationMechanism != null) {
+            ldapProps.put(Context.SECURITY_AUTHENTICATION, authenticationMechanism);
+        } else {
+            throw new Exception("No security authentication mechanism configured!");
+        }
 
-        String securityProtocol = null;
-        //String securityProtocol = "ssl";
         if (securityProtocol != null) {
-            ldapProps.put(Context.SECURITY_PROTOCOL, securityProtocol); // TODO: Make Security Protocol configurable
+            ldapProps.put(Context.SECURITY_PROTOCOL, securityProtocol);
+        } else {
+            log.info("No security protocol set.");
         }
 
         // INFO: Connect anonymously!

@@ -34,6 +34,9 @@ public class LDAPIdentityManagerFactoryImpl extends IdentityManagerFactory {
             org.wyona.security.impl.ldap.LDAPClient ldapClient = new org.wyona.security.impl.ldap.LDAPClientImpl();
             ldapClient.setProviderURL("ldap://192.168.200.109:389");
 
+            ldapClient.setAuthenticationMechanism("simple");
+            //ldapClient.setSecurityProtocol("ssl");
+
             return new org.wyona.security.impl.ldap.LDAPIdentityManagerImpl(getRepository(configuration, resolver), load, ldapClient);
         } catch (AccessManagementException e) {
             log.error(e, e);
