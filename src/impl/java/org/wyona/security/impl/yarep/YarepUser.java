@@ -255,7 +255,8 @@ public class YarepUser extends YarepItem implements User {
     }
 
     /**
-     *
+     * Get groups to which a particular item (user or group) belongs to or rather is listed in explicitely
+     * @param item User or group
      */
     private Group[] getGroups(Item item) throws AccessManagementException {
         if(log.isDebugEnabled()) log.debug("Get groups for item: " + item.getID());
@@ -295,7 +296,9 @@ public class YarepUser extends YarepItem implements User {
     }
 
     /**
-     *
+     * Get parent groups of a particular group
+     * @param group Particular group for which parent groups shall be found
+     * @param groups Groups which have already been found
      */
     private void getParentGroups(Group group, Vector groups) throws Exception {
         Group[] parentGroups = getGroups(group);
