@@ -23,7 +23,6 @@ public class YarepGroup extends YarepItem implements Group {
     protected static final Logger log = Logger.getLogger(YarepGroup.class);
     
     private Vector members;
-    private Vector parents;
 
     public static final String MEMBERS = "members";
 
@@ -54,7 +53,6 @@ public class YarepGroup extends YarepItem implements Group {
     public YarepGroup(UserManager userManager, GroupManager groupManager, String id, String name) {
         super(userManager, groupManager, id, name);
         this.members = new Vector();
-        this.parents = new Vector();
     }
 
     /**
@@ -65,7 +63,6 @@ public class YarepGroup extends YarepItem implements Group {
         setName(config.getChild(NAME, false).getValue());
 
         this.members = new Vector();
-        this.parents = new Vector();
         Configuration[] memberNodes = config.getChild(MEMBERS).getChildren(MEMBER);
 
         for (int i = 0; i < memberNodes.length; i++) {
@@ -147,7 +144,19 @@ public class YarepGroup extends YarepItem implements Group {
      * @see org.wyona.security.core.api.Group#getParents()
      */
     public Group[] getParents() throws AccessManagementException {
-        log.error("TODO: Set parent not implemented yet!");
+        log.warn("TODO: Performance and scalability!");
+
+        Group[] allGroups = getGroupManager().getGroups();
+        Vector parents = new Vector();
+        for (int i = 0; i < allGroups.length; i++) {
+            Item[] members = allGroups[i].getMembers();
+            for (int k = 0; k < members.length; k++) {
+                if (members[k] instanceof Group && ((Group)members[k]).getID().equals(getID())) {
+                    parents.add(allGroups[i]);
+                }
+            }
+        }
+
         Group[] g = new Group[parents.size()];
         for (int i = 0; i < g.length; i++) {
             g[i] = (Group) parents.elementAt(i);
