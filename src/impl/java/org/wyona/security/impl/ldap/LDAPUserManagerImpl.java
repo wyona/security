@@ -19,16 +19,18 @@ public class LDAPUserManagerImpl implements UserManager {
     private Repository identitiesRepository;
     private IdentityManager identityManager;
     private LDAPClient ldapClient;
+    private boolean cacheEnabled = false;
 
     /**
      * Constructor
      * @param identityManager Identity manager from which this user manager implementation is called
      * @param identitiesRepository Repository containing "cached" LDAP users
      */
-    public LDAPUserManagerImpl(IdentityManager identityManager, Repository identitiesRepository, LDAPClient ldapClient) {
+    public LDAPUserManagerImpl(IdentityManager identityManager, Repository identitiesRepository, LDAPClient ldapClient, boolean cacheEnabled) {
         this.identityManager = identityManager;
         this.identitiesRepository = identitiesRepository;
         this.ldapClient = ldapClient;
+        this.cacheEnabled = cacheEnabled;
     }
 
     /**
@@ -36,7 +38,7 @@ public class LDAPUserManagerImpl implements UserManager {
      */
     public boolean existsUser(String userName) throws AccessManagementException {
         log.error("TODO: LDAP Yarep Implementation not finished yet! Use Yarep-only implementation instead.");
-        return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository).existsUser(userName);
+        return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository, cacheEnabled).existsUser(userName);
     }
 
     /**
@@ -44,7 +46,7 @@ public class LDAPUserManagerImpl implements UserManager {
      */
     public void removeUser(String userName) throws AccessManagementException {
         log.error("TODO: LDAP Yarep Implementation not finished yet! Use Yarep-only implementation instead.");
-        new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository).removeUser(userName);
+        new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository, cacheEnabled).removeUser(userName);
     }
 
     /**
@@ -52,7 +54,7 @@ public class LDAPUserManagerImpl implements UserManager {
      */
     public User createUser(String id, String name, String email, String password) throws AccessManagementException {
         log.error("TODO: LDAP Yarep Implementation not finished yet! Use Yarep-only implementation instead.");
-        return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository).createUser(id, name, email, password);
+        return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository, cacheEnabled).createUser(id, name, email, password);
     }
 
     /**
@@ -60,7 +62,7 @@ public class LDAPUserManagerImpl implements UserManager {
      */
     public User getUser(String id) throws AccessManagementException {
         log.error("TODO: LDAP Yarep Implementation not finished yet! Use Yarep-only implementation instead.");
-        return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository).getUser(id);
+        return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository, cacheEnabled).getUser(id);
     }
 
     /**
@@ -68,7 +70,7 @@ public class LDAPUserManagerImpl implements UserManager {
      */
     public User getUser(String id, boolean refresh) throws AccessManagementException {
         log.error("TODO: LDAP Yarep Implementation not finished yet! Use Yarep-only implementation instead.");
-        return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository).getUser(id, refresh);
+        return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository, cacheEnabled).getUser(id, refresh);
     }
 
     /**
@@ -92,7 +94,7 @@ public class LDAPUserManagerImpl implements UserManager {
             }
         } else {
             log.error("TODO: LDAP Yarep Implementation not finished yet! Use Yarep-only implementation instead.");
-            return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository).getUsers(true);
+            return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository, cacheEnabled).getUsers(true);
         }
     }
 

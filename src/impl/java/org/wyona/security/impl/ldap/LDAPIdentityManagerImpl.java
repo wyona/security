@@ -35,12 +35,20 @@ public class LDAPIdentityManagerImpl implements IdentityManager {
     public LDAPIdentityManagerImpl(Repository identitiesRepository, boolean load, LDAPClient ldapClient) throws AccessManagementException {
         this.identitiesRepository = identitiesRepository;
 
-        userManager = new LDAPUserManagerImpl(this, identitiesRepository, ldapClient);
-        groupManager = new org.wyona.security.impl.yarep.YarepGroupManager(this, identitiesRepository);
+
+/*
+        boolean cacheEnabled = true;
+        log.warn("Cache enabled!");
+*/
+        boolean cacheEnabled = false;
+        log.warn("Cache disabled!");
+
+        userManager = new LDAPUserManagerImpl(this, identitiesRepository, ldapClient, cacheEnabled);
+        groupManager = new org.wyona.security.impl.yarep.YarepGroupManager(this, identitiesRepository, cacheEnabled);
 
         userManager.getUsers(load);
 
-        ((org.wyona.security.impl.yarep.YarepGroupManager) groupManager).loadGroups();
+        //((org.wyona.security.impl.yarep.YarepGroupManager) groupManager).loadGroups();
     }
     
     /**
