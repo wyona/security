@@ -37,12 +37,18 @@ public class YarepIdentityManagerImpl implements IdentityManager {
     public YarepIdentityManagerImpl(Repository identitiesRepository, boolean load) throws AccessManagementException {
         this.identitiesRepository = identitiesRepository;
 
-        userManager = new YarepUserManager(this, identitiesRepository);
-        groupManager = new YarepGroupManager(this, identitiesRepository);
+/*
+        boolean cacheEnabled = true;
+        log.warn("Cache enabled!");
+*/
+        boolean cacheEnabled = false;
+        log.warn("Cache disabled!");
+        userManager = new YarepUserManager(this, identitiesRepository, cacheEnabled);
+        groupManager = new YarepGroupManager(this, identitiesRepository, cacheEnabled);
 
-        userManager.getUsers(load);
+        //userManager.getUsers(load);
 
-        ((YarepGroupManager) groupManager).loadGroups();
+        //((YarepGroupManager) groupManager).loadGroups();
     }
     
     /**
