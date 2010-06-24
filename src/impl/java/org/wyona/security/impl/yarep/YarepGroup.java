@@ -5,6 +5,8 @@ import java.util.Vector;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
+import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
+
 import org.apache.log4j.Logger;
 
 import org.wyona.security.core.api.AccessManagementException;
@@ -34,7 +36,7 @@ public class YarepGroup extends YarepItem implements Group {
     private static final String USER_TYPE = "user";
     private static final String GROUP_TYPE = "group";
     
-    public static final String GROUP = "group";
+    public static final String GROUP_TAG_NAME = "group";
 
     /**
      * Instantiates an existing YarepGroup from a repository node.
@@ -106,7 +108,7 @@ public class YarepGroup extends YarepItem implements Group {
      * @see org.wyona.security.impl.yarep.YarepItem#createConfiguration()
      */
     protected Configuration createConfiguration() throws AccessManagementException {
-        DefaultConfiguration config = new DefaultConfiguration(GROUP);
+        DefaultConfiguration config = new DefaultConfiguration(GROUP_TAG_NAME);
         config.setAttribute(ID, getID());
         DefaultConfiguration nameNode = new DefaultConfiguration(NAME);
         nameNode.setValue(getName());
@@ -229,5 +231,78 @@ public class YarepGroup extends YarepItem implements Group {
             }
         }
         return false;
+    }
+
+    /**
+     * Check whether user is member of a particular group
+     * @param node Yarep node of group
+     * @param id User ID
+     */
+    public static boolean isUserMember(Node node, String id) {
+        try {
+            DefaultConfigurationBuilder configBuilder = new DefaultConfigurationBuilder(true);
+            Configuration config = configBuilder.build(node.getInputStream());
+
+            if (!config.getName().equals(GROUP_TAG_NAME)) {
+                log.warn("Node '" + node.getPath() + "' does not seem to be a group node!");
+                return false;
+            }
+
+            Configuration[] memberNodes = config.getChild(MEMBERS).getChildren(MEMBER);
+
+            for (int i = 0; i < memberNodes.length; i++) {
+                String memberID = memberNodes[i].getAttribute(MEMBER_ID);
+                // type attribute is optional and helps to differentiate between users and groups
+                String type = memberNodes[i].getAttribute(MEMBER_TYPE, USER_TYPE);
+                if (type.equals(USER_TYPE) && memberID.equals(id)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch(Exception e) {
+            log.error(e, e);
+            return false;
+        }
+    }
+
+    /**
+     * Check whether group is member of a particular group
+     * @param node Yarep node of group
+     * @param id Group ID
+     */
+    public static boolean isGroupMember(Node node, String id) {
+        try {
+            DefaultConfigurationBuilder configBuilder = new DefaultConfigurationBuilder(true);
+            Configuration config = configBuilder.build(node.getInputStream());
+
+            if (!config.getName().equals(GROUP_TAG_NAME)) {
+                log.warn("Node '" + node.getPath() + "' does not seem to be a group node!");
+                return false;
+            }
+
+            Configuration[] memberNodes = config.getChild(MEMBERS).getChildren(MEMBER);
+
+            for (int i = 0; i < memberNodes.length; i++) {
+                String memberID = memberNodes[i].getAttribute(MEMBER_ID);
+                // type attribute is optional and helps to differentiate between users and groups
+                String type = memberNodes[i].getAttribute(MEMBER_TYPE, GROUP_TYPE);
+                if (type.equals(GROUP_TYPE) && memberID.equals(id)) {
+                    return true;
+                }
+            }
+            return false;
+        } catch(Exception e) {
+            log.error(e, e);
+            return false;
+        }
+    }
+
+    /**
+     * Get group ID
+     * @param node Yarep node of group
+     */
+    public static String getGroupID(Node node) throws Exception {
+        String nodeName = node.getName();
+        return nodeName.substring(0, nodeName.indexOf(".xml"));
     }
 }

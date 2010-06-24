@@ -58,30 +58,52 @@ public class YarepGroupManager implements GroupManager {
     private Group[] loadGroupsFromRepository() throws AccessManagementException {
         log.warn("DEBUG: Load groups from repository '" + identitiesRepository.getName() + "'");
         try {
-            Node groupsParentNode = getGroupsParentNode();
-            Node[] groupNodes = groupsParentNode.getNodes();
             DefaultConfigurationBuilder configBuilder = new DefaultConfigurationBuilder(true);
+            Node[] groupNodes = getAllGroupNodes();
             java.util.List<Group> groups = new java.util.ArrayList<Group>();
             for (int i = 0; i < groupNodes.length; i++) {
-                if (groupNodes[i].isResource()) {
-                    try {
-                        Configuration config = configBuilder.build(groupNodes[i].getInputStream());
-                        if (config.getName().equals(YarepGroup.GROUP)) {
-                            Group group = constructGroup(groupNodes[i]);
-                            groups.add(group);
-                        }
-                    } catch (Exception e) {
-                        String errorMsg = "Could not create group from repository node: " + groupNodes[i].getPath() + ": " + e;
-                        log.error(errorMsg, e);
-                        // NOTE[et]: Do not fail here because other groups may still be ok
-                        //throw new AccessManagementException(errorMsg, e);
+                try {
+                    Configuration config = configBuilder.build(groupNodes[i].getInputStream());
+                    if (config.getName().equals(YarepGroup.GROUP_TAG_NAME)) {
+                        Group group = constructGroup(groupNodes[i]);
+                        groups.add(group);
+                    } else {
+                        log.error("Node '" + groupNodes[i].getPath() + "'  does not seem to be a group!");
                     }
+                } catch (Exception e) {
+                    String errorMsg = "Could not create group from repository node: " + groupNodes[i].getPath() + ": " + e;
+                    log.error(errorMsg, e);
+                    // NOTE[et]: Do not fail here because other groups may still be ok
+                    //throw new AccessManagementException(errorMsg, e);
                 }
             }
             return (Group[])groups.toArray(new Group[groups.size()]);
         } catch (RepositoryException e) {
             String errorMsg = "Could not read groups from repository: " + e;
             log.error(errorMsg, e);
+            throw new AccessManagementException(errorMsg, e);
+        }
+    }
+
+    /**
+     * Finds all group nodes within the Yarep repository. 
+     * @throws AccessManagementException
+     */
+    public Node[] getAllGroupNodes() throws AccessManagementException {
+        log.debug("Get group nodes from repository '" + identitiesRepository.getName() + "'");
+        try {
+            Node groupsParentNode = getGroupsParentNode();
+            Node[] nodes = groupsParentNode.getNodes();
+            java.util.List<Node> groupNodes = new java.util.ArrayList<Node>();
+            for (int i = 0; i < nodes.length; i++) {
+                if (nodes[i].isResource()) {
+                    groupNodes.add(nodes[i]);
+                }
+            }
+            return (Node[])groupNodes.toArray(new Node[groupNodes.size()]);
+        } catch (RepositoryException e) {
+            log.error(e, e);
+            String errorMsg = "Could not read groups from repository: " + e;
             throw new AccessManagementException(errorMsg, e);
         }
     }
