@@ -22,7 +22,8 @@ import org.wyona.yarep.core.Node;
 public class YarepGroup extends YarepItem implements Group {
     protected static final Logger log = Logger.getLogger(YarepGroup.class);
     
-    private Vector members;
+    private java.util.List<String> memberUserIDs;
+    private java.util.List<String> memberGroupIDs;
 
     public static final String MEMBERS = "members";
 
@@ -48,11 +49,14 @@ public class YarepGroup extends YarepItem implements Group {
     }
 
     /**
-     *
+     * @param id Group ID
+     * @param name Group name
      */
     public YarepGroup(UserManager userManager, GroupManager groupManager, String id, String name) {
         super(userManager, groupManager, id, name);
-        this.members = new Vector();
+
+        this.memberUserIDs = new java.util.ArrayList<String>();
+        this.memberGroupIDs = new java.util.ArrayList<String>();
     }
 
     /**
@@ -62,7 +66,9 @@ public class YarepGroup extends YarepItem implements Group {
         setID(config.getAttribute(ID));
         setName(config.getChild(NAME, false).getValue());
 
-        this.members = new Vector();
+        this.memberUserIDs = new java.util.ArrayList<String>();
+        this.memberGroupIDs = new java.util.ArrayList<String>();
+
         Configuration[] memberNodes = config.getChild(MEMBERS).getChildren(MEMBER);
 
         for (int i = 0; i < memberNodes.length; i++) {
@@ -72,8 +78,7 @@ public class YarepGroup extends YarepItem implements Group {
             if (type.equals(USER_TYPE)) {
                 if (getUserManager() != null) {
                     if (getUserManager().existsUser(id)) {
-                        User user = getUserManager().getUser(id);
-                        addMember(user);
+                        memberUserIDs.add(id);
                     } else {
                         log.warn("No user with id '" + id + "' exists, but is referenced within group '" + getID() + "' (" + getName() + ")");
                     }
@@ -84,8 +89,7 @@ public class YarepGroup extends YarepItem implements Group {
                 log.warn("Subgroup '" + id + "' within group '" + getID() + "' detected! Beware of loops when adding groups within groups!");
                 if (getGroupManager() != null) {
                     if (getGroupManager().existsGroup(id)) {
-                        Group group = getGroupManager().getGroup(id);
-                        addMember(group);
+                        memberGroupIDs.add(id);
                     } else {
                         log.warn("No group with id '" + id + "' exists, but is referenced within group '" + getID() + "' (" + getName() + ")");
                     }
@@ -134,9 +138,15 @@ public class YarepGroup extends YarepItem implements Group {
      */
     public void addMember(Item item) throws AccessManagementException {
         if (null != item){
-            this.members.add(item);
+            if (item instanceof User) {
+                memberUserIDs.add(item.getID());
+            } else if (item instanceof Group) {
+                memberGroupIDs.add(item.getID());
+            } else {
+                log.warn("Item '" + item.getID() + "' is neither user nor group: " + item.getClass().getName());
+            }
         } else {
-            log.warn("Item is null. Can't add item/user to the group '" + getID() + "'");
+            log.warn("Item is null. Can't add item (user or group) to the group '" + getID() + "'");
         }
     }
 
@@ -168,18 +178,21 @@ public class YarepGroup extends YarepItem implements Group {
      * @see org.wyona.security.core.api.Group#getMembers()
      */
     public Item[] getMembers() throws AccessManagementException {
-        Item[] m = new Item[members.size()];
-        for (int i = 0; i < m.length; i++) {
-            m[i] = (Item) members.elementAt(i);
+        java.util.List<Item> members = new java.util.ArrayList<Item>();
+        for (int i = 0; i < memberUserIDs.size(); i++) {
+            members.add(getUserManager().getUser((String)memberUserIDs.get(i)));
         }
-        return m;
+        for (int i = 0; i < memberGroupIDs.size(); i++) {
+            members.add(getGroupManager().getGroup((String)memberGroupIDs.get(i)));
+        }
+        return (Item[])members.toArray(new Item[members.size()]);
     }
 
     /**
      * @see org.wyona.security.core.api.Group#isMember(org.wyona.security.core.api.Item)
      */
     public boolean isMember(Item item) throws AccessManagementException {
-        return item != null && this.members.contains(item);
+        return item != null && (memberUserIDs.contains(item.getID()) || memberGroupIDs.contains(item.getID()));
     }
 
     /**
@@ -187,8 +200,15 @@ public class YarepGroup extends YarepItem implements Group {
      */
     public void removeMember(Item item) throws AccessManagementException {
         if (null != item) {
-            this.members.remove(item);
-            log.warn("Member has been removed: " + item.getID());
+            if (item instanceof User) {
+                memberUserIDs.remove(item.getID());
+                log.warn("User has been removed: " + item.getID());
+            } else if (item instanceof Group) {
+                memberGroupIDs.remove(item.getID());
+                log.warn("Group has been removed: " + item.getID());
+            } else {
+                log.warn("Item '" + item.getID() + "' is neither user nor group: " + item.getClass().getName());
+            }
         } else {
             log.warn("Item is null. Can't remove item/user from the group '" + getID() + "'");
         }
