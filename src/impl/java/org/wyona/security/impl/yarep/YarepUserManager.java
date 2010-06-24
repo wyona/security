@@ -30,7 +30,9 @@ public class YarepUserManager implements UserManager {
 
     protected IdentityManager identityManager;
 
-    protected HashMap users;
+    //private boolean cacheEnabled = true;
+    private boolean cacheEnabled = false;
+    private HashMap cachedUsers;
 
     private String SUFFIX = "xml";
     private String DEPRECATED_SUFFIX = "iml";
@@ -41,9 +43,11 @@ public class YarepUserManager implements UserManager {
      * @param identitiesRepository
      * @throws AccessManagementException
      */
-    public YarepUserManager(IdentityManager identityManager, Repository identitiesRepository) throws AccessManagementException {
+    public YarepUserManager(IdentityManager identityManager, Repository identitiesRepository, boolean cacheEnabled) throws AccessManagementException {
+    //public YarepUserManager(IdentityManager identityManager, Repository identitiesRepository) throws AccessManagementException {
         this.identityManager = identityManager;
         this.identitiesRepository = identitiesRepository;
+        this.cacheEnabled = cacheEnabled;
     }
 
     /**
@@ -53,14 +57,15 @@ public class YarepUserManager implements UserManager {
      *
      * @throws AccessManagementException
      */
-    private synchronized void loadUsers() throws AccessManagementException {
+    private User[] loadUsersFromRepository() throws AccessManagementException {
         log.info("Load users from repository '" + identitiesRepository.getConfigFile() + "'");
-        this.users = new HashMap();
         try {
             Node usersParentNode = getUsersParentNode();
             // TODO: There seems to be a bug such that users like ac-identities/http\:/michaelwechner.livejournal.com/.xml are not being detected either by getNodes() or isResource()!
             Node[] userNodes = usersParentNode.getNodes();
             DefaultConfigurationBuilder configBuilder = new DefaultConfigurationBuilder(true);
+
+            java.util.List<User> users = new java.util.ArrayList<User>();
             for (int i = 0; i < userNodes.length; i++) {
                 if (userNodes[i].isResource()) {
                     try {
@@ -69,17 +74,17 @@ public class YarepUserManager implements UserManager {
                         if (config.getName().equals(YarepUser.USER) || config.getName().equals("identity")) {
                             User user = constructUser(this.identityManager, userNodes[i]);
                             log.debug("User (re)loaded: " + userNodes[i].getName() + ", " + user.getID());
-                            this.users.put(user.getID(), user);
+                            users.add(user);
                         }
                     } catch (Exception e) {
-                        String errorMsg = "Could not create user from repository node: " 
-                            + userNodes[i].getPath() + ": " + e.getMessage();
+                        String errorMsg = "Could not create user from repository node: " + userNodes[i].getPath() + ": " + e.getMessage();
                         log.error(errorMsg, e);
                         // NOTE[et]: Do not fail here because other users may still be ok
                         //throw new AccessManagementException(errorMsg, e);
                     }
                 }
             }
+            return (User[])users.toArray(new User[users.size()]);
         } catch (RepositoryException e) {
             String errorMsg = "Could not read users from repository: " + e.getMessage();
             log.error(errorMsg, e);
@@ -93,13 +98,13 @@ public class YarepUserManager implements UserManager {
      * @param id User id
      * @throws AccessManagementException
      */
-    private synchronized void loadUser(String id) throws AccessManagementException {
-        log.warn("Load user '" + id + "' from repository '" + identitiesRepository.getName() + "'");
-        if (this.users == null) {
+    protected synchronized void loadUserIntoCache(String id) throws AccessManagementException {
+        log.warn("DEBUG: Load user '" + id + "' from persistent repository '" + identitiesRepository.getName() + "' into cache.");
+        if (cachedUsers == null) {
             log.warn("No users yet within memory. Initialize users hash map.");
-            this.users = new HashMap();
+            cachedUsers = new HashMap();
         }
-        if (this.users.containsKey(id)) {
+        if (cachedUsers.containsKey(id)) {
             log.warn("User '" + id + "' already exists within memory, but will be reloaded!");
         } else {
             log.warn("User '" + id + "' does not exist wihtin memory yet, but will be loaded now!");
@@ -107,7 +112,7 @@ public class YarepUserManager implements UserManager {
 
         User user = getUserFromPersistentRepository(id);
         if (user != null) {
-            this.users.put(id, user);
+            cachedUsers.put(id, user);
         }
     }
 
@@ -126,8 +131,12 @@ public class YarepUserManager implements UserManager {
             user.setPassword(password);
             user.setNode(usersParentNode.addNode(id + "." + SUFFIX, NodeType.RESOURCE));
             user.save();
-            // Add to cache
-            this.users.put(id, user);
+
+            // INFO: Add to cache
+            if (cacheEnabled) {
+                loadUserIntoCache(id);
+            }
+
             return user;
         } catch (Exception e) {
             log.error(e, e);
@@ -139,12 +148,12 @@ public class YarepUserManager implements UserManager {
      * Check if user exists within cache
      */
     private boolean existsWithinCache(String userId) {
-        if (this.users!= null && this.users.containsKey(userId)) return true;
+        if (cacheEnabled && cachedUsers!= null && cachedUsers.containsKey(userId)) return true;
         return false;
     }
 
     /**
-     * Check if user exists within persistent access control repository
+     * Check if user exists within persistent identities repository
      */
     private boolean existsWithinRepository(String userId) {
         try {
@@ -177,16 +186,6 @@ public class YarepUserManager implements UserManager {
     }
 
     /**
-     * @see org.wyona.security.core.api.UserManager#getUser(java.lang.String)
-     */
-    public User getUser(String id) throws AccessManagementException {
-        if (!existsWithinCache(id)) {
-            return getUserFromPersistentRepository(id);
-        }
-        return (User) this.users.get(id);
-    }
-
-    /**
      * Get user from repository
      */
     private User getUserFromPersistentRepository(String id) throws AccessManagementException {
@@ -211,26 +210,56 @@ public class YarepUserManager implements UserManager {
     }
 
     /**
+     * @see org.wyona.security.core.api.UserManager#getUser(java.lang.String)
+     */
+    public User getUser(String id) throws AccessManagementException {
+        if (cacheEnabled && existsWithinCache(id)) {
+            log.warn("Get user '" + id + "' from cache.");
+            return (User) cachedUsers.get(id);
+        } else {
+            return getUser(id, true);
+        }
+    }
+
+    /**
      * @see org.wyona.security.core.api.UserManager#getUser(java.lang.String, boolean)
      */
     public User getUser(String id, boolean refresh) throws AccessManagementException {
-        if(refresh){
-            loadUser(id);
+        if (refresh) {
+/*
             log.warn("Refresh of group manager after reloading all users, such that user '" + id + "' has access to a refreshed group manager!");
             ((YarepGroupManager)identityManager.getGroupManager()).loadGroups();
+*/
+            if (cacheEnabled) {
+                log.warn("Update user '" + id + "' within cache.");
+                loadUserIntoCache(id);
+                return (User) cachedUsers.get(id);
+            } else {
+                return getUserFromPersistentRepository(id);
+            }
+        } else {
+            if (cacheEnabled) {
+                if (!existsWithinCache(id)) {
+                    log.warn("User cache does not exist yet, hence user '" + id + "' will be loaded into cache ...");
+                    loadUserIntoCache(id);
+                }
+                return (User) cachedUsers.get(id);
+            } else {
+                log.warn("Cache is disabled, hence get user '" + id + "' from repository");
+                return getUserFromPersistentRepository(id);
+            }
         }
-        return getUser(id);
     }
 
     /**
      * @see org.wyona.security.core.api.UserManager#getUsers()
      */
     public User[] getUsers() throws AccessManagementException {
-        if (users != null) {
-            return (User[]) this.users.values().toArray(new User[this.users.size()]);
+        log.warn("This method does not scale well. Rather use an iterator!");
+        if (cacheEnabled && cachedUsers != null) {
+            return (User[]) cachedUsers.values().toArray(new User[cachedUsers.size()]);
         } else {
-            log.warn("No users loaded yet. Either users will be loaded incrementally or use getUsers(true)!");
-            return new User[0];
+            return getUsers(true);
         }
     }
 
@@ -238,12 +267,34 @@ public class YarepUserManager implements UserManager {
      * @see org.wyona.security.core.api.UserManager#getUsers(boolean)
      */
     public User[] getUsers(boolean refresh) throws AccessManagementException {
+        if (refresh) {
+            return loadUsersFromRepository();
+        } else {
+            if (cacheEnabled) {
+                if (cachedUsers == null) {
+                    log.warn("User cache does not exist yet, hence users will be loaded into cache ...");
+                    cachedUsers = new HashMap();
+                    User[] users = loadUsersFromRepository();
+                    for (int i = 0; i < users.length; i++) {
+                        cachedUsers.put(users[i].getID(), users[i]);
+                    }
+                }
+                return (User[]) cachedUsers.values().toArray(new User[cachedUsers.size()]);
+            } else {
+                log.warn("Cache is disabled, hence get users from repository");
+                return loadUsersFromRepository();
+            }
+        }
+
+
+/*
         if(refresh){
             loadUsers();
             log.info("Refresh of group manager after reloading all users, such that users have access to a refreshed group manager!");
             ((YarepGroupManager)identityManager.getGroupManager()).loadGroups();
         }
         return getUsers();
+*/
     }
 
     /**
@@ -254,12 +305,17 @@ public class YarepUserManager implements UserManager {
             throw new AccessManagementException("User " + id + " does not exist.");
         }
         User user = getUser(id);
+
         Group[] groups = user.getGroups();
-        for (int i=0; i<groups.length; i++) {
+        for (int i = 0; i < groups.length; i++) {
             groups[i].removeMember(user);
             groups[i].save();
         }
-        this.users.remove(id);
+
+        if (cacheEnabled && existsWithinCache(id)) {
+            cachedUsers.remove(id);
+        }
+
         user.delete();
     }
 
@@ -281,8 +337,16 @@ public class YarepUserManager implements UserManager {
     
     /**
      * Override in subclasses
+     * @param node Repository node of user
      */
     protected User constructUser(IdentityManager identityManager, Node node) throws AccessManagementException{
         return new YarepUser(this, identityManager.getGroupManager(), node);
+    }
+
+    /**
+     *
+     */
+    protected boolean isCacheEnabled() {
+        return cacheEnabled;
     }
 }
