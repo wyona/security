@@ -259,15 +259,21 @@ public class YarepUser extends YarepItem implements User {
      * @param item User or group
      */
     private Group[] getGroups(Item item) throws AccessManagementException {
+        log.warn("DEBUG: Get groups for item: " + item.getID());
         if(log.isDebugEnabled()) log.debug("Get groups for item: " + item.getID());
-        Group[] allGroups = getGroupManager().getGroups();
-        ArrayList groups = new ArrayList();
-        for (int i = 0; i < allGroups.length; i++) {
-            if (allGroups[i].isMember(item)) {
-                groups.add(allGroups[i]);
+        if (getGroupManager() != null) {
+            Group[] allGroups = getGroupManager().getGroups();
+            ArrayList groups = new ArrayList();
+            for (int i = 0; i < allGroups.length; i++) {
+                if (allGroups[i].isMember(item)) {
+                    groups.add(allGroups[i]);
+                }
             }
+            return (Group[]) groups.toArray(new Group[groups.size()]);
+        } else {
+            log.error("Group manager is null!");
+            return null;
         }
-        return (Group[]) groups.toArray(new Group[groups.size()]);
     }
 
     /**
@@ -296,13 +302,42 @@ public class YarepUser extends YarepItem implements User {
     }
 
     /**
+     * @see org.wyona.security.core.api.User#getGroupIDs(boolean)
+     */
+    public String[] getGroupIDs(boolean parents) throws AccessManagementException {
+        log.warn("TODO: Implementation not finished yet!");
+        return null;
+/*
+        if (parents) {
+            log.info("Resolve parent groups for user '" + getID() + "' ...");
+            Group[] groups = getGroups();
+            Vector allGroups = new Vector();
+            for (int i = 0; i < groups.length; i++) {
+                allGroups.add(groups[i]);
+            }
+            for (int i = 0; i < groups.length; i++) {
+                try {
+                    getParentGroups(groups[i], allGroups);
+                } catch (Exception e) {
+                    log.error(e, e);
+                    throw new AccessManagementException(e);
+                }
+            }
+            return (Group[])allGroups.toArray(new Group[allGroups.size()]);
+        } else {
+            return getGroups();
+        }
+*/
+    }
+
+    /**
      * Get parent groups of a particular group
      * @param group Particular group for which parent groups shall be found
      * @param groups Groups which have already been found
      */
     private void getParentGroups(Group group, Vector groups) throws Exception {
         Group[] parentGroups = getGroups(group);
-        if (parentGroups.length > 0) {
+        if (parentGroups != null && parentGroups.length > 0) {
             if (log.isDebugEnabled()) log.debug("Parent groups found for '" + group.getID() + "'");
             for (int i = 0; i < parentGroups.length; i++) {
                 if (log.isDebugEnabled()) log.debug("Check if parent group '" + parentGroups[i].getID() + "' is already contained ...");
