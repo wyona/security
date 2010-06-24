@@ -48,13 +48,28 @@ public class Identity implements java.io.Serializable {
         try {
             this.username = user.getID();
 
-            log.info("Set groupnames via user object for user '" + user.getID() + "' such that also parent groups are loaded!");
-            // NOTE: Setting true means that also parent groups shall be loaded (groups in groups)!
-            Group[] groups = user.getGroups(true);
+            log.info("Set groupnames via user object for user '" + user.getID() + "' such that also parent groups of groups are loaded!");
+            boolean getAlsoParentsOfGroups = true; // NOTE: And their parents, etc.
+
+/*
+            String[] groupIDs = user.getGroupIDs(getAlsoParentsOfGroups);
+            if (groupIDs != null) {
+                groupnames = new String[groupIDs.length];
+                for (int i = 0; i < groupIDs.length; i++) {
+                    groupnames[i] = groupIDs[i];
+                }
+            } else {
+                log.warn("User/Identity '" + this.username + "' is not a member of any group!");
+            }
+*/
+
+            // INFO: We only need the group IDs and not the group objects, hence replace this code by the code above as soon as getGroupIDs has been implemented!
+            Group[] groups = user.getGroups(getAlsoParentsOfGroups);
             groupnames = new String[groups.length];
             for (int i = 0; i < groups.length; i++) {
                 groupnames[i] = groups[i].getID();
             }
+
         } catch (AccessManagementException e) {
             log.error(e, e);
             throw new RuntimeException(e.getMessage(), e);
