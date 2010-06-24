@@ -12,6 +12,8 @@ public class Identity implements java.io.Serializable {
     protected String username;
     protected String[] groupnames;
 
+    private java.util.HashMap customAttributes;
+
     private boolean isWorld = false;
 
     /**
@@ -130,9 +132,31 @@ public class Identity implements java.io.Serializable {
         //groupnames = (String[]) in.readObject();
     }
     
+    /**
+     * @see java.lang.Object#toString()
+     */
     public String toString() {
-        if (getUsername() == null) return "WORLD";
-        return getUsername();
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("User ID: ");
+        if (getUsername() == null) {
+            sb.append("WORLD");
+        } else {
+            sb.append(getUsername());
+        }
+
+        sb.append(" - Groups: ");
+        String[] gn = getGroupnames();
+        if (gn != null) {
+            for (int i = 0; i < gn.length; i++) {
+                sb.append(gn[i]);
+                if (i < gn.length - 1) {
+                    sb.append(", ");
+                }
+            }
+        }
+
+        return sb.toString();
     }
 
     /**
@@ -140,5 +164,28 @@ public class Identity implements java.io.Serializable {
      */
     public boolean isWorld() {
         return isWorld;
+    }
+
+    /**
+     * Set custom attribute, e.g. some authentication constraint
+     * @param name Attribute name/key
+     * @param value Attribute value
+     */
+    public void setAttribute(String name, String value) {
+        if (customAttributes == null) customAttributes = new java.util.HashMap();
+        customAttributes.put(name, value);
+    }
+
+    /**
+     * Get custom attribute
+     * @param name Attribute name/key
+     */
+    public String getAttribute(String name) {
+        if (customAttributes != null) {
+            return (String) customAttributes.get(name);
+        } else {
+            log.warn("No custom attributes set yet!");
+            return null;
+        }
     }
 }
