@@ -125,10 +125,13 @@ public class YarepUserManager implements UserManager {
         }
         try {
             Node usersParentNode = getUsersParentNode();
-            //YarepUser user = new YarepUser(this, identityManager.getGroupManager(), usersParentNode, id, name, email, password);
             YarepUser user = new YarepUser(this, identityManager.getGroupManager(), id, name);
-            user.setEmail(email);
-            user.setPassword(password);
+            if (email != null) {
+                user.setEmail(email);
+            }
+            if (password != null) {
+                user.setPassword(password);
+            }
             user.setNode(usersParentNode.addNode(id + "." + SUFFIX, NodeType.RESOURCE));
             user.save();
 
