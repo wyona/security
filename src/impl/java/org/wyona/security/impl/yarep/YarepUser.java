@@ -73,7 +73,8 @@ public class YarepUser extends YarepItem implements User {
      * @param node
      */
     public YarepUser(UserManager userManager, GroupManager groupManager, Node node) throws AccessManagementException {
-        super(userManager, groupManager, node); // this will call configure()
+        super(userManager, groupManager, node); // INFO: This will call configure()
+        //log.debug("User has been initialized.");
     }
     
     /**
@@ -94,6 +95,8 @@ public class YarepUser extends YarepItem implements User {
     protected void configure(Configuration config) throws ConfigurationException, AccessManagementException {
         // Compulsory fields
         setID(config.getAttribute(ID));
+        //log.debug("Read user profile: " + getID());
+
         setName(config.getChild(NAME, false).getValue(null));
         
         // Optional fields
@@ -501,30 +504,5 @@ public class YarepUser extends YarepItem implements User {
         } else {
             log.error("Group manager is null!");
         }
-
-/*
-        Group[] parentGroups = getGroups(group);
-        if (parentGroups != null && parentGroups.length > 0) {
-            if (log.isDebugEnabled()) log.debug("Parent groups found for '" + group.getID() + "'");
-            for (int i = 0; i < parentGroups.length; i++) {
-                if (log.isDebugEnabled()) log.debug("Check if parent group '" + parentGroups[i].getID() + "' is already contained ...");
-                boolean alreadyContained = false;
-                for (int k = 0; k < groups.size(); k++) {
-                    if (parentGroups[i].getID().equals(((Group)groups.elementAt(k)).getID())) {
-                        log.warn("Loop detected for group '" + group.getID() + "' and parent group '" + parentGroups[i].getID() + "'!");
-                        alreadyContained = true;
-                        break;
-                    }
-                }
-                if (!alreadyContained) {
-                    if (log.isDebugEnabled()) log.debug("Add parent group '" + parentGroups[i].getID() + "'!");
-                    groups.add(parentGroups[i]);
-                    getParentGroups(parentGroups[i], groups);
-                }
-            }
-        } else {
-            if (log.isDebugEnabled()) log.debug("Group '" + group.getID() + "' does not seem to have parent groups.");
-        }
-*/
     }
 }
