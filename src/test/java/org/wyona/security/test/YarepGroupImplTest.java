@@ -54,6 +54,26 @@ public class YarepGroupImplTest extends TestCase {
         assertEquals("Editors", group.getName());
     }
 
+    /**
+     * Test to add a user to a group
+     */
+    public void testAddUserToGroup() throws Exception {
+        String userID = "user" + new java.util.Date().getTime();
+        log.warn("DEBUG: User ID: " + userID);
+        User user = identityManager.getUserManager().createUser(userID, "Sugus", "sugus@wyona.org", "gugus");
+        assertNotNull(user);
+
+        String groupID = "group" + new java.util.Date().getTime();
+        log.warn("DEBUG: Group ID: " + groupID);
+        Group group = identityManager.getGroupManager().createGroup(groupID, "Gugus");
+        assertNotNull(group);
+
+        group.addMember(user);
+        group.save();
+        String[] groupIDs = user.getGroupIDs(true);
+        assertEquals(groupIDs[0], groupID);
+    }
+
 /* TODO: Delete testgroup2 if it already exists
     public void testGroupMembers() throws Exception {
         GroupManager groupManager = identityManager.getGroupManager(); 
