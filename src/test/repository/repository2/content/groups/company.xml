@@ -3,6 +3,9 @@
 <group id="company">
   <name>Company group</name>
   <members>
+<!--
+    <member id="lenya" type="user"/>
+-->
     <member id="editor" type="group"/>
   </members>
 </group>
