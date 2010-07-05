@@ -10,4 +10,6 @@
      "./build.sh test"
 
      Run a particular test class:
+     ./build.sh test -Dtest.class.name=org.wyona.security.test.YarepGroupImplTest
+     ./build.sh test -Dtest.class.name=org.wyona.security.test.LDAPIdentityManagerImplTest
      ./build.sh test -Dtest.class.name=org.wyona.security.test.IdentityManagerImplTest
