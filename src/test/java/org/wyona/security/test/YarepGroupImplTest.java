@@ -114,6 +114,32 @@ public class YarepGroupImplTest extends TestCase {
         assertEquals(groupIDs.length, 0);
     }
 
+    /**
+     * Test to add a group to a group
+     */
+    public void testAddGroupToGroup() throws Exception {
+        String groupID = "group" + new java.util.Date().getTime();
+        log.warn("DEBUG: Group ID: " + groupID);
+        Group group = identityManager.getGroupManager().createGroup(groupID, "Gugus");
+        assertNotNull(group);
+
+        String groupID2 = "group2" + new java.util.Date().getTime();
+        log.warn("DEBUG: Group ID: " + groupID2);
+        Group group2 = identityManager.getGroupManager().createGroup(groupID2, "Sugus");
+        assertNotNull(group2);
+
+        group.addMember(group2);
+        group.save();
+        Group[] parentGroups = group2.getParents();
+        assertEquals(parentGroups[0].getID(), groupID);
+    }
+
+
+
+
+
+
+
 /* TODO: Delete testgroup2 if it already exists
     public void testGroupMembers() throws Exception {
         GroupManager groupManager = identityManager.getGroupManager(); 
