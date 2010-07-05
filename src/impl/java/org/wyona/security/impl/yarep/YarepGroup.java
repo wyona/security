@@ -270,8 +270,8 @@ public class YarepGroup extends YarepItem implements Group {
                 ((YarepUser) item).removeGroup(getID());
                 log.warn("User has been removed: " + item.getID());
             } else if (item instanceof Group) {
-                log.warn("TODO: Enhance implementation ...");
                 memberGroupIDs.remove(item.getID());
+                ((YarepGroup) item).removeParentGroup(getID());
                 log.warn("Group has been removed: " + item.getID());
             } else {
                 log.warn("Item '" + item.getID() + "' is neither user nor group: " + item.getClass().getName());
@@ -373,7 +373,7 @@ public class YarepGroup extends YarepItem implements Group {
 
     /**
      * Add parent group (creating a bi-directional link)
-     * @param id Group ID
+     * @param id Parent group ID
      */
     private void addParentGroup(String id) throws AccessManagementException {
         log.warn("DEBUG: Add parent group '" + id + "' to group: " + getID());
@@ -384,6 +384,23 @@ public class YarepGroup extends YarepItem implements Group {
             parentGroupIDs.add(id);
         } else {
             throw new AccessManagementException("Group '" + id + "' already is parent of group '" + getID() + "'!");
+        }
+        save();
+    }
+
+    /**
+     * Remove parent group (remove bi-directional link)
+     * @param id Parent group ID
+     */
+    private void removeParentGroup(String id) throws AccessManagementException {
+        if (parentGroupIDs != null) {
+            if (parentGroupIDs.indexOf(id) >= 0) {
+                parentGroupIDs.remove(parentGroupIDs.indexOf(id));
+            } else {
+                throw new AccessManagementException("Group '" + id + "' is not parent of group '" + getID() + "'!");
+            }
+        } else {
+            throw new AccessManagementException("Group '" + getID() + "' has no parent groups!");
         }
         save();
     }
