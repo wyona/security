@@ -193,8 +193,8 @@ public class YarepGroup extends YarepItem implements Group {
                 memberUserIDs.add(item.getID());
                 ((YarepUser) item).addGroup(getID());
             } else if (item instanceof Group) {
-                log.warn("TODO: Enhance implementation ...");
                 memberGroupIDs.add(item.getID());
+                ((YarepGroup) item).addParentGroup(getID());
             } else {
                 log.warn("Item '" + item.getID() + "' is neither user nor group: " + item.getClass().getName());
             }
@@ -266,7 +266,6 @@ public class YarepGroup extends YarepItem implements Group {
     public void removeMember(Item item) throws AccessManagementException {
         if (null != item) {
             if (item instanceof User) {
-                log.warn("TODO: Enhance implementation ...");
                 memberUserIDs.remove(item.getID());
                 ((YarepUser) item).removeGroup(getID());
                 log.warn("User has been removed: " + item.getID());
@@ -370,5 +369,22 @@ public class YarepGroup extends YarepItem implements Group {
     public static String getGroupID(Node node) throws Exception {
         String nodeName = node.getName();
         return nodeName.substring(0, nodeName.indexOf(".xml"));
+    }
+
+    /**
+     * Add parent group (creating a bi-directional link)
+     * @param id Group ID
+     */
+    private void addParentGroup(String id) throws AccessManagementException {
+        log.warn("DEBUG: Add parent group '" + id + "' to group: " + getID());
+        if (parentGroupIDs == null) {
+            throw new AccessManagementException("Group '" + getID() + "' has parent groups not initialized yet!");
+        }
+        if (parentGroupIDs.indexOf(id) < 0) {
+            parentGroupIDs.add(id);
+        } else {
+            throw new AccessManagementException("Group '" + id + "' already is parent of group '" + getID() + "'!");
+        }
+        save();
     }
 }
