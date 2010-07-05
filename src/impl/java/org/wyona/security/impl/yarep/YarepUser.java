@@ -298,41 +298,18 @@ public class YarepUser extends YarepItem implements User {
      */
     public Group[] getGroups() throws AccessManagementException {
         if(log.isDebugEnabled()) log.debug("Get groups for user: " + getID() + ", " + getName());
-        return getGroups(this);
-    }
-
-    /**
-     * Get groups to which a particular item (user or group) belongs to or rather is listed in explicitely
-     * @param item User or group
-     */
-    private Group[] getGroups(Item item) throws AccessManagementException {
-        if(log.isDebugEnabled()) log.debug("Get groups for item: " + item.getID());
-
         ArrayList groups = new ArrayList();
         if (getGroupManager() != null) {
-            if (item instanceof User) {
-                String[] groupIDs = ((User) item).getGroupIDs(false);
-                if (groupIDs != null) {
-                    for (int i = 0; i < groupIDs.length; i++) {
-                        groups.add(getGroupManager().getGroup(groupIDs[i]));
-                    }
-                } else {
-                    log.warn("User '" + item.getID() + "' does not seem to belong to any groups.");
+            String[] groupIDs = getGroupIDs(false);
+            if (groupIDs != null) {
+                for (int i = 0; i < groupIDs.length; i++) {
+                    groups.add(getGroupManager().getGroup(groupIDs[i]));
                 }
-            } else if (item instanceof Group)  {
-                log.warn("DEPRECATED ...");
-                Group[] allGroups = getGroupManager().getGroups();
-                for (int i = 0; i < allGroups.length; i++) {
-                    if (allGroups[i].isMember(item)) {
-                        groups.add(allGroups[i]);
-                    }
-                }
+            } else {
+                log.warn("User '" + getID() + "' does not seem to belong to any groups.");
             }
-            return (Group[]) groups.toArray(new Group[groups.size()]);
-        } else {
-            log.error("Group manager is null!");
-            return null;
         }
+        return (Group[]) groups.toArray(new Group[groups.size()]);
     }
 
     /**
@@ -421,7 +398,7 @@ public class YarepUser extends YarepItem implements User {
      * @param groups Groups which have already been found
      */
     private void getParentGroups(Group group, Vector groups) throws Exception {
-        Group[] parentGroups = getGroups(group);
+        Group[] parentGroups = group.getParents();
         if (parentGroups != null && parentGroups.length > 0) {
             if (log.isDebugEnabled()) log.debug("Parent groups found for '" + group.getID() + "'");
             for (int i = 0; i < parentGroups.length; i++) {
