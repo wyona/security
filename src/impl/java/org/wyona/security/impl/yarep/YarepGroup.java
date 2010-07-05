@@ -139,9 +139,11 @@ public class YarepGroup extends YarepItem implements Group {
      * @see org.wyona.security.core.api.Group#addMember(org.wyona.security.core.api.Item)
      */
     public void addMember(Item item) throws AccessManagementException {
+        // TODO: Enhance implementation ...
         if (null != item){
             if (item instanceof User) {
                 memberUserIDs.add(item.getID());
+                ((YarepUser) item).addGroup(getID());
             } else if (item instanceof Group) {
                 memberGroupIDs.add(item.getID());
             } else {
@@ -156,6 +158,7 @@ public class YarepGroup extends YarepItem implements Group {
      * @see org.wyona.security.core.api.Group#getParents()
      */
     public Group[] getParents() throws AccessManagementException {
+        // TODO: Change implementation
         log.warn("TODO: Performance and scalability!");
 
         Group[] allGroups = getGroupManager().getGroups();
