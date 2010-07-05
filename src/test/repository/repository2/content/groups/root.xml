@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<group id="root">
+  <name>Root group</name>
+  <members>
+<!--
+    <member id="lenya"/>
+-->
+    <member id="editor" type="group"/>
+    <member id="company" type="group"/>
+  </members>
+</group>

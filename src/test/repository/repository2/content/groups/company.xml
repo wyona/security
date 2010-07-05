@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<group id="company">
+  <name>Company group</name>
+  <members>
+    <member id="editor" type="group"/>
+  </members>
+</group>
