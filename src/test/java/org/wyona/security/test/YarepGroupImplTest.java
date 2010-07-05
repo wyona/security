@@ -55,12 +55,25 @@ public class YarepGroupImplTest extends TestCase {
     }
 
     /**
-     * Test get an individual group
+     * Test to get an individual group
      */
     public void testGetGroup() throws Exception {
         Group group = identityManager.getGroupManager().getGroup("editor");
         assertNotNull(group);
         assertEquals("Editors", group.getName());
+    }
+
+    /**
+     * Test to get the groups of an individual user
+     */
+    public void testGetGroupsOfUser() throws Exception {
+        User user = identityManager.getUserManager().getUser("lenya");
+        assertNotNull(user);
+        assertEquals("lenya@wyona.org", user.getEmail());
+        Group[] groups = user.getGroups();
+        assertNotNull(groups);
+        assertEquals(groups.length, 1);
+        assertEquals(groups[0].getName(), "Editors");
     }
 
     /**
