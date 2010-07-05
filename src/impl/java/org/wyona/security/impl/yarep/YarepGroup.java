@@ -207,25 +207,36 @@ public class YarepGroup extends YarepItem implements Group {
      * @see org.wyona.security.core.api.Group#getParents()
      */
     public Group[] getParents() throws AccessManagementException {
-        // TODO: Change implementation
-        log.warn("TODO: Performance and scalability!");
-
-        Group[] allGroups = getGroupManager().getGroups();
-        Vector parents = new Vector();
-        for (int i = 0; i < allGroups.length; i++) {
-            Item[] members = allGroups[i].getMembers();
-            for (int k = 0; k < members.length; k++) {
-                if (members[k] instanceof Group && ((Group)members[k]).getID().equals(getID())) {
-                    parents.add(allGroups[i]);
+        if (parentGroupIDs != null) {
+            if (parentGroupIDs.size() > 0) {
+                Group[] parents = new Group[parentGroupIDs.size()];
+                for (int i = 0; i < parentGroupIDs.size(); i++) {
+                    parents[i] = getGroupManager().getGroup(parentGroupIDs.get(i));
+                }
+                return parents;
+            } else {
+                log.warn("Group '" + getID() + "' does not seem to have any parents.");
+                return null;
+            }
+        } else {
+            log.warn("DEPRECATED: Performance and scalability!");
+            Group[] allGroups = getGroupManager().getGroups();
+            Vector parents = new Vector();
+            for (int i = 0; i < allGroups.length; i++) {
+                Item[] members = allGroups[i].getMembers();
+                for (int k = 0; k < members.length; k++) {
+                    if (members[k] instanceof Group && ((Group)members[k]).getID().equals(getID())) {
+                        parents.add(allGroups[i]);
+                    }
                 }
             }
-        }
 
-        Group[] g = new Group[parents.size()];
-        for (int i = 0; i < g.length; i++) {
-            g[i] = (Group) parents.elementAt(i);
+            Group[] g = new Group[parents.size()];
+            for (int i = 0; i < g.length; i++) {
+                g[i] = (Group) parents.elementAt(i);
+            }
+            return g;
         }
-        return g;
     }
 
     /**
