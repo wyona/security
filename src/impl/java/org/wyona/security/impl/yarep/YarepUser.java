@@ -241,6 +241,7 @@ public class YarepUser extends YarepItem implements User {
         } else {
             DefaultConfiguration groupsNode = new DefaultConfiguration(GROUPS_TAG_NAME);
             config.addChild(groupsNode);
+            _groupIDs = new ArrayList();
         }
 
         return config;
@@ -578,9 +579,31 @@ public class YarepUser extends YarepItem implements User {
     void addGroup(String id) throws AccessManagementException {
         log.warn("DEBUG: Add user '" + getID() + "' to group: " + id);
         if (_groupIDs == null) {
-            _groupIDs = new ArrayList();
+            throw new AccessManagementException("User '" + getID() + "' has groups not initialized yet!");
         }
-        _groupIDs.add(id);
+        if (_groupIDs.indexOf(id) < 0) {
+            _groupIDs.add(id);
+        } else {
+            throw new AccessManagementException("User '" + getID() + "' already belongs to group '" + id + "'!");
+        }
+        save();
+    }
+
+    /**
+     * Remove group (Remove bi-directional link)
+     * @param id Group ID
+     */
+    void removeGroup(String id) throws AccessManagementException {
+        log.warn("DEBUG: Remove user '" + getID() + "' from group '" + id + "'.");
+        if (_groupIDs != null) {
+            if (_groupIDs.indexOf(id) >= 0) {
+                _groupIDs.remove(_groupIDs.indexOf(id));
+            } else {
+                throw new AccessManagementException("User '" + getID() + "' does not belong to group '" + id + "'!");
+            }
+        } else {
+            throw new AccessManagementException("User '" + getID() + "' has no groups!");
+        }
         save();
     }
 }
