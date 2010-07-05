@@ -376,8 +376,8 @@ public class YarepUser extends YarepItem implements User {
                 for (int i = 0; i < groupIDs.size(); i++) {
                     try {
                         // TOOD: Replace this implementation
-                        //getParentGroupIDsImplV2((String) groupIDs.get(i), groupIDsInclParents);
-                        getParentGroupIDs((String) groupIDs.get(i), groupIDsInclParents);
+                        getParentGroupIDsImplV2((String) groupIDs.get(i), groupIDsInclParents);
+                        //getParentGroupIDsImplV1((String) groupIDs.get(i), groupIDsInclParents);
                     } catch(Exception e) {
                         log.error(e, e);
                     }
@@ -517,14 +517,40 @@ public class YarepUser extends YarepItem implements User {
      * @param groupIDsInclParents Group IDs which have already been found
      */
     private void getParentGroupIDsImplV2(String groupID, ArrayList<String> groupIDsInclParents) throws Exception {
+        log.debug("Get parent group IDs for particular group: " + groupID);
+
+        YarepGroupManager ygm = (YarepGroupManager) getGroupManager();
+        if (ygm != null) {
+            Group[] parentGroups = ygm.getGroup(groupID).getParents();
+            for (int i = 0; i < parentGroups.length; i++) {
+                String parentGroupID = parentGroups[i].getID();
+                log.debug("Group '" + groupID + "' is group member of parent group: " + parentGroupID);
+                boolean alreadyContained = false;
+                for (int k = 0; k < groupIDsInclParents.size(); k++) {
+                    if (groupIDsInclParents.get(k).equals(parentGroupID)) {
+                        log.warn("Maybe loop detected for group '" + groupID + "' and parent group '" + parentGroupID + "' or root group '" + parentGroupID + "' reached!");
+                        alreadyContained = true;
+                        break;
+                    }
+                }
+                if (!alreadyContained) {
+                    if (log.isDebugEnabled()) log.debug("Add parent group '" + parentGroupID + "'!");
+                    groupIDsInclParents.add(parentGroupID);
+                    getParentGroupIDsImplV2(parentGroupID, groupIDsInclParents);
+                }
+            }
+        } else {
+            log.error("Group manager is null!");
+        }
     }
 
     /**
+     * @deprecated Use getParentGroupIDsImplV2 instead
      * Get parent group IDs of a particular group
      * @param groupID ID of particular group
      * @param groupIDsInclParents Group IDs which have already been found
      */
-    public void getParentGroupIDs(String groupID, ArrayList<String> groupIDsInclParents) throws Exception {
+    public void getParentGroupIDsImplV1(String groupID, ArrayList<String> groupIDsInclParents) throws Exception {
         log.debug("Get parent group IDs for particular group: " + groupID);
 
         YarepGroupManager ygm = (YarepGroupManager) getGroupManager();
@@ -546,7 +572,7 @@ public class YarepUser extends YarepItem implements User {
                         if (!alreadyContained) {
                             if (log.isDebugEnabled()) log.debug("Add parent group '" + parentGroupID + "'!");
                             groupIDsInclParents.add(parentGroupID);
-                            getParentGroupIDs(parentGroupID, groupIDsInclParents);
+                            getParentGroupIDsImplV1(parentGroupID, groupIDsInclParents);
                         }
                     } catch(Exception e) {
                         log.error(e, e);
