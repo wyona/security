@@ -1,5 +1,6 @@
 package org.wyona.security.impl.yarep;
 
+import java.util.ArrayList;
 import java.util.Vector;
 
 import org.apache.avalon.framework.configuration.Configuration;
@@ -26,12 +27,16 @@ public class YarepGroup extends YarepItem implements Group {
     
     private java.util.List<String> memberUserIDs;
     private java.util.List<String> memberGroupIDs;
+    private java.util.List<String> parentGroupIDs;
 
     public static final String MEMBERS = "members";
-
     public static final String MEMBER = "member";
-
     public static final String MEMBER_ID = "id";
+
+    public static final String PARENT_GROUPS_TAG_NAME = "parent-groups";
+    public static final String PARENT_GROUP_TAG_NAME = "group";
+    public static final String PARENT_GROUP_ID_ATTR_NAME = "id";
+
     private static final String MEMBER_TYPE = "type";
     private static final String USER_TYPE = "user";
     private static final String GROUP_TYPE = "group";
@@ -57,8 +62,9 @@ public class YarepGroup extends YarepItem implements Group {
     public YarepGroup(UserManager userManager, GroupManager groupManager, String id, String name) {
         super(userManager, groupManager, id, name);
 
-        this.memberUserIDs = new java.util.ArrayList<String>();
-        this.memberGroupIDs = new java.util.ArrayList<String>();
+        this.memberUserIDs = new ArrayList<String>();
+        this.memberGroupIDs = new ArrayList<String>();
+        this.parentGroupIDs = new ArrayList<String>();
     }
 
     /**
@@ -68,8 +74,8 @@ public class YarepGroup extends YarepItem implements Group {
         setID(config.getAttribute(ID));
         setName(config.getChild(NAME, false).getValue());
 
-        this.memberUserIDs = new java.util.ArrayList<String>();
-        this.memberGroupIDs = new java.util.ArrayList<String>();
+        this.memberUserIDs = new ArrayList<String>();
+        this.memberGroupIDs = new ArrayList<String>();
 
         Configuration[] memberNodes = config.getChild(MEMBERS).getChildren(MEMBER);
 
@@ -102,6 +108,27 @@ public class YarepGroup extends YarepItem implements Group {
                 log.error("No such member/item type: " + type);
             }
         }
+
+        Configuration parentsNode = config.getChild(PARENT_GROUPS_TAG_NAME, false);
+        if (parentsNode != null) {
+            Configuration[] parentNodes = parentsNode.getChildren(PARENT_GROUP_TAG_NAME);
+            if (parentNodes != null && parentNodes.length > 0) {
+                parentGroupIDs = new ArrayList<String>();
+                for (int i = 0; i < parentNodes.length; i++) {
+                    parentGroupIDs.add(parentNodes[i].getAttribute(PARENT_GROUP_ID_ATTR_NAME));
+                }
+            } else {
+                log.warn("DEBUG: Group '" + getID() + "'  does not seem to have any parent groups.");
+            }
+        } else {
+            log.warn("Group '" + getID() + "' does seem to be an instance of a previous version without '" + PARENT_GROUPS_TAG_NAME + "' tag and hence will be migrated automatically.");
+            //if (fixParentGroupIndex) {
+            if (true) {
+                log.warn("Fix parent group index ...");
+                parentGroupIDs = new ArrayList<String>();
+                save();
+            }
+        }
     }
 
     /**
@@ -130,6 +157,18 @@ public class YarepGroup extends YarepItem implements Group {
                 log.error("Item is neither user nor group: " + items[i].getID());
             }
             membersNode.addChild(memberNode);
+        }
+
+        DefaultConfiguration parentGroupsNode = new DefaultConfiguration(PARENT_GROUPS_TAG_NAME);
+        config.addChild(parentGroupsNode);
+        if (parentGroupIDs != null && parentGroupIDs.size() > 0) {
+            for (int i = 0; i < parentGroupIDs.size(); i++) {
+                DefaultConfiguration parentGroupNode = new DefaultConfiguration(PARENT_GROUP_TAG_NAME);
+                parentGroupNode.setAttribute(PARENT_GROUP_ID_ATTR_NAME, (String) parentGroupIDs.get(i));
+                parentGroupsNode.addChild(parentGroupNode);
+            }
+        } else {
+            parentGroupIDs = new ArrayList();
         }
 
         return config;
@@ -183,7 +222,7 @@ public class YarepGroup extends YarepItem implements Group {
      * @see org.wyona.security.core.api.Group#getMembers()
      */
     public Item[] getMembers() throws AccessManagementException {
-        java.util.List<Item> members = new java.util.ArrayList<Item>();
+        java.util.List<Item> members = new ArrayList<Item>();
         for (int i = 0; i < memberUserIDs.size(); i++) {
             members.add(getUserManager().getUser((String)memberUserIDs.get(i)));
         }
