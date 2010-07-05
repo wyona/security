@@ -230,17 +230,15 @@ public class YarepUser extends YarepItem implements User {
             config.addChild(saltNode);
         }
 
+        DefaultConfiguration groupsNode = new DefaultConfiguration(GROUPS_TAG_NAME);
+        config.addChild(groupsNode);
         if (_groupIDs != null && _groupIDs.size() > 0) {
-            DefaultConfiguration groupsNode = new DefaultConfiguration(GROUPS_TAG_NAME);
-            config.addChild(groupsNode);
             for (int i = 0; i < _groupIDs.size(); i++) {
                 DefaultConfiguration groupNode = new DefaultConfiguration(GROUP_TAG_NAME);
                 groupNode.setAttribute(GROUP_ID_ATTR_NAME, (String) _groupIDs.get(i));
                 groupsNode.addChild(groupNode);
             }
         } else {
-            DefaultConfiguration groupsNode = new DefaultConfiguration(GROUPS_TAG_NAME);
-            config.addChild(groupsNode);
             _groupIDs = new ArrayList();
         }
 
@@ -391,14 +389,17 @@ public class YarepUser extends YarepItem implements User {
             }
 
             if (parents) {
-                // TOOD: Replace this implementation
                 log.info("Resolve parent groups for user '" + getID() + "' ...");
+
                 ArrayList<String> groupIDsInclParents = new ArrayList<String>();
                 for (int i = 0; i < groupIDs.size(); i++) {
                     groupIDsInclParents.add((String) groupIDs.get(i));
                 }
+
                 for (int i = 0; i < groupIDs.size(); i++) {
                     try {
+                        // TOOD: Replace this implementation
+                        //getParentGroupIDsImplV2((String) groupIDs.get(i), groupIDsInclParents);
                         getParentGroupIDs((String) groupIDs.get(i), groupIDsInclParents);
                     } catch(Exception e) {
                         log.error(e, e);
@@ -428,7 +429,7 @@ public class YarepUser extends YarepItem implements User {
                 boolean alreadyContained = false;
                 for (int k = 0; k < groups.size(); k++) {
                     if (parentGroups[i].getID().equals(((Group)groups.elementAt(k)).getID())) {
-                        log.warn("Loop detected for group '" + group.getID() + "' and parent group '" + parentGroups[i].getID() + "'!");
+                        log.warn("Maybe loop detected for group '" + group.getID() + "' and parent group '" + parentGroups[i].getID() + "', but maybe only root group '" + parentGroups[i].getID() + "' reached!");
                         alreadyContained = true;
                         break;
                     }
@@ -531,6 +532,14 @@ public class YarepUser extends YarepItem implements User {
             }
         }
         return false;
+    }
+
+    /**
+     * Get parent group IDs of a particular group
+     * @param groupID ID of particular group
+     * @param groupIDsInclParents Group IDs which have already been found
+     */
+    private void getParentGroupIDsImplV2(String groupID, ArrayList<String> groupIDsInclParents) throws Exception {
     }
 
     /**
