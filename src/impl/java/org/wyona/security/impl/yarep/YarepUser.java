@@ -522,22 +522,26 @@ public class YarepUser extends YarepItem implements User {
         YarepGroupManager ygm = (YarepGroupManager) getGroupManager();
         if (ygm != null) {
             Group[] parentGroups = ygm.getGroup(groupID).getParents();
-            for (int i = 0; i < parentGroups.length; i++) {
-                String parentGroupID = parentGroups[i].getID();
-                log.debug("Group '" + groupID + "' is group member of parent group: " + parentGroupID);
-                boolean alreadyContained = false;
-                for (int k = 0; k < groupIDsInclParents.size(); k++) {
-                    if (groupIDsInclParents.get(k).equals(parentGroupID)) {
-                        log.warn("Maybe loop detected for group '" + groupID + "' and parent group '" + parentGroupID + "' or root group '" + parentGroupID + "' reached!");
-                        alreadyContained = true;
-                        break;
+            if (parentGroups != null) {
+                for (int i = 0; i < parentGroups.length; i++) {
+                    String parentGroupID = parentGroups[i].getID();
+                    log.debug("Group '" + groupID + "' is group member of parent group: " + parentGroupID);
+                    boolean alreadyContained = false;
+                    for (int k = 0; k < groupIDsInclParents.size(); k++) {
+                        if (groupIDsInclParents.get(k).equals(parentGroupID)) {
+                            log.warn("Maybe loop detected for group '" + groupID + "' and parent group '" + parentGroupID + "' or root group '" + parentGroupID + "' reached!");
+                            alreadyContained = true;
+                            break;
+                        }
+                    }
+                    if (!alreadyContained) {
+                        if (log.isDebugEnabled()) log.debug("Add parent group '" + parentGroupID + "'!");
+                        groupIDsInclParents.add(parentGroupID);
+                        getParentGroupIDsImplV2(parentGroupID, groupIDsInclParents);
                     }
                 }
-                if (!alreadyContained) {
-                    if (log.isDebugEnabled()) log.debug("Add parent group '" + parentGroupID + "'!");
-                    groupIDsInclParents.add(parentGroupID);
-                    getParentGroupIDsImplV2(parentGroupID, groupIDsInclParents);
-                }
+            } else {
+                log.warn("Group '" + groupID + "' does not seem to have parent groups.");
             }
         } else {
             log.error("Group manager is null!");
