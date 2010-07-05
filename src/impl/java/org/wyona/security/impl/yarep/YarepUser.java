@@ -27,7 +27,7 @@ import org.wyona.security.impl.Password;
 import org.wyona.yarep.core.Node;
 
 /**
- *
+ * User implementation based on Yarep
  */
 public class YarepUser extends YarepItem implements User {
 
@@ -308,6 +308,7 @@ public class YarepUser extends YarepItem implements User {
      * @see org.wyona.security.core.api.User#getGroupIDs(boolean)
      */
     public String[] getGroupIDs(boolean parents) throws AccessManagementException {
+        // TOOD: Replace this implementation
         YarepGroupManager ygm = (YarepGroupManager) getGroupManager();
         if (ygm != null) {
             ArrayList<String> groupIDs = new ArrayList<String>();
@@ -504,5 +505,13 @@ public class YarepUser extends YarepItem implements User {
         } else {
             log.error("Group manager is null!");
         }
+    }
+
+    /**
+     * Add group (creating a bi-directional link)
+     * @param id Group ID
+     */
+    void addGroup(String id) throws AccessManagementException {
+        log.warn("DEBUG: Add user '" + getID() + "' to group: " + id);
     }
 }
