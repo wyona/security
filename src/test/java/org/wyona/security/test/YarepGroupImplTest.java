@@ -37,12 +37,21 @@ public class YarepGroupImplTest extends TestCase {
     }
 
     /**
-     * Test get an individual user
+     * Test to get an individual user
      */
     public void testGetUser() throws Exception {
         User user = identityManager.getUserManager().getUser("lenya");
         assertNotNull(user);
         assertEquals("lenya@wyona.org", user.getEmail());
+    }
+
+    /**
+     * Test to migrate groups index of an individual user of a previous version
+     */
+    public void testMigrateGroupsIndex() throws Exception {
+        User user = identityManager.getUserManager().getUser("user-without-groups-index");
+        assertNotNull(user);
+        assertEquals(user.getGroupIDs(false).length, 0);
     }
 
     /**
