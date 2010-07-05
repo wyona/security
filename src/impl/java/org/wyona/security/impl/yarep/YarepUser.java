@@ -307,14 +307,26 @@ public class YarepUser extends YarepItem implements User {
      * @param item User or group
      */
     private Group[] getGroups(Item item) throws AccessManagementException {
-        log.debug("Get groups for item: " + item.getID());
         if(log.isDebugEnabled()) log.debug("Get groups for item: " + item.getID());
+
+        ArrayList groups = new ArrayList();
         if (getGroupManager() != null) {
-            Group[] allGroups = getGroupManager().getGroups();
-            ArrayList groups = new ArrayList();
-            for (int i = 0; i < allGroups.length; i++) {
-                if (allGroups[i].isMember(item)) {
-                    groups.add(allGroups[i]);
+            if (item instanceof User) {
+                String[] groupIDs = ((User) item).getGroupIDs(false);
+                if (groupIDs != null) {
+                    for (int i = 0; i < groupIDs.length; i++) {
+                        groups.add(getGroupManager().getGroup(groupIDs[i]));
+                    }
+                } else {
+                    log.warn("User '" + item.getID() + "' does not seem to belong to any groups.");
+                }
+            } else if (item instanceof Group)  {
+                log.warn("DEPRECATED ...");
+                Group[] allGroups = getGroupManager().getGroups();
+                for (int i = 0; i < allGroups.length; i++) {
+                    if (allGroups[i].isMember(item)) {
+                        groups.add(allGroups[i]);
+                    }
                 }
             }
             return (Group[]) groups.toArray(new Group[groups.size()]);
