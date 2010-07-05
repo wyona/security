@@ -35,6 +35,11 @@ public class YarepUser extends YarepItem implements User {
 
     public static final String USER = "user";
 
+    private boolean fixGroupIndex = true;
+    public static final String GROUPS_TAG_NAME = "groups";
+    public static final String GROUP_TAG_NAME = "group";
+    public static final String GROUP_ID_ATTR_NAME = "id";
+
     public static final String EMAIL = "email";
 
     public static final String LANGUAGE = "language";
@@ -64,6 +69,8 @@ public class YarepUser extends YarepItem implements User {
     private String description;
     
     private Date expire;
+
+    private ArrayList _groupIDs;
 
     /**
      * Instantiates an existing YarepUser from a repository node.
@@ -149,6 +156,31 @@ public class YarepUser extends YarepItem implements User {
                     }
                 }
         }
+
+        Configuration groupsNode = config.getChild(GROUPS_TAG_NAME, false);
+        if (groupsNode != null) {
+            Configuration[] groupNodes = groupsNode.getChildren(GROUP_TAG_NAME);
+            if (groupNodes != null && groupNodes.length > 0) {
+                _groupIDs = new ArrayList();
+                for (int i = 0; i < groupNodes.length; i++) {
+                    _groupIDs.add(groupNodes[i].getAttribute(GROUP_ID_ATTR_NAME));
+                }
+            } else {
+                log.warn("DEBUG: User '" + getID() + "' does not seem to belong to any groups.");
+            }
+        } else { // INFO: For backwards compatibility reason the group IDs are retrieved from the groups themselves and saved as bi-directional links
+            log.warn("User '" + getID() + "' does seem to be an instance of a previous version without '" + GROUPS_TAG_NAME + "' tag and hence will be migrated automatically.");
+            //if (fixGroupIndex) {
+            if (true) {
+                log.warn("Fix group index ...");
+                String[] gids = getGroupIDs(false);
+                _groupIDs = new ArrayList();
+                for (int i = 0; i < gids.length; i++) {
+                    _groupIDs.add(gids[i]);
+                }
+                save();
+            }
+        }
     }
 
     /**
@@ -196,6 +228,19 @@ public class YarepUser extends YarepItem implements User {
             DefaultConfiguration saltNode = new DefaultConfiguration(SALT);
             saltNode.setValue(getSalt());
             config.addChild(saltNode);
+        }
+
+        if (_groupIDs != null && _groupIDs.size() > 0) {
+            DefaultConfiguration groupsNode = new DefaultConfiguration(GROUPS_TAG_NAME);
+            config.addChild(groupsNode);
+            for (int i = 0; i < _groupIDs.size(); i++) {
+                DefaultConfiguration groupNode = new DefaultConfiguration(GROUP_TAG_NAME);
+                groupNode.setAttribute(GROUP_ID_ATTR_NAME, (String) _groupIDs.get(i));
+                groupsNode.addChild(groupNode);
+            }
+        } else {
+            DefaultConfiguration groupsNode = new DefaultConfiguration(GROUPS_TAG_NAME);
+            config.addChild(groupsNode);
         }
 
         return config;
@@ -513,5 +558,10 @@ public class YarepUser extends YarepItem implements User {
      */
     void addGroup(String id) throws AccessManagementException {
         log.warn("DEBUG: Add user '" + getID() + "' to group: " + id);
+        if (_groupIDs == null) {
+            _groupIDs = new ArrayList();
+        }
+        _groupIDs.add(id);
+        save();
     }
 }
