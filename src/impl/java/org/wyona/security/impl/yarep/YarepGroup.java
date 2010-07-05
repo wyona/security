@@ -139,12 +139,12 @@ public class YarepGroup extends YarepItem implements Group {
      * @see org.wyona.security.core.api.Group#addMember(org.wyona.security.core.api.Item)
      */
     public void addMember(Item item) throws AccessManagementException {
-        // TODO: Enhance implementation ...
         if (null != item){
             if (item instanceof User) {
                 memberUserIDs.add(item.getID());
                 ((YarepUser) item).addGroup(getID());
             } else if (item instanceof Group) {
+                log.warn("TODO: Enhance implementation ...");
                 memberGroupIDs.add(item.getID());
             } else {
                 log.warn("Item '" + item.getID() + "' is neither user nor group: " + item.getClass().getName());
@@ -206,9 +206,12 @@ public class YarepGroup extends YarepItem implements Group {
     public void removeMember(Item item) throws AccessManagementException {
         if (null != item) {
             if (item instanceof User) {
+                log.warn("TODO: Enhance implementation ...");
                 memberUserIDs.remove(item.getID());
+                ((YarepUser) item).removeGroup(getID());
                 log.warn("User has been removed: " + item.getID());
             } else if (item instanceof Group) {
+                log.warn("TODO: Enhance implementation ...");
                 memberGroupIDs.remove(item.getID());
                 log.warn("Group has been removed: " + item.getID());
             } else {
