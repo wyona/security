@@ -192,6 +192,7 @@ public class YarepUserManager implements UserManager {
      * Get user from repository
      */
     private User getUserFromPersistentRepository(String id) throws AccessManagementException {
+        //log.debug("Get user '" + id + "' from persistent repository.");
         if (existsWithinRepository(id)) {
             try {
                 String nodeName = id + "." + SUFFIX;
