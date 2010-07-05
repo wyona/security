@@ -126,6 +126,16 @@ public class YarepGroup extends YarepItem implements Group {
             if (true) {
                 log.warn("Fix parent group index ...");
                 parentGroupIDs = new ArrayList<String>();
+                Node[] allGroupNodes = ((YarepGroupManager) getGroupManager()).getAllGroupNodes();
+                for (int i = 0; i < allGroupNodes.length; i++) {
+                    if (YarepGroup.isGroupMember(allGroupNodes[i], getID())) {
+                        try {
+                            parentGroupIDs.add(YarepGroup.getGroupID(allGroupNodes[i]));
+                        } catch(Exception e) {
+                            log.error(e, e);
+                        }
+                    }
+                }
                 save();
             }
         }
