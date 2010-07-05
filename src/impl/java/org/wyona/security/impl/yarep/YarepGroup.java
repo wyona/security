@@ -118,6 +118,7 @@ public class YarepGroup extends YarepItem implements Group {
                     parentGroupIDs.add(parentNodes[i].getAttribute(PARENT_GROUP_ID_ATTR_NAME));
                 }
             } else {
+                parentGroupIDs = new ArrayList<String>();
                 log.warn("DEBUG: Group '" + getID() + "'  does not seem to have any parent groups.");
             }
         } else {
