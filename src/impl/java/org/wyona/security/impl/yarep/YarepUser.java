@@ -353,25 +353,32 @@ public class YarepUser extends YarepItem implements User {
      * @see org.wyona.security.core.api.User#getGroupIDs(boolean)
      */
     public String[] getGroupIDs(boolean parents) throws AccessManagementException {
-        // TOOD: Replace this implementation
         YarepGroupManager ygm = (YarepGroupManager) getGroupManager();
         if (ygm != null) {
             ArrayList<String> groupIDs = new ArrayList<String>();
 
-            Node[] groupNodes = ygm.getAllGroupNodes();
-            for (int i = 0; i < groupNodes.length; i++) {
-                if (YarepGroup.isUserMember(groupNodes[i], getID())) {
-                    try {
-                        String groupID = YarepGroup.getGroupID(groupNodes[i]);
-                        log.debug("User '" + getID() + "' is user member of group: " + groupID);
-                        groupIDs.add(groupID);
-                    } catch(Exception e) {
-                        log.error(e, e);
+            if (_groupIDs != null) {
+                for (int i = 0; i < _groupIDs.size(); i++) {
+                    groupIDs.add((String) _groupIDs.get(i));
+                }
+            } else {
+                log.warn("Use deprecated implementation ...");
+                Node[] groupNodes = ygm.getAllGroupNodes();
+                for (int i = 0; i < groupNodes.length; i++) {
+                    if (YarepGroup.isUserMember(groupNodes[i], getID())) {
+                        try {
+                            String groupID = YarepGroup.getGroupID(groupNodes[i]);
+                            log.debug("User '" + getID() + "' is user member of group: " + groupID);
+                            groupIDs.add(groupID);
+                        } catch(Exception e) {
+                            log.error(e, e);
+                        }
                     }
                 }
             }
 
             if (parents) {
+                // TOOD: Replace this implementation
                 log.info("Resolve parent groups for user '" + getID() + "' ...");
                 ArrayList<String> groupIDsInclParents = new ArrayList<String>();
                 for (int i = 0; i < groupIDs.size(); i++) {
