@@ -96,6 +96,24 @@ public class YarepGroupImplTest extends TestCase {
         assertEquals(groupIDs[0], groupID);
     }
 
+    /**
+     * Test to remove a user from an individual group
+     */
+    public void testRemoveUserFromGroup() throws Exception {
+        User user = identityManager.getUserManager().getUser("lenya");
+        assertNotNull(user);
+        assertEquals("lenya@wyona.org", user.getEmail());
+
+        Group group = identityManager.getGroupManager().getGroup("editor");
+        assertNotNull(group);
+        assertEquals("Editors", group.getName());
+
+        group.removeMember(user);
+        group.save();
+        String[] groupIDs = user.getGroupIDs(true);
+        assertEquals(groupIDs.length, 0);
+    }
+
 /* TODO: Delete testgroup2 if it already exists
     public void testGroupMembers() throws Exception {
         GroupManager groupManager = identityManager.getGroupManager(); 
