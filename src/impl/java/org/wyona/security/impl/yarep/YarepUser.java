@@ -159,14 +159,14 @@ public class YarepUser extends YarepItem implements User {
 
         Configuration groupsNode = config.getChild(GROUPS_TAG_NAME, false);
         if (groupsNode != null) {
+            _groupIDs = new ArrayList();
             Configuration[] groupNodes = groupsNode.getChildren(GROUP_TAG_NAME);
             if (groupNodes != null && groupNodes.length > 0) {
-                _groupIDs = new ArrayList();
                 for (int i = 0; i < groupNodes.length; i++) {
                     _groupIDs.add(groupNodes[i].getAttribute(GROUP_ID_ATTR_NAME));
                 }
             } else {
-                log.warn("DEBUG: User '" + getID() + "' does not seem to belong to any groups.");
+                log.warn("User '" + getID() + "' does not seem to belong to any groups.");
             }
         } else { // INFO: For backwards compatibility reason the group IDs are retrieved from the groups themselves and saved as bi-directional links
             log.warn("User '" + getID() + "' does seem to be an instance of a previous version without '" + GROUPS_TAG_NAME + "' tag and hence will be migrated automatically.");
