@@ -30,24 +30,30 @@ public class YarepUserManager implements UserManager {
 
     protected IdentityManager identityManager;
 
-    //private boolean cacheEnabled = true;
     private boolean cacheEnabled = false;
     private HashMap cachedUsers;
+
+    private boolean resolveGroupsAtCreation = false;
 
     private String SUFFIX = "xml";
     private String DEPRECATED_SUFFIX = "iml";
 
     /**
      * Constructor.
+     *
      * @param identityManager
      * @param identitiesRepository
+     * @param cacheEnabled Flag to enable memory cache
+     * @param resolveGroupsAtCreation Flag to resolve groups if user is created and maybe existed before
+     *
      * @throws AccessManagementException
      */
-    public YarepUserManager(IdentityManager identityManager, Repository identitiesRepository, boolean cacheEnabled) throws AccessManagementException {
+    public YarepUserManager(IdentityManager identityManager, Repository identitiesRepository, boolean cacheEnabled, boolean resolveGroupsAtCreation) throws AccessManagementException {
     //public YarepUserManager(IdentityManager identityManager, Repository identitiesRepository) throws AccessManagementException {
         this.identityManager = identityManager;
         this.identitiesRepository = identitiesRepository;
         this.cacheEnabled = cacheEnabled;
+        this.resolveGroupsAtCreation = resolveGroupsAtCreation;
     }
 
     /**
@@ -132,7 +138,19 @@ public class YarepUserManager implements UserManager {
             if (password != null) {
                 user.setPassword(password);
             }
+
             user.setNode(usersParentNode.addNode(id + "." + SUFFIX, NodeType.RESOURCE));
+
+            if (resolveGroupsAtCreation) {
+                String[] groupIDs = user.getGroupIDs(false);
+                if (groupIDs != null) {
+                    for (int i = 0; i < groupIDs.length; i++) {
+                        log.warn("DEBUG: New user '" + id + "'  belongs to group '" + groupIDs[i] + "' (This user probably existed before and groups were not cleaned at the time this user was deleted!)");
+                        user.addGroup(groupIDs[i]);
+                    }
+                }
+            }
+
             user.save();
 
             // INFO: Add to cache

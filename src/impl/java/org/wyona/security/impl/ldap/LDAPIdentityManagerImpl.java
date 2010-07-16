@@ -43,7 +43,10 @@ public class LDAPIdentityManagerImpl implements IdentityManager {
         boolean cacheEnabled = false;
         log.warn("Cache disabled!");
 
-        userManager = new LDAPUserManagerImpl(this, identitiesRepository, ldapClient, cacheEnabled);
+        boolean resolveGroupsAtCreation = false;
+        log.warn("Resolving of groups at creation disabled!");
+
+        userManager = new LDAPUserManagerImpl(this, identitiesRepository, ldapClient, cacheEnabled, resolveGroupsAtCreation);
         groupManager = new org.wyona.security.impl.yarep.YarepGroupManager(this, identitiesRepository, cacheEnabled);
 
         userManager.getUsers(load);

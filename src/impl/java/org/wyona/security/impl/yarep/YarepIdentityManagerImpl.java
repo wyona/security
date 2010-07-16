@@ -43,7 +43,11 @@ public class YarepIdentityManagerImpl implements IdentityManager {
 */
         boolean cacheEnabled = false;
         log.warn("Cache disabled!");
-        userManager = new YarepUserManager(this, identitiesRepository, cacheEnabled);
+
+        boolean resolveGroupsAtCreation = false;
+        log.warn("Resolving of groups at user creation disabled!");
+
+        userManager = new YarepUserManager(this, identitiesRepository, cacheEnabled, resolveGroupsAtCreation);
         groupManager = new YarepGroupManager(this, identitiesRepository, cacheEnabled);
 
         //userManager.getUsers(load);
