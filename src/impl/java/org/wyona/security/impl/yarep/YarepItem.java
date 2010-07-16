@@ -129,8 +129,9 @@ public abstract class YarepItem implements Item {
     
     /**
      * Sets the repository node which shall contain the configuration of this item.
+     * @param node Yarep repository node
      */
-    public void setNode(Node node){
+    public void setNode(Node node) {
         this.node = node;
     }
 
