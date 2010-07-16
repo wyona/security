@@ -187,54 +187,58 @@ public class YarepUser extends YarepItem implements User {
      * @see org.wyona.security.impl.yarep.YarepItem#createConfiguration()
      */
     protected Configuration createConfiguration() throws AccessManagementException {
-        DefaultConfiguration config = new DefaultConfiguration(USER);
+        String NAMESPACE_URI = "http://www.wyona.org/security/1.0";
+        String PREFIX = "";
+        String BUILDER_LOC = "YarepUser";
+
+        DefaultConfiguration config = new DefaultConfiguration(USER, BUILDER_LOC, NAMESPACE_URI, PREFIX);
         config.setAttribute(ID, getID());
         
-        DefaultConfiguration nameNode = new DefaultConfiguration(NAME);
+        DefaultConfiguration nameNode = new DefaultConfiguration(NAME, BUILDER_LOC, NAMESPACE_URI, PREFIX);
         nameNode.setValue(getName());
         config.addChild(nameNode);
         
         if(getEmail() != null){
-            DefaultConfiguration emailNode = new DefaultConfiguration(EMAIL);
+            DefaultConfiguration emailNode = new DefaultConfiguration(EMAIL, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             emailNode.setValue(getEmail());
             config.addChild(emailNode);
         }
         
         if(getLanguage() != null){
-            DefaultConfiguration languageNode = new DefaultConfiguration(LANGUAGE);
+            DefaultConfiguration languageNode = new DefaultConfiguration(LANGUAGE, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             languageNode.setValue(getLanguage());
             config.addChild(languageNode);
         }
         
         if(getPassword() != null){
-            DefaultConfiguration passwordNode = new DefaultConfiguration(PASSWORD);
+            DefaultConfiguration passwordNode = new DefaultConfiguration(PASSWORD, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             passwordNode.setValue(getPassword());
             config.addChild(passwordNode);
         }
         
         if(getDescription() != null){
-            DefaultConfiguration descriptionNode = new DefaultConfiguration(DESCRIPTION);
+            DefaultConfiguration descriptionNode = new DefaultConfiguration(DESCRIPTION, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             descriptionNode.setValue(getDescription());
             config.addChild(descriptionNode);
         }
         
         if(getExpirationDate() != null){
-            DefaultConfiguration expireNode = new DefaultConfiguration(EXPIRE);
+            DefaultConfiguration expireNode = new DefaultConfiguration(EXPIRE, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             expireNode.setValue(new SimpleDateFormat(DATE_TIME_FORMAT).format(getExpirationDate()));
             config.addChild(expireNode);
         }
         
         if(getSalt() != null) {
-            DefaultConfiguration saltNode = new DefaultConfiguration(SALT);
+            DefaultConfiguration saltNode = new DefaultConfiguration(SALT, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             saltNode.setValue(getSalt());
             config.addChild(saltNode);
         }
 
-        DefaultConfiguration groupsNode = new DefaultConfiguration(GROUPS_TAG_NAME);
+        DefaultConfiguration groupsNode = new DefaultConfiguration(GROUPS_TAG_NAME, BUILDER_LOC, NAMESPACE_URI, PREFIX);
         config.addChild(groupsNode);
         if (_groupIDs != null && _groupIDs.size() > 0) {
             for (int i = 0; i < _groupIDs.size(); i++) {
-                DefaultConfiguration groupNode = new DefaultConfiguration(GROUP_TAG_NAME);
+                DefaultConfiguration groupNode = new DefaultConfiguration(GROUP_TAG_NAME, BUILDER_LOC, NAMESPACE_URI, PREFIX);
                 groupNode.setAttribute(GROUP_ID_ATTR_NAME, (String) _groupIDs.get(i));
                 groupsNode.addChild(groupNode);
             }
@@ -595,7 +599,8 @@ public class YarepUser extends YarepItem implements User {
     void addGroup(String id) throws AccessManagementException {
         log.warn("DEBUG: Add user '" + getID() + "' to group: " + id);
         if (_groupIDs == null) {
-            throw new AccessManagementException("User '" + getID() + "' has groups not initialized yet!");
+            log.warn("User '" + getID() + "' has groups not initialized yet, hence will be initialized!");
+            _groupIDs = new ArrayList();
         }
         if (_groupIDs.indexOf(id) < 0) {
             _groupIDs.add(id);
@@ -615,10 +620,10 @@ public class YarepUser extends YarepItem implements User {
             if (_groupIDs.indexOf(id) >= 0) {
                 _groupIDs.remove(_groupIDs.indexOf(id));
             } else {
-                throw new AccessManagementException("User '" + getID() + "' does not belong to group '" + id + "'!");
+                log.error("User '" + getID() + "' does not belong to group '" + id + "' (user and group seem to be inconsistent)!");
             }
         } else {
-            throw new AccessManagementException("User '" + getID() + "' has no groups!");
+            log.error("User '" + getID() + "' has no groups! (user and groups seem to be inconsistent)");
         }
         save();
     }
