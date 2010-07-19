@@ -213,12 +213,22 @@ public class YarepUserManager implements UserManager {
         //log.debug("Get user '" + id + "' from persistent repository.");
         if (existsWithinRepository(id)) {
             try {
-                String nodeName = id + "." + SUFFIX;
+
+                String trueId;
+                Node aliasesParentNode = getAliasesParentNode();
+                if (aliasesParentNode != null) {
+                    log.warn("TODO: Get true ID from alias...");
+                    trueId = id;
+                } else {
+                    trueId = id;
+                }
+
+                String nodeName = trueId + "." + SUFFIX;
                 Node usersParentNode = getUsersParentNode();
 
                 // Check for .iml suffix in order to stay backwards compatible
                 if (!usersParentNode.hasNode(nodeName)) {
-                    nodeName = id + "." + DEPRECATED_SUFFIX;
+                    nodeName = trueId + "." + DEPRECATED_SUFFIX;
                 }
 
                 return constructUser(this.identityManager, usersParentNode.getNode(nodeName));
@@ -355,6 +365,21 @@ public class YarepUserManager implements UserManager {
 
         log.warn("Fallback to root node (Repository: " + identitiesRepository.getName() + ") for backwards compatibility. Please upgrade by introducing a /users node!");
         return this.identitiesRepository.getNode("/");
+    }
+
+    /**
+     * Gets the repository node which is the parent node of all aliases nodes.
+     *
+     * @return node which is the parent of all aliases nodes.
+     * @throws NoSuchNodeException
+     * @throws RepositoryException
+     */
+    protected Node getAliasesParentNode() throws NoSuchNodeException, RepositoryException {
+        if (this.identitiesRepository.existsNode("/aliases")) {
+            return this.identitiesRepository.getNode("/aliases");
+        }
+        log.warn("No 'aliases' set yet!");
+        return null;
     }
     
     /**
