@@ -117,7 +117,8 @@ public class PolicyImplVersion1 implements Policy {
             Configuration[] userConfigs = upConfig.getChildren("user");
             for (int j = 0; j < userConfigs.length; j++) {
                 String permission = userConfigs[j].getAttribute("permission", "true");
-                up.addIdentity(new Identity(userConfigs[j].getAttribute("id")), new Boolean(permission).booleanValue());
+                String id = userConfigs[j].getAttribute("id");
+                up.addIdentity(new Identity(id, id), new Boolean(permission).booleanValue());
             }
 
             Configuration[] groupConfigs = upConfig.getChildren("group");
