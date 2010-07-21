@@ -32,7 +32,7 @@ public interface UserManager {
     /**
      * Gets the user with the given id.
      * 
-     * @param id
+     * @param id True ID of user
      * @return user or null if no user with the given id exists 
      * @throws AccessManagementException
      */
@@ -41,7 +41,7 @@ public interface UserManager {
     /**
      * Gets the user with the given id, whereas provides a parameter to tell the implementation to refresh a possible cached entry
      * 
-     * @param id
+     * @param id True ID of user
      * @param refresh
      * @return user or null if no user with the given id exists 
      * @throws AccessManagementException
@@ -51,11 +51,10 @@ public interface UserManager {
     /**
      * Creates a new user. The new user will be saved automatically.
      * 
-     * @param id
-     * @param name
-     * @param email
-     * @param password
-     *            password in cleartext
+     * @param id True ID of user
+     * @param name Name (e.g. first and last) of user
+     * @param email Primary email address
+     * @param password Password in cleartext
      * @return new user
      * @throws AccessManagementException
      *             if a user with the given id already exists or if something
@@ -68,7 +67,7 @@ public interface UserManager {
      * Permanently deletes the user and deletes all group memberships of the
      * user.
      * 
-     * @param id
+     * @param id True ID of user
      * @throws AccessManagementException
      *             if no user with the given id exists or if something else goes
      *             wrong.
@@ -78,9 +77,18 @@ public interface UserManager {
     /**
      * Indicates whether a user with the given id exists.
      * 
-     * @param id
+     * @param id True ID of user
      * @return true if a user with the given id exists.
      * @throws AccessManagementException
      */
     boolean existsUser(String id) throws AccessManagementException;
+
+    /**
+     * Get the true ID of a user
+     * 
+     * @param id Either pseudonym or true ID
+     * @return true ID if a user with the given id exists as pseudonym or as a true ID.
+     * @throws AccessManagementException
+     */
+    String getTrueId(String id) throws AccessManagementException;
 }
