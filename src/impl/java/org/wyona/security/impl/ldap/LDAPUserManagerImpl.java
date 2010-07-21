@@ -107,4 +107,12 @@ public class LDAPUserManagerImpl implements UserManager {
         log.warn("TODO: Make default value of load flag configurable");
         return getUsers(false);
     }
+
+    /**
+     * @see org.wyona.security.core.api.UserManager#getTrueId(String)
+     */
+    public String getTrueId(String id) throws AccessManagementException {
+        log.warn("TODO: Implementation not finished yet!");
+        return id;
+    }
 }
