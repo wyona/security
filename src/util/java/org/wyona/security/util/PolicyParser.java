@@ -8,6 +8,7 @@ import org.wyona.security.core.api.Group;
 import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.IdentityManager;
 import org.wyona.security.core.api.Policy;
+import org.wyona.security.core.api.User;
 
 import org.apache.log4j.Logger;
 
@@ -69,7 +70,8 @@ public class PolicyParser implements Policy {
                 UsecasePolicy up = new UsecasePolicy(rightConfigs[k].getAttribute("id"));
                 String permission = rightConfigs[k].getAttribute("permission");
                 if (idManager != null) {
-                    Identity identity = new Identity(idManager.getUserManager().getUser(userConfigs[i].getAttribute("id")));
+                    User id = idManager.getUserManager().getUser(userConfigs[i].getAttribute("id"));
+                    Identity identity = new Identity(id, id.getID());
                     if (identity.getGroupnames() != null) {
                         log.debug("Number of groups of user '" + identity.getUsername() + "': " + identity.getGroupnames().length);
                     } else {
@@ -78,7 +80,8 @@ public class PolicyParser implements Policy {
                     up.addIdentity(identity, new Boolean(permission).booleanValue());
                 } else {
                     log.warn("Groups are not associated with user!");
-                    up.addIdentity(new Identity(userConfigs[i].getAttribute("id")), new Boolean(permission).booleanValue());
+                    String id = userConfigs[i].getAttribute("id");
+                    up.addIdentity(new Identity(id, id), new Boolean(permission).booleanValue());
                 }
                 addUsecasePolicy(up);
             }
@@ -163,7 +166,8 @@ public class PolicyParser implements Policy {
                         existingUsecasePolicy.addIdentity(new Identity(), identityPolicies[k].getPermission());
                     } else {
                         log.warn("Groups are not associated with user: " + identityPolicies[k].getIdentity().getUsername());
-                        existingUsecasePolicy.addIdentity(new Identity(identityPolicies[k].getIdentity().getUsername()), identityPolicies[k].getPermission());
+                        String id = identityPolicies[k].getIdentity().getUsername();
+                        existingUsecasePolicy.addIdentity(new Identity(id, id), identityPolicies[k].getPermission());
                     }
 /*
                     }
