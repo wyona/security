@@ -11,6 +11,7 @@ public class Identity implements java.io.Serializable {
     
     protected String username;
     protected String[] groupnames;
+    private String alias;
 
     private java.util.HashMap customAttributes;
 
@@ -28,16 +29,18 @@ public class Identity implements java.io.Serializable {
     /**
      *
      */
-    public Identity(String username) {
+    public Identity(String username, String alias) {
         this.username = username;
         this.groupnames = null;
+        this.alias = alias;
     }
 
     /**
      *
      */
-    public Identity(String username, String[] groupnames) {
+    public Identity(String username, String[] groupnames, String alias) {
         this.username = username;
+        this.alias = alias;
         // TODO: What about parents groups?! This method seems to be used a lot, e.g. during policy instantiation ...!
         //log.error("DEBUG: Set groupnames via String array for user: " + username);
         this.groupnames = groupnames;
@@ -46,9 +49,10 @@ public class Identity implements java.io.Serializable {
     /**
      *
      */
-    public Identity(User user) {
+    public Identity(User user, String alias) {
         try {
             this.username = user.getID();
+            this.alias = alias;
 
             log.info("Set groupnames via user object for user '" + user.getID() + "' such that also parent groups of groups are loaded!");
             boolean getAlsoParentsOfGroups = true; // NOTE: And their parents, etc.
@@ -69,10 +73,17 @@ public class Identity implements java.io.Serializable {
     }
 
     /**
-     * Get name of user or null for World
+     * Get name of user (true name) or null for World
      */
     public String getUsername() {
         return username;
+    }
+
+    /**
+     * Get pseudonym of user
+     */
+    public String getAlias() {
+        return alias;
     }
 
 /* WARNING: This method leads to problems re serialization within a clustered environment!
