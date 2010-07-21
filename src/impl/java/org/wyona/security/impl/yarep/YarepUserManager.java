@@ -175,6 +175,7 @@ public class YarepUserManager implements UserManager {
 
     /**
      * Check if user exists within persistent identities repository
+     * @param userId True ID of user
      */
     private boolean existsWithinRepository(String userId) {
         try {
@@ -208,27 +209,19 @@ public class YarepUserManager implements UserManager {
 
     /**
      * Get user from repository
+     * @param id True ID of user
      */
     private User getUserFromPersistentRepository(String id) throws AccessManagementException {
         //log.debug("Get user '" + id + "' from persistent repository.");
         if (existsWithinRepository(id)) {
             try {
 
-                String trueId;
-                Node aliasesParentNode = getAliasesParentNode();
-                if (aliasesParentNode != null) {
-                    log.warn("TODO: Get true ID from alias...");
-                    trueId = id;
-                } else {
-                    trueId = id;
-                }
-
-                String nodeName = trueId + "." + SUFFIX;
+                String nodeName = id + "." + SUFFIX;
                 Node usersParentNode = getUsersParentNode();
 
                 // Check for .iml suffix in order to stay backwards compatible
                 if (!usersParentNode.hasNode(nodeName)) {
-                    nodeName = trueId + "." + DEPRECATED_SUFFIX;
+                    nodeName = id + "." + DEPRECATED_SUFFIX;
                 }
 
                 return constructUser(this.identityManager, usersParentNode.getNode(nodeName));
@@ -395,5 +388,38 @@ public class YarepUserManager implements UserManager {
      */
     protected boolean isCacheEnabled() {
         return cacheEnabled;
+    }
+
+    /**
+     * @see org.wyona.security.core.api.UserManager#getTrueId(String)
+     */
+    public String getTrueId(String id) throws AccessManagementException {
+        try {
+            Node aliasesParentNode = getAliasesParentNode();
+            if (aliasesParentNode != null) {
+                log.debug("Get true ID from alias '" + id + "'...");
+                if (aliasesParentNode.hasNode(id + ".xml")) {
+                    Node alias = aliasesParentNode.getNode(id + ".xml");
+                    DefaultConfigurationBuilder configBuilder = new DefaultConfigurationBuilder(true);
+                    Configuration config = configBuilder.build(alias.getInputStream());
+
+                    String pseudo = config.getAttribute("pseudonym", "NULL");
+                    if (!pseudo.equals(id)) {
+                        throw new AccessManagementException("Pseudonym '" + pseudo + "' does not match node name '" + alias.getName() + "'.");
+                    }
+                    String trueId = config.getAttribute("true-name", "NULL");
+                    log.warn(String.format("pseudonym: %s, true-ID: %s", pseudo, trueId));
+                    return trueId;
+                } else {
+                    log.warn("No alias found for id '" + id + "', hence return id as true ID");
+                    return id;
+                }
+            } else {
+                log.warn("No aliases directory exists yet. Please consider to introduce one. ID will be returned as true ID.");
+                return id;
+            }
+        } catch(Exception e) {
+            throw new AccessManagementException(e.getMessage(), e);
+        }
     }
 }
