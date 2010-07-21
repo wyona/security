@@ -64,8 +64,8 @@ public class PolicyManagerImplTest extends TestCase {
         User lenya = identityManager.getUserManager().getUser("lenya");
         User alice = identityManager.getUserManager().getUser("alice");
 
-        assertFalse(policyManager.authorize("/hello", new Identity(alice), new Usecase("view")));
-        assertTrue(policyManager.authorize("/hello", new Identity(lenya), new Usecase("view")));
+        assertFalse(policyManager.authorize("/hello", new Identity(alice, alice.getName()), new Usecase("view")));
+        assertTrue(policyManager.authorize("/hello", new Identity(lenya, lenya.getName()), new Usecase("view")));
 
 /* TODO: These tests do not seem to work!
         assertFalse(policyManager.authorize("/hello", new Identity(alice), new Usecase("read")));

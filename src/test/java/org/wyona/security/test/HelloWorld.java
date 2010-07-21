@@ -54,7 +54,7 @@ public class HelloWorld {
             System.out.println(policy);
 
             String[] groupnames = {"hello", "sugus"};
-            if (pm.authorize(path, new Identity("lenya", groupnames), new Role("view"))) {
+            if (pm.authorize(path, new Identity("lenya", groupnames, "lenya"), new Role("view"))) {
                 System.out.println("Access granted (T1): " + path);
             } else {
                 System.out.println("Access denied (T2): " + path);
@@ -94,7 +94,7 @@ public class HelloWorld {
             }
             
             path = new Path("/hello/world2.html");
-            if (pm.authorize(path, new Identity("alice",groupnames), new Role("view"))){
+            if (pm.authorize(path, new Identity("alice",groupnames, "alice"), new Role("view"))){
         	System.out.println("Access granted: " + path);
             } else {
                 System.out.println("Access denied: " + path);
