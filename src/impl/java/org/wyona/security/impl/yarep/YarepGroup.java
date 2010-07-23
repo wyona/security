@@ -193,9 +193,11 @@ public class YarepGroup extends YarepItem implements Group {
             if (item instanceof User) {
                 memberUserIDs.add(item.getID());
                 ((YarepUser) item).addGroup(getID());
+                save();
             } else if (item instanceof Group) {
                 memberGroupIDs.add(item.getID());
                 ((YarepGroup) item).addParentGroup(getID());
+                save();
             } else {
                 log.warn("Item '" + item.getID() + "' is neither user nor group: " + item.getClass().getName());
             }
