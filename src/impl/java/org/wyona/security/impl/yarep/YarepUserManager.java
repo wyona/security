@@ -364,6 +364,11 @@ public class YarepUserManager implements UserManager {
             groups[i].save();
         }
 
+        String[] aliases = ((YarepUser) user).getAliases();
+        for (int i = 0; i < aliases.length; i++) {
+            removeAlias(aliases[i]);
+        }
+
         if (cacheEnabled && existsWithinCache(id)) {
             cachedUsers.remove(id);
         }
@@ -379,7 +384,7 @@ public class YarepUserManager implements UserManager {
             Node aliasesParentNode = getAliasesParentNode();
             if (aliasesParentNode != null) {
                 if (aliasesParentNode.hasNode(alias + ".xml")) {
-                    ((YarepUser) getUser(alias)).removeAlias(alias);
+                    ((YarepUser) getUser(getTrueId(alias))).removeAlias(alias);
                     Node aliasNode = aliasesParentNode.getNode(alias + ".xml");
                     aliasNode.delete();
                     log.warn("TODO: Check if this is the last alias of a specific username!");
