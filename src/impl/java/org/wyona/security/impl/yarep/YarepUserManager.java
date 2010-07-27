@@ -166,6 +166,14 @@ public class YarepUserManager implements UserManager {
     }
 
     /**
+     * @see org.wyona.security.core.api.UserManager#createAlias(java.lang.String, java.lang.String)
+     */
+    public User createAlias(String alias, String username) throws AccessManagementException {
+        log.warn("TODO: Not implemented yet!");
+        return getUser(username);
+    }
+
+    /**
      * Check if user exists within cache
      */
     private boolean existsWithinCache(String userId) {
@@ -342,6 +350,13 @@ public class YarepUserManager implements UserManager {
         }
 
         user.delete();
+    }
+
+    /**
+     * @see org.wyona.security.core.api.UserManager#removeAlias(java.lang.String)
+     */
+    public void removeAlias(String alias) throws AccessManagementException {
+        log.warn("TODO: Not implemented yet!");
     }
 
     /**

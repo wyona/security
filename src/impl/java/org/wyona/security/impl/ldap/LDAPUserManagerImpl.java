@@ -52,11 +52,26 @@ public class LDAPUserManagerImpl implements UserManager {
     }
 
     /**
+     * @see org.wyona.security.core.api.UserManager#removeAlias(String)
+     */
+    public void removeAlias(String username) throws AccessManagementException {
+        log.error("TODO: LDAP Yarep Implementation not finished yet!");
+    }
+
+    /**
      * @see org.wyona.security.core.api.UserManager#createUser(String, String, String, String)
      */
     public User createUser(String id, String name, String email, String password) throws AccessManagementException {
         log.error("TODO: LDAP Yarep Implementation not finished yet! Use Yarep-only implementation instead.");
         return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository, cacheEnabled, resolveGroupsAtCreation).createUser(id, name, email, password);
+    }
+
+    /**
+     * @see org.wyona.security.core.api.UserManager#createAlias(String, String)
+     */
+    public User createAlias(String alias, String username) throws AccessManagementException {
+        log.error("TODO: LDAP Yarep Implementation not finished yet!");
+        return getUser(username);
     }
 
     /**

@@ -64,6 +64,14 @@ public interface UserManager {
             throws AccessManagementException;
 
     /**
+     * Creates an alias for an existing user or alias
+     * @param alias Alias name
+     * @param username Name of existing user
+     * @return user referenced by alias
+     */
+    User createAlias(String alias, String username) throws AccessManagementException;
+
+    /**
      * Permanently deletes the user and deletes all group memberships of the
      * user.
      * 
@@ -73,6 +81,12 @@ public interface UserManager {
      *             wrong.
      */
     void removeUser(String id) throws AccessManagementException;
+
+    /**
+     * Delete alias (but not actual user, whereas depending on implementation the removal of the last alias might also delete the actual user!)
+     * @param alias Alias name of user
+     */
+    void removeAlias(String alias) throws AccessManagementException;
 
     /**
      * Indicates whether a user with the given id exists.
