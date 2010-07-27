@@ -169,8 +169,27 @@ public class YarepUserManager implements UserManager {
      * @see org.wyona.security.core.api.UserManager#createAlias(java.lang.String, java.lang.String)
      */
     public User createAlias(String alias, String username) throws AccessManagementException {
-        log.warn("TODO: Not implemented yet!");
-        return getUser(username);
+        try {
+            Node aliasesParentNode = getAliasesParentNode();
+            if (aliasesParentNode != null) {
+                if (aliasesParentNode.hasNode(alias + ".xml")) {
+                    throw new AccessManagementException("Alias '" + alias + "' for user '" + username + "' already exists!");
+                } else {
+                    YarepUser user = (YarepUser) getUser(username);
+                    user.addAlias(alias);
+                    Node aliasNode = aliasesParentNode.addNode(alias + ".xml", NodeType.RESOURCE);
+                    String content = "<?xml version=\"1.0\"?>\n\n<alias pseudonym=\"" + alias + "\" true-name=\"" + getTrueId(username) + "\"/>";
+                    aliasNode.getOutputStream();
+                    org.apache.commons.io.IOUtils.copy(new java.io.StringBufferInputStream(content), aliasNode.getOutputStream());
+                    return getUser(alias);
+                }
+            } else {
+                log.warn("No aliases directory exists yet. Please consider to introduce one. ID will be returned as true ID.");
+                return null;
+            }
+        } catch(Exception e) {
+            throw new AccessManagementException(e.getMessage(), e);
+        }
     }
 
     /**
@@ -356,7 +375,23 @@ public class YarepUserManager implements UserManager {
      * @see org.wyona.security.core.api.UserManager#removeAlias(java.lang.String)
      */
     public void removeAlias(String alias) throws AccessManagementException {
-        log.warn("TODO: Not implemented yet!");
+        try {
+            Node aliasesParentNode = getAliasesParentNode();
+            if (aliasesParentNode != null) {
+                if (aliasesParentNode.hasNode(alias + ".xml")) {
+                    ((YarepUser) getUser(alias)).removeAlias(alias);
+                    Node aliasNode = aliasesParentNode.getNode(alias + ".xml");
+                    aliasNode.delete();
+                    log.warn("TODO: Check if this is the last alias of a specific username!");
+                } else {
+                    log.warn("No alias found for id '" + alias + "'!");
+                }
+            } else {
+                log.warn("No aliases directory exists yet. Please consider to introduce one. ID will be returned as true ID.");
+            }
+        } catch(Exception e) {
+            throw new AccessManagementException(e.getMessage(), e);
+        }
     }
 
     /**
