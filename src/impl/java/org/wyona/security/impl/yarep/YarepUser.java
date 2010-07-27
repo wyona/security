@@ -611,6 +611,26 @@ public class YarepUser extends YarepItem implements User {
     }
 
     /**
+     * Add alias (creating a bi-directional link)
+     * @param id Alias ID
+     */
+    void addAlias(String id) throws AccessManagementException {
+        log.warn("DEBUG: Add alias '" + id + "' to user: " + getID());
+/*
+        if (_groupIDs == null) {
+            log.warn("User '" + getID() + "' has groups not initialized yet, hence will be initialized!");
+            _groupIDs = new ArrayList();
+        }
+        if (_groupIDs.indexOf(id) < 0) {
+            _groupIDs.add(id);
+        } else {
+            throw new AccessManagementException("User '" + getID() + "' already belongs to group '" + id + "'!");
+        }
+        save();
+*/
+    }
+
+    /**
      * Remove group (Remove bi-directional link)
      * @param id Group ID
      */
@@ -626,5 +646,25 @@ public class YarepUser extends YarepItem implements User {
             log.error("User '" + getID() + "' has no groups! (user and groups seem to be inconsistent)");
         }
         save();
+    }
+
+    /**
+     * Remove alias (Remove bi-directional link)
+     * @param id Alias ID
+     */
+    void removeAlias(String id) throws AccessManagementException {
+        log.warn("DEBUG: Remove alias '" + id + "' from user '" + getID() + "'.");
+/*
+        if (_groupIDs != null) {
+            if (_groupIDs.indexOf(id) >= 0) {
+                _groupIDs.remove(_groupIDs.indexOf(id));
+            } else {
+                log.error("User '" + getID() + "' does not belong to group '" + id + "' (user and group seem to be inconsistent)!");
+            }
+        } else {
+            log.error("User '" + getID() + "' has no groups! (user and groups seem to be inconsistent)");
+        }
+        save();
+*/
     }
 }
