@@ -36,6 +36,11 @@ public class YarepUser extends YarepItem implements User {
     public static final String USER = "user";
 
     private boolean fixGroupIndex = true;
+
+    public static final String ALIASES_TAG_NAME = "aliases";
+    public static final String ALIAS_TAG_NAME = "alias";
+    public static final String ALIAS_ID_ATTR_NAME = "id";
+
     public static final String GROUPS_TAG_NAME = "groups";
     public static final String GROUP_TAG_NAME = "group";
     public static final String GROUP_ID_ATTR_NAME = "id";
@@ -71,6 +76,7 @@ public class YarepUser extends YarepItem implements User {
     private Date expire;
 
     private ArrayList _groupIDs;
+    private ArrayList aliasIDs;
 
     /**
      * Instantiates an existing YarepUser from a repository node.
@@ -157,6 +163,21 @@ public class YarepUser extends YarepItem implements User {
                 }
         }
 
+        Configuration aliasesNode = config.getChild(ALIASES_TAG_NAME, false);
+        if (aliasesNode != null) {
+            aliasIDs = new ArrayList();
+            Configuration[] aliasNodes = aliasesNode.getChildren(ALIAS_TAG_NAME);
+            if (aliasNodes != null && aliasNodes.length > 0) {
+                for (int i = 0; i < aliasNodes.length; i++) {
+                    aliasIDs.add(aliasNodes[i].getAttribute(ALIAS_ID_ATTR_NAME));
+                }
+            } else {
+                log.warn("DEBUG: User '" + getID() + "' does not seem to have any aliases.");
+            }
+        } else {
+            log.warn("DEBUG: User '" + getID() + "' does not seem to have any aliases.");
+        }
+
         Configuration groupsNode = config.getChild(GROUPS_TAG_NAME, false);
         if (groupsNode != null) {
             _groupIDs = new ArrayList();
@@ -232,6 +253,18 @@ public class YarepUser extends YarepItem implements User {
             DefaultConfiguration saltNode = new DefaultConfiguration(SALT, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             saltNode.setValue(getSalt());
             config.addChild(saltNode);
+        }
+
+        DefaultConfiguration aliasesNode = new DefaultConfiguration(ALIASES_TAG_NAME, BUILDER_LOC, NAMESPACE_URI, PREFIX);
+        config.addChild(aliasesNode);
+        if (aliasIDs != null && aliasIDs.size() > 0) {
+            for (int i = 0; i < aliasIDs.size(); i++) {
+                DefaultConfiguration aliasNode = new DefaultConfiguration(ALIAS_TAG_NAME, BUILDER_LOC, NAMESPACE_URI, PREFIX);
+                aliasNode.setAttribute(ALIAS_ID_ATTR_NAME, (String) aliasIDs.get(i));
+                aliasesNode.addChild(aliasNode);
+            }
+        } else {
+            aliasIDs = new ArrayList();
         }
 
         DefaultConfiguration groupsNode = new DefaultConfiguration(GROUPS_TAG_NAME, BUILDER_LOC, NAMESPACE_URI, PREFIX);
@@ -615,19 +648,18 @@ public class YarepUser extends YarepItem implements User {
      * @param id Alias ID
      */
     void addAlias(String id) throws AccessManagementException {
-        log.warn("DEBUG: Add alias '" + id + "' to user: " + getID());
-/*
-        if (_groupIDs == null) {
-            log.warn("User '" + getID() + "' has groups not initialized yet, hence will be initialized!");
-            _groupIDs = new ArrayList();
+        log.info("Add alias '" + id + "' to user: " + getID());
+
+        if (aliasIDs == null) {
+            log.warn("User '" + getID() + "' has aliases not initialized yet, hence will be initialized!");
+            aliasIDs = new ArrayList();
         }
-        if (_groupIDs.indexOf(id) < 0) {
-            _groupIDs.add(id);
+        if (aliasIDs.indexOf(id) < 0) {
+            aliasIDs.add(id);
         } else {
-            throw new AccessManagementException("User '" + getID() + "' already belongs to group '" + id + "'!");
+            throw new AccessManagementException("User '" + getID() + "' already has alias '" + id + "'!");
         }
         save();
-*/
     }
 
     /**
@@ -653,18 +685,16 @@ public class YarepUser extends YarepItem implements User {
      * @param id Alias ID
      */
     void removeAlias(String id) throws AccessManagementException {
-        log.warn("DEBUG: Remove alias '" + id + "' from user '" + getID() + "'.");
-/*
-        if (_groupIDs != null) {
-            if (_groupIDs.indexOf(id) >= 0) {
-                _groupIDs.remove(_groupIDs.indexOf(id));
+        log.info("Remove alias '" + id + "' from user '" + getID() + "'.");
+        if (aliasIDs != null) {
+            if (aliasIDs.indexOf(id) >= 0) {
+                aliasIDs.remove(aliasIDs.indexOf(id));
             } else {
-                log.error("User '" + getID() + "' does not belong to group '" + id + "' (user and group seem to be inconsistent)!");
+                log.error("User '" + getID() + "' does not have any alias '" + id + "'!");
             }
         } else {
-            log.error("User '" + getID() + "' has no groups! (user and groups seem to be inconsistent)");
+            log.error("User '" + getID() + "' has no aliases!");
         }
         save();
-*/
     }
 }
