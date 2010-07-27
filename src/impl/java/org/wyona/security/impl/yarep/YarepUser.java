@@ -697,4 +697,11 @@ public class YarepUser extends YarepItem implements User {
         }
         save();
     }
+
+    /**
+     * Get alias IDs
+     */
+    String[] getAliases() {
+        return (String[]) aliasIDs.toArray(new String[aliasIDs.size()]);
+    }
 }
