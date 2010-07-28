@@ -90,6 +90,14 @@ public interface User extends Item {
     String[] getGroupIDs(boolean parents) throws AccessManagementException;
 
     /**
+     * Get all aliases of this user.
+     *
+     * @return array of aliases, empty array if this user has no aliases.
+     * @throws AccessManagementException
+     */
+    String[] getAliases() throws AccessManagementException;
+
+    /**
      * Get expiration date of this user
      *
      * @return expiration date

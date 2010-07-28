@@ -699,9 +699,9 @@ public class YarepUser extends YarepItem implements User {
     }
 
     /**
-     * Get alias IDs
+     * @see org.wyona.security.core.api.User@getAliases()
      */
-    String[] getAliases() {
+    public String[] getAliases() {
         return (String[]) aliasIDs.toArray(new String[aliasIDs.size()]);
     }
 }
