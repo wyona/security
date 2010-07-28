@@ -319,8 +319,7 @@ public class YarepUserManager implements UserManager {
      * @see org.wyona.security.core.api.UserManager#getAllUsers()
      */
     public java.util.Iterator<User> getAllUsers() throws AccessManagementException {
-        log.error("TODO: Not implemented yet!");
-        return null;
+        return new YarepUsersIterator();
     }
 
     /**
