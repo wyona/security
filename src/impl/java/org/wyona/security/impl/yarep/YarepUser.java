@@ -172,10 +172,10 @@ public class YarepUser extends YarepItem implements User {
                     aliasIDs.add(aliasNodes[i].getAttribute(ALIAS_ID_ATTR_NAME));
                 }
             } else {
-                log.warn("DEBUG: User '" + getID() + "' does not seem to have any aliases.");
+                log.info("User '" + getID() + "' does not seem to have any aliases.");
             }
         } else {
-            log.warn("DEBUG: User '" + getID() + "' does not seem to have any aliases.");
+            log.info("User '" + getID() + "' does not seem to have any aliases.");
         }
 
         Configuration groupsNode = config.getChild(GROUPS_TAG_NAME, false);
