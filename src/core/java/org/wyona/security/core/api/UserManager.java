@@ -6,14 +6,7 @@ package org.wyona.security.core.api;
 public interface UserManager {
 
     /**
-     * @deprecated Use getAllUsers() instead
-     * Gets all users in no particular order.
-     * 
-     * XXX: this does not scale UI-wise for many users:
-     *  we should probably add a method like
-     *  <code>Iterator&lt;User&gt; findUsers(String pattern)</code>,
-     *  <var>pattern</var> being an implementation-specific search string.
-     *  We may also need server-side sort and paging.
+     * Gets all users in no particular order. Please note that this method does not scale well for a system with many users (e.g. greater than 500), but for a smaller user base this method is very convenient
      *  
      * @return array of users, empty array if no users exist.
      * @throws AccessManagementException
@@ -21,14 +14,15 @@ public interface UserManager {
     User[] getUsers() throws AccessManagementException;
 
     /**
-     * Gets all users.
+     * Gets all users. Please note that this method does not make sense for systems with gigantic amount of users (e.g. > 1 Mio), but for a system with thousands of users it should be fine
+     *
      * @return Users in no particular order.
      * @throws AccessManagementException
      */
     java.util.Iterator<User> getAllUsers() throws AccessManagementException;
 
     /**
-     * Gets users matching a simple search query (assuming this is implemented as a fulltext search).
+     * Gets users matching a simple search query (assuming this is implemented as a fulltext search). Please note that this method is intended for systems with gigantic amount of users (e.g. > 500 Mio).
      *
      * @param query Simple search query
      * @return Users in no particular order.
