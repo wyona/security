@@ -124,13 +124,18 @@ public interface User extends Item {
     /**
      * Get Language of this user
      *
-     * @return String language
+     * @return language code (e.g. 'de', 'en', 'fr', ...), whereas if no language is set, then return null
      */
     public String getLanguage() throws AccessManagementException;
 
     /**
      * Set Language of this user
-     * @param String language
+     * @param language Language code, e.g. 'de', 'en', 'fr', ...
      */
     public void setLanguage(String language) throws AccessManagementException;
+
+    /**
+     * Unset Language of this user
+     */
+    public void unsetLanguage() throws AccessManagementException;
 }

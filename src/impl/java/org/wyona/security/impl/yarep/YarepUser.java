@@ -474,6 +474,13 @@ public class YarepUser extends YarepItem implements User {
     }
 
     /**
+     * @see org.wyona.security.core.api.User#unsetLanguage()
+     */
+    public void unsetLanguage() throws AccessManagementException {
+        this.language = null;
+    }
+
+    /**
      * @see org.wyona.security.core.api.User#setPassword(java.lang.String)
      */
     public void setPassword(String plainTextPassword) throws AccessManagementException {
