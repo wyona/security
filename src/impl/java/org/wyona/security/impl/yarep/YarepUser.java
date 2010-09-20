@@ -356,13 +356,13 @@ public class YarepUser extends YarepItem implements User {
         if (parents) {
             log.info("Resolve parent groups for user '" + getID() + "' ...");
             Group[] groups = getGroups();
+
             Vector allGroups = new Vector();
             for (int i = 0; i < groups.length; i++) {
-                allGroups.add(groups[i]);
-            }
-            for (int i = 0; i < groups.length; i++) {
                 try {
+                    allGroups.add(groups[i]);
                     getParentGroups(groups[i], allGroups);
+                    allGroups.remove(groups[i]);
                 } catch (Exception e) {
                     log.error(e, e);
                     throw new AccessManagementException(e);
@@ -450,6 +450,7 @@ public class YarepUser extends YarepItem implements User {
                     if (log.isDebugEnabled()) log.debug("Add parent group '" + parentGroups[i].getID() + "'!");
                     groups.add(parentGroups[i]);
                     getParentGroups(parentGroups[i], groups);
+                    groups.remove(parentGroups[i]);
                 }
             }
         } else {
@@ -597,6 +598,7 @@ public class YarepUser extends YarepItem implements User {
      * @param groupID ID of particular group
      * @param groupIDsInclParents Group IDs which have already been found
      */
+/*
     public void getParentGroupIDsImplV1(String groupID, ArrayList<String> groupIDsInclParents) throws Exception {
         log.debug("Get parent group IDs for particular group: " + groupID);
 
@@ -630,6 +632,7 @@ public class YarepUser extends YarepItem implements User {
             log.error("Group manager is null!");
         }
     }
+*/
 
     /**
      * Add group (creating a bi-directional link)
