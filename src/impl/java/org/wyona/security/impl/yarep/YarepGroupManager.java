@@ -187,7 +187,7 @@ public class YarepGroupManager implements GroupManager {
                 log.warn("Get group '" + id + "' from cache.");
                 return (Group) cachedGroups.get(id);
             } else {
-                log.warn("Get group '" + id + "' from repository.");
+                log.debug("Get group '" + id + "' from repository.");
                 return getGroupFromPersistentRepository(id);
             }
         }
