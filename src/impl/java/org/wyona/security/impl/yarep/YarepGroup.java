@@ -94,7 +94,7 @@ public class YarepGroup extends YarepItem implements Group {
                     log.error("User manager is NULL! User " + id + " cannot be added to group " + getID());
                 }
             } else if (type.equals(GROUP_TYPE)) {
-                log.warn("Subgroup '" + id + "' within group '" + getID() + "' detected! Beware of loops when adding groups within groups!");
+                log.debug("Subgroup '" + id + "' within group '" + getID() + "' detected! Beware of loops when adding groups within groups!");
                 if (getGroupManager() != null) {
                     if (getGroupManager().existsGroup(id)) {
                         memberGroupIDs.add(id);
@@ -119,7 +119,7 @@ public class YarepGroup extends YarepItem implements Group {
                 }
             } else {
                 parentGroupIDs = new ArrayList<String>();
-                log.warn("DEBUG: Group '" + getID() + "'  does not seem to have any parent groups.");
+                log.debug("Group '" + getID() + "'  does not seem to have any parent groups.");
             }
         } else {
             log.warn("Group '" + getID() + "' does seem to be an instance of a previous version without '" + PARENT_GROUPS_TAG_NAME + "' tag and hence will be migrated automatically.");
@@ -218,7 +218,7 @@ public class YarepGroup extends YarepItem implements Group {
                 }
                 return parents;
             } else {
-                log.warn("Group '" + getID() + "' does not seem to have any parents.");
+                log.debug("Group '" + getID() + "' does not seem to have any parents.");
                 return null;
             }
         } else {
