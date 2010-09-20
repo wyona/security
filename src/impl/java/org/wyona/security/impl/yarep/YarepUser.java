@@ -407,14 +407,12 @@ public class YarepUser extends YarepItem implements User {
 
                 ArrayList<String> groupIDsInclParents = new ArrayList<String>();
                 for (int i = 0; i < groupIDs.size(); i++) {
-                    groupIDsInclParents.add((String) groupIDs.get(i));
-                }
-
-                for (int i = 0; i < groupIDs.size(); i++) {
                     try {
                         // TOOD: Replace this implementation
+                        groupIDsInclParents.add((String) groupIDs.get(i)); // INFO: Add in order to detect loops with a particular branch
                         getParentGroupIDsImplV2((String) groupIDs.get(i), groupIDsInclParents);
                         //getParentGroupIDsImplV1((String) groupIDs.get(i), groupIDsInclParents);
+                        groupIDsInclParents.remove((String) groupIDs.get(i)); // INFO: Remove in order to avoid "phantom" loops with regard to multiple branches
                     } catch(Exception e) {
                         log.error(e, e);
                     }
@@ -571,17 +569,18 @@ public class YarepUser extends YarepItem implements User {
                     String parentGroupID = parentGroups[i].getID();
                     log.debug("Group '" + groupID + "' is group member of parent group: " + parentGroupID);
                     boolean alreadyContained = false;
+                    //log.debug("DEBUG: Depth of branch: " + groupIDsInclParents.size());
                     for (int k = 0; k < groupIDsInclParents.size(); k++) {
                         if (groupIDsInclParents.get(k).equals(parentGroupID)) {
-                            log.warn("Maybe loop detected for group '" + groupID + "' and parent group '" + parentGroupID + "' or root group '" + parentGroupID + "' reached!");
+                            log.error("Maybe loop detected for group '" + groupID + "' and parent group '" + parentGroupID + "' or root group '" + parentGroupID + "' reached! Group resolving will be aborted in order to avoid loop.");
                             alreadyContained = true;
                             break;
                         }
                     }
                     if (!alreadyContained) {
-                        if (log.isDebugEnabled()) log.debug("Add parent group '" + parentGroupID + "'!");
-                        groupIDsInclParents.add(parentGroupID);
+                        groupIDsInclParents.add(parentGroupID); // INFO: Add parent group in order to detect loops within this particular branch
                         getParentGroupIDsImplV2(parentGroupID, groupIDsInclParents);
+                        groupIDsInclParents.remove(parentGroupID); // INFO: Remove parent group in order to avoid "phantom" loops with regard to multiple branches
                     }
                 }
             } else {
