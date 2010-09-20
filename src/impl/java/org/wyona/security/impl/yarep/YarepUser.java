@@ -585,7 +585,7 @@ public class YarepUser extends YarepItem implements User {
                     }
                 }
             } else {
-                log.warn("Group '" + groupID + "' does not seem to have parent groups.");
+                log.debug("Group '" + groupID + "' does not seem to have parent groups.");
             }
         } else {
             log.error("Group manager is null!");
