@@ -354,17 +354,18 @@ public class YarepUser extends YarepItem implements User {
      */
     public Group[] getGroups(boolean parents) throws AccessManagementException {
         if (parents) {
+            log.warn("DEBUG: Resolve parent groups for user '" + getID() + "' ...");
             log.info("Resolve parent groups for user '" + getID() + "' ...");
-            Group[] groups = getGroups();
+            String[] groupIDs = getGroupIDs(false);
 
             Vector branchGroups = new Vector();
             Vector groupsInclSubGroups = new Vector();
-            for (int i = 0; i < groups.length; i++) {
+            for (int i = 0; i < groupIDs.length; i++) {
                 try {
-                    groupsInclSubGroups.add(groups[i]);
-                    branchGroups.add(groups[i]);
-                    getParentGroups(groups[i], branchGroups, groupsInclSubGroups);
-                    branchGroups.remove(groups[i]);
+                    groupsInclSubGroups.add(getGroupManager().getGroup(groupIDs[i]));
+                    branchGroups.add(groupIDs[i]);
+                    getParentGroups(groupIDs[i], branchGroups, groupsInclSubGroups);
+                    branchGroups.remove(groupIDs[i]);
                 } catch (Exception e) {
                     log.error(e, e);
                     throw new AccessManagementException(e);
@@ -410,20 +411,23 @@ public class YarepUser extends YarepItem implements User {
                 log.info("Resolve parent groups for user '" + getID() + "' ...");
 
                 ArrayList<String> groupIDsInclParents = new ArrayList<String>();
+                ArrayList<String> branchGroups = new ArrayList<String>();
                 for (int i = 0; i < groupIDs.size(); i++) {
                     try {
                         // TOOD: Replace this implementation
-                        groupIDsInclParents.add((String) groupIDs.get(i)); // INFO: Add in order to detect loops with a particular branch
-                        getParentGroupIDsImplV2((String) groupIDs.get(i), groupIDsInclParents);
+                        groupIDsInclParents.add((String) groupIDs.get(i));
+                        branchGroups.add((String) groupIDs.get(i)); // INFO: Add in order to detect loops with a particular branch
+                        getParentGroupIDsImplV2((String) groupIDs.get(i), branchGroups, groupIDsInclParents);
                         //getParentGroupIDsImplV1((String) groupIDs.get(i), groupIDsInclParents);
-                        groupIDsInclParents.remove((String) groupIDs.get(i)); // INFO: Remove in order to avoid "phantom" loops with regard to multiple branches
+                        branchGroups.remove((String) groupIDs.get(i)); // INFO: Remove in order to avoid "phantom" loops with regard to multiple branches
                     } catch(Exception e) {
                         log.error(e, e);
                     }
                 }
-                return (String[]) groupIDs.toArray(new String[groupIDs.size()]);
-                //return (String[]) groupIDsInclParents.toArray(new String[groupIDsInclParents.size()]);
+                log.warn("DEBUG: Get groups including sub-groups: " + groupIDsInclParents.size());
+                return (String[]) groupIDsInclParents.toArray(new String[groupIDsInclParents.size()]);
             } else {
+                log.warn("DEBUG: Get groups excluding sub-groups: " + groupIDs.size());
                 return (String[]) groupIDs.toArray(new String[groupIDs.size()]);
             }
         } else {
@@ -434,20 +438,20 @@ public class YarepUser extends YarepItem implements User {
 
     /**
      * Get parent groups of a particular group
-     * @param group Particular group for which parent groups shall be found
+     * @param groupID ID of particular group for which parent groups shall be found
      * @param branchGroups Groups which have already been found within this branch
      * @param groupsInclSubGroups Groups which have already been found
      */
-    private void getParentGroups(Group group, Vector branchGroups, Vector groupsInclSubGroups) throws Exception {
-        Group[] parentGroups = group.getParents();
+    private void getParentGroups(String groupID, Vector branchGroups, Vector groupsInclSubGroups) throws Exception {
+        Group[] parentGroups = getGroupManager().getGroup(groupID).getParents();
         if (parentGroups != null && parentGroups.length > 0) {
-            if (log.isDebugEnabled()) log.debug("Parent groups found for '" + group.getID() + "'");
+            if (log.isDebugEnabled()) log.debug("Parent groups found of group '" + groupID + "'");
             for (int i = 0; i < parentGroups.length; i++) {
                 if (log.isDebugEnabled()) log.debug("Check if parent group '" + parentGroups[i].getID() + "' is already contained ...");
                 boolean alreadyContained = false;
                 for (int k = 0; k < branchGroups.size(); k++) {
-                    if (parentGroups[i].getID().equals(((Group)branchGroups.elementAt(k)).getID())) {
-                        log.warn("Maybe loop detected for group '" + group.getID() + "' and parent group '" + parentGroups[i].getID() + "', but maybe only root group '" + parentGroups[i].getID() + "' reached!");
+                    if (parentGroups[i].getID().equals((String)branchGroups.elementAt(k))) {
+                        log.warn("Maybe loop detected for group '" + groupID + "' and parent group '" + parentGroups[i].getID() + "', but maybe only root group '" + parentGroups[i].getID() + "' reached!");
                         alreadyContained = true;
                         break;
                     }
@@ -455,13 +459,13 @@ public class YarepUser extends YarepItem implements User {
                 if (!alreadyContained) {
                     if (log.isDebugEnabled()) log.debug("Add parent group '" + parentGroups[i].getID() + "'!");
                     groupsInclSubGroups.add(parentGroups[i]);
-                    branchGroups.add(parentGroups[i]);
-                    getParentGroups(parentGroups[i], branchGroups, groupsInclSubGroups);
-                    branchGroups.remove(parentGroups[i]);
+                    branchGroups.add(parentGroups[i].getID());
+                    getParentGroups(parentGroups[i].getID(), branchGroups, groupsInclSubGroups);
+                    branchGroups.remove(parentGroups[i].getID());
                 }
             }
         } else {
-            if (log.isDebugEnabled()) log.debug("Group '" + group.getID() + "' does not seem to have parent groups.");
+            if (log.isDebugEnabled()) log.debug("Group '" + groupID + "' does not seem to have parent groups.");
         }
     }
 
@@ -566,7 +570,7 @@ public class YarepUser extends YarepItem implements User {
      * @param groupID ID of particular group
      * @param groupIDsInclParents Group IDs which have already been found
      */
-    private void getParentGroupIDsImplV2(String groupID, ArrayList<String> groupIDsInclParents) throws Exception {
+    private void getParentGroupIDsImplV2(String groupID, ArrayList<String> branchGroups, ArrayList<String> groupIDsInclParents) throws Exception {
         log.debug("Get parent group IDs for particular group: " + groupID);
 
         YarepGroupManager ygm = (YarepGroupManager) getGroupManager();
@@ -577,18 +581,19 @@ public class YarepUser extends YarepItem implements User {
                     String parentGroupID = parentGroups[i].getID();
                     log.debug("Group '" + groupID + "' is group member of parent group: " + parentGroupID);
                     boolean alreadyContained = false;
-                    //log.debug("DEBUG: Depth of branch: " + groupIDsInclParents.size());
-                    for (int k = 0; k < groupIDsInclParents.size(); k++) {
-                        if (groupIDsInclParents.get(k).equals(parentGroupID)) {
+                    //log.debug("DEBUG: Depth of branch: " + branchGroups.size());
+                    for (int k = 0; k < branchGroups.size(); k++) {
+                        if (branchGroups.get(k).equals(parentGroupID)) {
                             log.error("Maybe loop detected for group '" + groupID + "' and parent group '" + parentGroupID + "' or root group '" + parentGroupID + "' reached! Group resolving will be aborted in order to avoid loop.");
                             alreadyContained = true;
                             break;
                         }
                     }
                     if (!alreadyContained) {
-                        groupIDsInclParents.add(parentGroupID); // INFO: Add parent group in order to detect loops within this particular branch
-                        getParentGroupIDsImplV2(parentGroupID, groupIDsInclParents);
-                        groupIDsInclParents.remove(parentGroupID); // INFO: Remove parent group in order to avoid "phantom" loops with regard to multiple branches
+                        groupIDsInclParents.add(parentGroupID);
+                        branchGroups.add(parentGroupID); // INFO: Add parent group in order to detect loops within this particular branch
+                        getParentGroupIDsImplV2(parentGroupID, branchGroups, groupIDsInclParents);
+                        branchGroups.remove(parentGroupID); // INFO: Remove parent group in order to avoid "phantom" loops with regard to multiple branches
                     }
                 }
             } else {
