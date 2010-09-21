@@ -354,7 +354,6 @@ public class YarepUser extends YarepItem implements User {
      */
     public Group[] getGroups(boolean parents) throws AccessManagementException {
         if (parents) {
-            log.warn("DEBUG: Resolve parent groups for user '" + getID() + "' ...");
             log.info("Resolve parent groups for user '" + getID() + "' ...");
             String[] groupIDs = getGroupIDs(false);
 
@@ -371,10 +370,10 @@ public class YarepUser extends YarepItem implements User {
                     throw new AccessManagementException(e);
                 }
             }
-            log.warn("DEBUG: Get parent groups including parents of parents: " + groupsInclSubGroups.size());
+            log.debug("Get parent groups including parents of parents: " + groupsInclSubGroups.size());
             return (Group[])groupsInclSubGroups.toArray(new Group[groupsInclSubGroups.size()]);
         } else {
-            log.warn("DEBUG: Get parent groups excluding parents of parents: " + getGroups().length);
+            log.debug("Get parent groups excluding parents of parents: " + getGroups().length);
             return getGroups();
         }
     }
@@ -424,10 +423,10 @@ public class YarepUser extends YarepItem implements User {
                         log.error(e, e);
                     }
                 }
-                log.warn("DEBUG: Get groups including sub-groups: " + groupIDsInclParents.size());
+                log.debug("Get parent group IDs of user '" + getID() + "' including parents of parents: " + groupIDsInclParents.size());
                 return (String[]) groupIDsInclParents.toArray(new String[groupIDsInclParents.size()]);
             } else {
-                log.warn("DEBUG: Get groups excluding sub-groups: " + groupIDs.size());
+                log.debug("Get parent group IDs of user '" + getID() + "' excluding parents of parents: " + groupIDs.size());
                 return (String[]) groupIDs.toArray(new String[groupIDs.size()]);
             }
         } else {
@@ -609,7 +608,7 @@ public class YarepUser extends YarepItem implements User {
      * @param id Group ID
      */
     void addGroup(String id) throws AccessManagementException {
-        log.warn("DEBUG: Add user '" + getID() + "' to group: " + id);
+        log.info("Add user '" + getID() + "' to group: " + id);
         if (_groupIDs == null) {
             log.warn("User '" + getID() + "' has groups not initialized yet, hence will be initialized!");
             _groupIDs = new ArrayList();
@@ -646,7 +645,7 @@ public class YarepUser extends YarepItem implements User {
      * @param id Group ID
      */
     void removeGroup(String id) throws AccessManagementException {
-        log.warn("DEBUG: Remove user '" + getID() + "' from group '" + id + "'.");
+        log.info("Remove user '" + getID() + "' from group '" + id + "'.");
         if (_groupIDs != null) {
             if (_groupIDs.indexOf(id) >= 0) {
                 _groupIDs.remove(_groupIDs.indexOf(id));
