@@ -592,17 +592,30 @@ public class YarepUser extends YarepItem implements User {
                 for (int i = 0; i < parentGroups.length; i++) {
                     String parentGroupID = parentGroups[i].getID();
                     log.debug("Group '" + groupID + "' is group member of parent group: " + parentGroupID);
-                    boolean alreadyContained = false;
+
+                    boolean alreadyContainedWithinBranch = false;
                     //log.debug("DEBUG: Depth of branch: " + branchGroups.size());
                     for (int k = 0; k < branchGroups.size(); k++) {
                         if (branchGroups.get(k).equals(parentGroupID)) {
                             log.error("Maybe loop detected for group '" + groupID + "' and parent group '" + parentGroupID + "' or root group '" + parentGroupID + "' reached! Group resolving will be aborted in order to avoid loop.");
-                            alreadyContained = true;
+                            alreadyContainedWithinBranch = true;
                             break;
                         }
                     }
-                    if (!alreadyContained) {
-                        groupIDsInclParents.add(parentGroupID);
+
+                    if (!alreadyContainedWithinBranch) {
+
+                        boolean alreadyPartOfList = false;
+                        for (int k = 0; k < groupIDsInclParents.size(); k++) {
+                            if (groupIDsInclParents.get(k).equals(parentGroupID)) {
+                                alreadyPartOfList = true;
+                                break;
+                            }
+                        }
+                        if (!alreadyPartOfList) {
+                            groupIDsInclParents.add(parentGroupID);
+                        }
+
                         branchGroups.add(parentGroupID); // INFO: Add parent group in order to detect loops within this particular branch
                         getParentGroupIDsImplV2(parentGroupID, branchGroups, groupIDsInclParents);
                         branchGroups.remove(parentGroupID); // INFO: Remove parent group in order to avoid "phantom" loops with regard to multiple branches
