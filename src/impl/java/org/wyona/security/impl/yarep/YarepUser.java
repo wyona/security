@@ -447,17 +447,30 @@ public class YarepUser extends YarepItem implements User {
             if (log.isDebugEnabled()) log.debug("Parent groups found of group '" + groupID + "'");
             for (int i = 0; i < parentGroups.length; i++) {
                 if (log.isDebugEnabled()) log.debug("Check if parent group '" + parentGroups[i].getID() + "' is already contained ...");
-                boolean alreadyContained = false;
+
+                boolean alreadyContainedWithinBranch = false;
                 for (int k = 0; k < branchGroups.size(); k++) {
                     if (parentGroups[i].getID().equals((String)branchGroups.elementAt(k))) {
                         log.warn("Maybe loop detected for group '" + groupID + "' and parent group '" + parentGroups[i].getID() + "', but maybe only root group '" + parentGroups[i].getID() + "' reached!");
-                        alreadyContained = true;
+                        alreadyContainedWithinBranch = true;
                         break;
                     }
                 }
-                if (!alreadyContained) {
+
+                if (!alreadyContainedWithinBranch) {
                     if (log.isDebugEnabled()) log.debug("Add parent group '" + parentGroups[i].getID() + "'!");
-                    groupsInclSubGroups.add(parentGroups[i]);
+
+                    boolean alreadyPartOfList = false;
+                    for (int k = 0; k < groupsInclSubGroups.size(); k++) {
+                        if (parentGroups[i].getID().equals(((Group)groupsInclSubGroups.elementAt(k)).getID())) {
+                            alreadyPartOfList = true;
+                            break;
+                        }
+                    }
+                    if (!alreadyPartOfList) {
+                        groupsInclSubGroups.add(parentGroups[i]);
+                    }
+
                     branchGroups.add(parentGroups[i].getID());
                     getParentGroups(parentGroups[i].getID(), branchGroups, groupsInclSubGroups);
                     branchGroups.remove(parentGroups[i].getID());
