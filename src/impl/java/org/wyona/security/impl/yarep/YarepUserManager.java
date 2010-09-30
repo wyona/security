@@ -97,6 +97,20 @@ public class YarepUserManager implements UserManager {
             throw new AccessManagementException(errorMsg, e);
         }
     }
+    
+    /**
+     * Get user count.
+     */
+    public int getUserCount() {
+        log.info("Load users from repository '" + identitiesRepository.getConfigFile() + "'");
+        try {
+            Node usersParentNode = getUsersParentNode();
+            Node[] userNodes = usersParentNode.getNodes();
+            return userNodes.length;
+        } catch(Exception e) {
+            return 0;
+        }
+    }
 
     /**
      * Loads a specific user from persistance storage into memory
@@ -319,7 +333,7 @@ public class YarepUserManager implements UserManager {
      * @see org.wyona.security.core.api.UserManager#getAllUsers()
      */
     public java.util.Iterator<User> getAllUsers() throws AccessManagementException {
-        return new YarepUsersIterator();
+        return new YarepUsersIterator(identityManager, identitiesRepository, cacheEnabled, resolveGroupsAtCreation);
     }
 
     /**

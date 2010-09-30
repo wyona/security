@@ -31,6 +31,11 @@ public interface UserManager {
     java.util.Iterator<User> getUsers(String query) throws AccessManagementException;
 
     /**
+     * Get total number of users.
+     */
+    int getUserCount();
+
+    /**
      * Gets all users in no particular order, whereas provides a parameter to tell the implementation to refresh possibly cached entries
      * 
      * XXX: this does not scale UI-wise for many users: cf. {@link UserManager#getUsers()} for rationale.

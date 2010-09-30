@@ -44,6 +44,19 @@ public class LDAPUserManagerImpl implements UserManager {
     }
 
     /**
+     * @see org.wyona.security.core.api.UserManager#getUserCount()
+     */
+    public int getUserCount() {
+        log.error("TODO: LDAP Yarep Implementation not finished yet! Use Yarep-only implementation instead.");
+        try {
+            return new org.wyona.security.impl.yarep.YarepUserManager(identityManager, identitiesRepository, cacheEnabled, resolveGroupsAtCreation).getUserCount();
+        } catch(Exception e) {
+            log.error(e.getMessage(), e);
+            return 0;
+        }
+    }
+
+    /**
      * @see org.wyona.security.core.api.UserManager#removeUser(String)
      */
     public void removeUser(String userName) throws AccessManagementException {
