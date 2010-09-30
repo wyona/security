@@ -106,7 +106,13 @@ public class YarepUserManager implements UserManager {
         try {
             Node usersParentNode = getUsersParentNode();
             Node[] userNodes = usersParentNode.getNodes();
-            return userNodes.length;
+            int count = 0;
+            for (int i = 0; i < userNodes.length; i++) {
+                 if (userNodes[i].getName().endsWith(SUFFIX) || userNodes[i].getName().endsWith(DEPRECATED_SUFFIX)) {
+                     count++;
+                 }
+            }
+            return count;
         } catch(Exception e) {
             return 0;
         }
