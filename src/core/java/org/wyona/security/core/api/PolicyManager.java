@@ -39,9 +39,14 @@ public interface PolicyManager {
      * Get policy of a specific node
      * @param path Path of content, e.g. /hello/world.html
      * @param aggregate Boolean which specifies if implementation shall return an aggregated policy, e.g. an aggregation of the policies for /, /hello/ and /hello/world.html
-     * @return Policy which is associated with content path
+     * @return Policy which is associated with content path and if no policy exists, then return null
      */
     public Policy getPolicy(String path, boolean aggregate) throws AuthorizationException;
+
+    /**
+     * TBD/TODO (WARNING: Backwards compatibility)
+     */
+    //public boolean existsPolicy(String path) throws AuthorizationException;
 
     /**
      * Set new or modified policy
