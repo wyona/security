@@ -116,4 +116,17 @@ public class UsecasePolicyTest extends TestCase {
         up.removeIdentityPolicy(bob);
         assertEquals(1, up.getIdentityPolicies().length);
     }
+
+    /**
+     * Test remove group policy
+     */
+    public void testRemoveGroupPolicy() throws Exception {
+        String usecaseName = "read";
+        UsecasePolicy up = new UsecasePolicy(usecaseName);
+        up.addGroupPolicy(new GroupPolicy("editors", true));
+        up.addGroupPolicy(new GroupPolicy("reviewers", true));
+        assertEquals(2, up.getGroupPolicies().length);
+        up.removeGroupPolicy("editors");
+        assertEquals(1, up.getGroupPolicies().length);
+    }
 }
