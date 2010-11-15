@@ -129,4 +129,28 @@ public class UsecasePolicyTest extends TestCase {
         up.removeGroupPolicy("editors");
         assertEquals(1, up.getGroupPolicies().length);
     }
+
+    /**
+     * Test merge usecase policies
+     */
+    public void testMergeUsecasePolicies() throws Exception {
+        String usecaseName = "read";
+
+        UsecasePolicy up1 = new UsecasePolicy(usecaseName);
+        up1.addGroupPolicy(new GroupPolicy("editors", true));
+        up1.addIdentity(new Identity("alice", "alice@foo.bar"), true);
+        up1.addGroupPolicy(new GroupPolicy("reviewers", true));
+        assertEquals(2, up1.getGroupPolicies().length);
+
+        UsecasePolicy up2 = new UsecasePolicy(usecaseName);
+        up2.addGroupPolicy(new GroupPolicy("administrators", true));
+        up2.addGroupPolicy(new GroupPolicy("reviewers", false));
+        assertEquals(2, up2.getGroupPolicies().length);
+        up2.addIdentity(new Identity("bob", "bob@foo.bar"), true);
+        up2.addIdentity(new Identity("alice", "alice@foo.bar"), true);
+
+        up1.merge(up2); // INFO: Merge does ignore group or identity policies with the same name
+        assertEquals(3, up1.getGroupPolicies().length);
+        assertEquals(2, up1.getIdentityPolicies().length);
+    }
 }
