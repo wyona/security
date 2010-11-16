@@ -5,11 +5,14 @@ import java.util.Hashtable;
 import org.wyona.commons.io.Path;
 import org.wyona.commons.io.PathUtil;
 import org.wyona.security.core.AuthorizationException;
+import org.wyona.security.core.GroupPolicy;
+import org.wyona.security.core.IdentityPolicy;
 import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.Policy;
 import org.wyona.security.core.api.PolicyManager;
 import org.wyona.security.core.api.Role;
 import org.wyona.security.core.api.Usecase;
+
 import org.wyona.yarep.core.NoSuchNodeException;
 import org.wyona.yarep.core.Node;
 import org.wyona.yarep.core.Repository;
@@ -293,6 +296,8 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      * @param parentPath Parent path of this policy object
      */
     private StringBuilder generatePolicyXML(Policy policy, String parentPath) {
+        // TODO: ...
+        log.warn("TODO: Do not disentangle users and groups!");
         StringBuilder sb = new StringBuilder("<?xml version=\"1.0\"?>");
 
         sb.append(NEWLINE + NEWLINE);
@@ -306,6 +311,80 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
 
             org.wyona.security.core.UsecasePolicy[] up = policy.getUsecasePolicies();
             for (int i = 0; i < up.length; i++) {
+                org.wyona.security.core.ItemPolicy[] itps = up[i].getItemPolicies();
+                if (itps != null && itps.length > 0) {
+                    sb.append(NEWLINE);
+                    sb.append("  <usecase id=\"" + up[i].getName() + "\">");
+
+                    // Iterate over all users (including WORLD)
+                    for (int k = 0; k < itps.length; k++) {
+                        if (itps[k] instanceof IdentityPolicy) {
+                            IdentityPolicy idp = (IdentityPolicy) itps[k];
+                            Identity identity = idp.getIdentity();
+
+                        // INFO: The policy editor can not differentiate yet whether a permissions has been set to false explicitely or has just not been set. Hence if inherit policy is true, then check on parent policies
+                        // TODO: Resolve ambiguity within policy editor!
+                        if (idp.getPermission() == false && inheritPolicy) { // TODO: Check inheritance flag of identity policy
+                            if (identity.getGroupnames() != null) {
+                                log.debug("Number of groups: " + identity.getGroupnames().length);
+                            } else {
+                                log.debug("User '" + identity.getUsername() + "' has no groups!");
+                            }
+
+                            try {
+                                if (identity.isWorld()) {
+                                    sb.append(NEWLINE);
+                                    sb.append("    <world permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
+                                } else {
+                                    if (parentPath != null) {
+                                        log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(parentPath, identity, new Usecase(up[i].getName())));
+                                        sb.append(NEWLINE);
+                                        sb.append("    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
+
+                                        // QUESTION: hm?
+                                        //log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(policy.getParentPolicy(), identity, new Usecase(up[i].getName())));
+                                        //sb.append(NEWLINE);
+                                        //sb.append("    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), identity, new Usecase(up[i].getName())) + "\"/>");
+                                     } else {
+                                         // TODO: Resolve ambiguity!
+                                         log.warn("Seems like root policy is set (because parent path is null): " + identity.getUsername() + ", " + up[i].getName());
+                                     }
+                                 }
+                             } catch(Exception e) {
+                                 log.error(e, e);
+                             }
+                        } else {
+                            if (identity.isWorld()) {
+                                sb.append(NEWLINE);
+                                sb.append("    <world permission=\"" + idp.getPermission() + "\"/>");
+                            } else {
+                                sb.append(NEWLINE);
+                                sb.append("    <user id=\"" + identity.getUsername() + "\" permission=\"" + idp.getPermission() + "\"/>");
+                            }
+                        }
+                        } else if (itps[k] instanceof GroupPolicy) {
+                            GroupPolicy gp = (GroupPolicy) itps[k];
+                            if (inheritPolicy && gp.getPermission() == false) { // TODO: Check inheritance flag of group policy
+                                // TODO: Check group authorization
+                                sb.append(NEWLINE);
+                                sb.append("    <group id=\"" + gp.getId() + "\" permission=\"" + true + "\"/>");
+                                //sb.append("    <group id=\"" + gp.getId() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), TODO, new Usecase(up[i].getName())) + "\"/>");
+                            } else {
+                                sb.append(NEWLINE);
+                                sb.append("    <group id=\"" + gp.getId() + "\" permission=\"" + gp.getPermission() + "\"/>");
+                            }
+                        } else {
+                            log.warn("No such policy type implemented: ");
+                        }
+                    }
+
+                    sb.append(NEWLINE);
+                    sb.append("  </usecase>");
+                } else {
+                    log.warn("Usecase policy '" + up[i].getName() + "' has neither user, group nor any other policy!");
+                }
+
+/* DEPRECATED
                 org.wyona.security.core.IdentityPolicy[] idps = up[i].getIdentityPolicies();
                 org.wyona.security.core.GroupPolicy[] gps = up[i].getGroupPolicies();
                 if ((idps != null && idps.length > 0) || (gps!= null && gps.length > 0)) {
@@ -335,11 +414,10 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                                         sb.append(NEWLINE);
                                         sb.append("    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
 
-/* QUESTION: hm?
-                                        log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(policy.getParentPolicy(), identity, new Usecase(up[i].getName())));
-                                        sb.append(NEWLINE);
-                                        sb.append("    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), identity, new Usecase(up[i].getName())) + "\"/>");
-*/
+                                        // QUESTION: hm?
+                                        //log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(policy.getParentPolicy(), identity, new Usecase(up[i].getName())));
+                                        //sb.append(NEWLINE);
+                                        //sb.append("    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(policy.getParentPolicy(), identity, new Usecase(up[i].getName())) + "\"/>");
                                      } else {
                                          // TODO: Resolve ambiguity!
                                          log.warn("Seems like root policy is set (because parent path is null): " + identity.getUsername() + ", " + up[i].getName());
@@ -374,6 +452,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                     sb.append(NEWLINE);
                     sb.append("  </usecase>");
                 }
+*/
             }
 
             sb.append(NEWLINE);
