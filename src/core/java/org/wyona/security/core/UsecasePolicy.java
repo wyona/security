@@ -87,6 +87,7 @@ public class UsecasePolicy {
                 idPolicies.add((IdentityPolicy)userOrGroupPolicies.get(i));
             }
         }
+        //log.debug("Number of identity policies: " + idPolicies.size());
         return (IdentityPolicy[])idPolicies.toArray(new IdentityPolicy[idPolicies.size()]);
 
 /* DEPRECATED
@@ -346,5 +347,13 @@ public class UsecasePolicy {
                 addGroupPolicy(upGps[i]);
             }
         }
+    }
+
+    /**
+     * Get all user, group, etc. policies
+     */
+    public ItemPolicy[] getItemPolicies() {
+        //log.debug("Number of item policies: " + userOrGroupPolicies.size());
+        return (ItemPolicy[]) userOrGroupPolicies.toArray(new ItemPolicy[userOrGroupPolicies.size()]);
     }
 }
