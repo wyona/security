@@ -50,10 +50,20 @@ public class PolicyParser implements Policy {
     }
 
     /**
+     * Parse XML policy
+     *
      * @param in Policy as XML as input stream
      * @param idManager Identity manager in order to resolve dependencies between users and groups
      */
     public Policy parseXML(java.io.InputStream in, IdentityManager idManager) throws Exception {
+/* INFO: Example of XML
+<policy xmlns="http://www.wyona.org/security/1.0" use-inherited-policies="true">
+  <user id="alice"><right id="r" permission="false">r</right><right id="w" permission="false">w</right></user>
+  <group id="wyona"><right id="r" permission="false">r</right><right id="w" permission="false">w</right></group>
+  <user id="bob"><right id="r" permission="false">r</right><right id="w" permission="false">w</right></user>
+</policy>
+*/
+
         boolean enableNamespaces = true;
         builder = new DefaultConfigurationBuilder(enableNamespaces);
         Configuration config = builder.build(in);
@@ -63,38 +73,41 @@ public class PolicyParser implements Policy {
 
         // TODO: Check for world
 
-        Configuration[] userConfigs = config.getChildren("user");
-        for (int i = 0; i < userConfigs.length; i++) {
-            Configuration[] rightConfigs = userConfigs[i].getChildren("right");
-            for (int k = 0; k < rightConfigs.length; k++) {
-                UsecasePolicy up = new UsecasePolicy(rightConfigs[k].getAttribute("id"));
-                String permission = rightConfigs[k].getAttribute("permission");
-                if (idManager != null) {
-                    User id = idManager.getUserManager().getUser(userConfigs[i].getAttribute("id"));
-                    Identity identity = new Identity(id, id.getID());
-                    if (identity.getGroupnames() != null) {
-                        log.debug("Number of groups of user '" + identity.getUsername() + "': " + identity.getGroupnames().length);
+        Configuration[] children = config.getChildren();
+        for (int i = 0; i < children.length; i++) {
+            log.warn("DEBUG: User or group element name: " + children[i].getName());
+            Configuration userOrGroupConfig = children[i];
+            if (userOrGroupConfig.getName().equals("user")) {
+                Configuration[] rightConfigs = userOrGroupConfig.getChildren("right");
+                for (int k = 0; k < rightConfigs.length; k++) {
+                    UsecasePolicy up = new UsecasePolicy(rightConfigs[k].getAttribute("id"));
+                    String permission = rightConfigs[k].getAttribute("permission");
+                    if (idManager != null) {
+                        User id = idManager.getUserManager().getUser(userOrGroupConfig.getAttribute("id"));
+                        Identity identity = new Identity(id, id.getID());
+                        if (identity.getGroupnames() != null) {
+                            log.debug("Number of groups of user '" + identity.getUsername() + "': " + identity.getGroupnames().length);
+                        } else {
+                            log.debug("User '" + identity.getUsername() + "' has no groups!");
+                        }
+                        up.addIdentity(identity, new Boolean(permission).booleanValue());
                     } else {
-                        log.debug("User '" + identity.getUsername() + "' has no groups!");
+                        log.warn("Groups are not associated with user!");
+                        String id = userOrGroupConfig.getAttribute("id");
+                        up.addIdentity(new Identity(id, id), new Boolean(permission).booleanValue());
                     }
-                    up.addIdentity(identity, new Boolean(permission).booleanValue());
-                } else {
-                    log.warn("Groups are not associated with user!");
-                    String id = userConfigs[i].getAttribute("id");
-                    up.addIdentity(new Identity(id, id), new Boolean(permission).booleanValue());
+                    addUsecasePolicy(up);
                 }
-                addUsecasePolicy(up);
-            }
-        }
-
-        Configuration[] groupConfigs = config.getChildren("group");
-        for (int i = 0; i < groupConfigs.length; i++) {
-            Configuration[] rightConfigs = groupConfigs[i].getChildren("right");
-            for (int k = 0; k < rightConfigs.length; k++) {
-                UsecasePolicy up = new UsecasePolicy(rightConfigs[k].getAttribute("id"));
-                String permission = rightConfigs[k].getAttribute("permission");
-                up.addGroupPolicy(new GroupPolicy(groupConfigs[i].getAttribute("id"), new Boolean(permission).booleanValue()));
-                addUsecasePolicy(up);
+            } else if (children[i].getName().equals("group")) {
+                Configuration[] rightConfigs = userOrGroupConfig.getChildren("right");
+                for (int k = 0; k < rightConfigs.length; k++) {
+                    UsecasePolicy up = new UsecasePolicy(rightConfigs[k].getAttribute("id"));
+                    String permission = rightConfigs[k].getAttribute("permission");
+                    up.addGroupPolicy(new GroupPolicy(userOrGroupConfig.getAttribute("id"), new Boolean(permission).booleanValue()));
+                    addUsecasePolicy(up);
+                }
+            } else {
+                log.warn("No such type supported yet: " + children[i].getName());
             }
         }
 
