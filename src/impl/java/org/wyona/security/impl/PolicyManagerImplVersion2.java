@@ -234,7 +234,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
     }
 
     /**
-     *
+     * @see org.wyona.security.core.api.PolicyManager#getPolicy(String, boolean)
      */
     public Policy getPolicy(String path, boolean aggregate) throws AuthorizationException {
         try {
