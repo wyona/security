@@ -17,7 +17,7 @@ import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import java.util.Vector;
 
 /**
- * @deprecated
+ * @deprecated Because it uses the tag "role" instead "usecase". Use {@link PolicyImplV2} instead.
  */
 public class PolicyImplVersion1 implements Policy {
 
@@ -36,7 +36,8 @@ public class PolicyImplVersion1 implements Policy {
     }
 
     /**
-     *
+     * Read XML from input stream and create Java object
+     * @param in XML as input stream
      */
     public PolicyImplVersion1(java.io.InputStream in) throws Exception {
         boolean enableNamespaces = true;
@@ -53,6 +54,9 @@ public class PolicyImplVersion1 implements Policy {
         }
     }
 
+    /**
+     *
+     */
     public UsecasePolicy[] getUsecasePolicies() {
         UsecasePolicy[] ups = new UsecasePolicy[usecasePolicies.size()];
         for (int i = 0; i < ups.length; i++) {
@@ -61,6 +65,9 @@ public class PolicyImplVersion1 implements Policy {
         return ups;
     }
 
+    /**
+     *
+     */
     public void addUsecasePolicy(UsecasePolicy up) throws AccessManagementException {
         usecasePolicies.add(up);
     }
@@ -73,11 +80,17 @@ public class PolicyImplVersion1 implements Policy {
         return null;
     }
 
+    /**
+     *
+     */
     public Policy getParentPolicy() throws AccessManagementException {
         log.warn("Not implemented yet!");
         return null;
     }
 
+    /**
+     *
+     */
     public String toString() {
         StringBuffer sb = new StringBuffer("Policy:\n");
         UsecasePolicy[] ups = getUsecasePolicies();
@@ -100,37 +113,64 @@ public class PolicyImplVersion1 implements Policy {
     }
 
     /**
-     *
+     * Read usecase policies from XML
      */
     protected UsecasePolicy readUsecasePolicy(Configuration upConfig) throws Exception {
-            UsecasePolicy up = new UsecasePolicy(upConfig.getAttribute("id"));
+        UsecasePolicy up = new UsecasePolicy(upConfig.getAttribute("id"));
 
-            up.setUseInheritedPolicies(upConfig.getAttributeAsBoolean("use-inherited-policies", true));
-            
-            Configuration[] worldConfigs = upConfig.getChildren("world");
-            if (worldConfigs.length > 1) log.warn("Usecase policy contains more than one WORLD entry!");
-            for (int j = 0; j < worldConfigs.length; j++) {
-                String permission = worldConfigs[j].getAttribute("permission", "true");
-                up.addIdentity(new Identity(), new Boolean(permission).booleanValue());
-            }
+        up.setUseInheritedPolicies(upConfig.getAttributeAsBoolean("use-inherited-policies", true));
 
-            Configuration[] userConfigs = upConfig.getChildren("user");
-            for (int j = 0; j < userConfigs.length; j++) {
-                String permission = userConfigs[j].getAttribute("permission", "true");
-                String id = userConfigs[j].getAttribute("id");
+        Configuration[] upConfigs = upConfig.getChildren();
+        for (int i = 0; i < upConfigs.length; i++) {
+            String upID = upConfigs[i].getName();
+            log.debug("Read usecase config: " + upID);
+            if (upID.equals("user")) {
+                String permission = upConfigs[i].getAttribute("permission", "true");
+                String id = upConfigs[i].getAttribute("id");
                 up.addIdentity(new Identity(id, id), new Boolean(permission).booleanValue());
-            }
-
-            Configuration[] groupConfigs = upConfig.getChildren("group");
-            for (int j = 0; j < groupConfigs.length; j++) {
-                String permission = groupConfigs[j].getAttribute("permission", "true");
-                String id = groupConfigs[j].getAttribute("id");
+            } else if (upID.equals("group")) {
+                String permission = upConfigs[i].getAttribute("permission", "true");
+                String id = upConfigs[i].getAttribute("id");
                 if (permission != null) {
                     up.addGroupPolicy(new GroupPolicy(id, new Boolean(permission).booleanValue()));
                 } else {
                     up.addGroupPolicy(new GroupPolicy(id, true));
                 }
+            } else if (upID.equals("world")) {
+                String permission = upConfigs[i].getAttribute("permission", "true");
+                up.addIdentity(new Identity(), new Boolean(permission).booleanValue());
+            } else {
+                log.error("No such usecase type implemented: " + upID);
             }
+        }
+            
+/* DEPRECATED
+        Configuration[] worldConfigs = upConfig.getChildren("world");
+        if (worldConfigs.length > 1) log.warn("Usecase policy contains more than one WORLD entry!");
+        for (int j = 0; j < worldConfigs.length; j++) {
+            String permission = worldConfigs[j].getAttribute("permission", "true");
+            up.addIdentity(new Identity(), new Boolean(permission).booleanValue());
+        }
+
+        Configuration[] userConfigs = upConfig.getChildren("user");
+        for (int j = 0; j < userConfigs.length; j++) {
+            String permission = userConfigs[j].getAttribute("permission", "true");
+            String id = userConfigs[j].getAttribute("id");
+            up.addIdentity(new Identity(id, id), new Boolean(permission).booleanValue());
+        }
+
+        Configuration[] groupConfigs = upConfig.getChildren("group");
+        for (int j = 0; j < groupConfigs.length; j++) {
+            String permission = groupConfigs[j].getAttribute("permission", "true");
+            String id = groupConfigs[j].getAttribute("id");
+            if (permission != null) {
+                up.addGroupPolicy(new GroupPolicy(id, new Boolean(permission).booleanValue()));
+            } else {
+                up.addGroupPolicy(new GroupPolicy(id, true));
+            }
+        }
+*/
+
         return up;
     }
 
@@ -155,6 +195,9 @@ public class PolicyImplVersion1 implements Policy {
         }
     }
 
+    /**
+     *
+     */
     public UsecasePolicy getUsecasePolicy(String name) throws AccessManagementException {
         for (int i = 0; i < usecasePolicies.size(); i++) {
             UsecasePolicy up = (UsecasePolicy)usecasePolicies.elementAt(i);
@@ -164,6 +207,5 @@ public class PolicyImplVersion1 implements Policy {
         }
         return null;
     }
-
 }
 
