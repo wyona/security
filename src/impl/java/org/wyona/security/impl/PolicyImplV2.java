@@ -27,9 +27,10 @@ public class PolicyImplV2 extends PolicyImplVersion1 {
     }
 
     /**
-     *
+     * @see PolicyImplVersion1
      */
     public PolicyImplV2(java.io.InputStream in) throws Exception {
+        log.debug("Deserialize XML into Java");
         boolean enableNamespaces = true;
         builder = new DefaultConfigurationBuilder(enableNamespaces);
         Configuration config = builder.build(in);
