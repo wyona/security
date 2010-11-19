@@ -114,16 +114,7 @@ public class UsecasePolicy {
                 }
             }
         }
-        log.warn("No such identity policy: " + identity.getUsername());
-
-/* DEPRECATED
-        for (int i = 0; i < idps.size(); i++) {
-            IdentityPolicy ip = (IdentityPolicy)idps.elementAt(i);
-            if (identity.isWorld() && ip.getIdentity().isWorld() || identity.getUsername().equals(ip.getIdentity().getUsername())) {
-                return ip;
-            }
-        }
-*/
+        log.debug("No such identity policy for user: " + identity.getUsername());
         return null;
     }
     
@@ -201,16 +192,7 @@ public class UsecasePolicy {
                 }
             }
         }
-        log.warn("No such group: " + groupId);
-
-/* DEPRECATED
-        for (int i = 0; i < gps.size(); i++) {
-            GroupPolicy gp = (GroupPolicy)gps.elementAt(i);
-            if (groupId.equals(gp.getId())) {
-                return gp;
-            }
-        }
-*/
+        log.debug("No group policy exists for group: " + groupId);
         return null;
     }
 
@@ -296,25 +278,6 @@ public class UsecasePolicy {
                     }
                 }
             }
-/* DEPRECATED
-                for (int k = 0; k < idps.size(); k++) {
-                    IdentityPolicy idp = (IdentityPolicy) idps.elementAt(k);
-                    if (upIdps[i].getIdentity().getUsername() != null && idp.getIdentity().getUsername() != null && idp.getIdentity().getUsername().equals(upIdps[i].getIdentity().getUsername())) {
-                        identityAlreadyExists = true;
-                        if (upIdps[i].getPermission() != idp.getPermission()) {
-                            log.warn("Identity Policies '" + idp.getIdentity().getUsername() + "' of Usecase Policy '" + up.getName() + "' do not have the same permission!");
-                        }
-                        break;
-                    }
-                    if (upIdps[i].getIdentity().getUsername() == null && idp.getIdentity().getUsername() == null) {
-                        identityAlreadyExists = true;
-                        if (upIdps[i].getPermission() != idp.getPermission()) {
-                            log.warn("Identity Policies 'WORLD' of Usecase Policy '" + up.getName() + "' do not have the same permission!");
-                        }
-                        break;
-                    }
-                }
-*/
             if (!identityAlreadyExists) {
                 addIdentity(upIdps[i].getIdentity(), upIdps[i].getPermission());
             }
@@ -330,7 +293,7 @@ public class UsecasePolicy {
                     GroupPolicy gp = (GroupPolicy)userOrGroupPolicies.get(k);
                     if (gp.getId().equals(upGps[i].getId())) {
                         groupAlreadyExists = true;
-                        log.warn("Group already exists: " + gp.getId());
+                        log.debug("Group policy already exists for group: " + gp.getId());
                         break;
                     }
                 }
