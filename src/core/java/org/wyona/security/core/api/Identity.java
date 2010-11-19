@@ -180,12 +180,13 @@ public class Identity implements java.io.Serializable {
     /**
      * Get custom attribute
      * @param name Attribute name/key
+     * @return Value of custom attribute and if no such attribute exists, then return null
      */
     public String getAttribute(String name) {
         if (customAttributes != null) {
             return (String) customAttributes.get(name);
         } else {
-            log.warn("No custom attributes set yet!");
+            log.debug("No custom attributes set yet!");
             return null;
         }
     }
