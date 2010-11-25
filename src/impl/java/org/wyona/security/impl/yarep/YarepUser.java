@@ -187,7 +187,7 @@ public class YarepUser extends YarepItem implements User {
                     _groupIDs.add(groupNodes[i].getAttribute(GROUP_ID_ATTR_NAME));
                 }
             } else {
-                log.warn("User '" + getID() + "' does not seem to belong to any groups.");
+                //log.debug("User '" + getID() + "' does not seem to belong to any groups.");
             }
         } else { // INFO: For backwards compatibility reason the group IDs are retrieved from the groups themselves and saved as bi-directional links
             log.warn("User '" + getID() + "' does seem to be an instance of a previous version without '" + GROUPS_TAG_NAME + "' tag and hence will be migrated automatically.");
