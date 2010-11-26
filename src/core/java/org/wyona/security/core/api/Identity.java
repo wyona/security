@@ -36,7 +36,11 @@ public class Identity implements java.io.Serializable {
     }
 
     /**
+     * Create new identity inside memory
      *
+     * @param username User ID
+     * @param groupnames List of group IDs of which the user is supposed to be member of
+     * @param alias User alias, e.g. e-mail address
      */
     public Identity(String username, String[] groupnames, String alias) {
         this.username = username;
