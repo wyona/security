@@ -5,22 +5,23 @@ import org.wyona.security.core.AuthorizationException;
 import org.wyona.yarep.core.Repository;
 
 /**
- *
+ * Policy manager interface in order to get, set policies and also to check authorization
  */
 public interface PolicyManager {
 
     /**
-     * @deprecated
+     * @deprecated Use {@link authorize(String , Identity , Usecase)} instead.
      */
     public boolean authorize(Path path, Identity identity, Role role) throws AuthorizationException;
     
     /**
-     * @deprecated
+     * @deprecated Use {@link authorize(String , Identity , Usecase)} instead.
      */
     public boolean authorize(String path, Identity identity, Role role) throws AuthorizationException;
     
     /**
-     *
+     * Check whether a particular identity is authorized to execute a specific usecase for a specific path/URL
+     * @param identity User
      */
     public boolean authorize(String path, Identity identity, Usecase usecase) throws AuthorizationException;
     
