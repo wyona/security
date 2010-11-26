@@ -51,7 +51,9 @@ public class Identity implements java.io.Serializable {
     }
     
     /**
-     *
+     * Create new identity, whereas parent groups will be resolved
+     * @param user User
+     * @param alias User alias, e.g. e-mail address
      */
     public Identity(User user, String alias) {
         try {
