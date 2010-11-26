@@ -579,7 +579,9 @@ public class YarepUser extends YarepItem implements User {
 
     /**
      * Get parent group IDs of a particular group
+     *
      * @param groupID ID of particular group
+     * @param branchGroups Group IDs within a specific branch (in order to detect loops with a particular branch, but also in order to avoid "phantom" loops with regard to multiple branches)
      * @param groupIDsInclParents Group IDs which have already been found
      */
     private void getParentGroupIDsImplV2(String groupID, ArrayList<String> branchGroups, ArrayList<String> groupIDsInclParents) throws Exception {
