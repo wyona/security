@@ -587,9 +587,9 @@ public class YarepUser extends YarepItem implements User {
     private void getParentGroupIDsImplV2(String groupID, ArrayList<String> branchGroups, ArrayList<String> groupIDsInclParents) throws Exception {
         log.debug("Get parent group IDs for particular group: " + groupID);
 
-        YarepGroupManager ygm = (YarepGroupManager) getGroupManager();
-        if (ygm != null) {
-            Group[] parentGroups = ygm.getGroup(groupID).getParents();
+        GroupManager gm = getGroupManager();
+        if (gm != null) {
+            Group[] parentGroups = gm.getGroup(groupID).getParents();
             if (parentGroups != null) {
                 for (int i = 0; i < parentGroups.length; i++) {
                     String parentGroupID = parentGroups[i].getID();
