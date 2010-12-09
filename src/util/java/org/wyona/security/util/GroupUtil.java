@@ -54,7 +54,7 @@ public class GroupUtil {
                 return (String[]) groupIDs.toArray(new String[groupIDs.size()]);
             }
             } else {
-                log.warn("Group '" + group.getID() + "'  has not parents!");
+                log.warn("Group '" + group.getID() + "'  has no parents!");
                 return null;
             }
         } else {
