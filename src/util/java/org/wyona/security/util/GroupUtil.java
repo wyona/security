@@ -31,28 +31,28 @@ public class GroupUtil {
                     groupIDs.add(parents[i].getID());
                 }
 
-            if (parentsOfParents) {
-                log.info("Resolve parent groups for group '" + group.getID() + "' ...");
+                if (parentsOfParents) {
+                    log.info("Resolve parent groups for group '" + group.getID() + "' ...");
 
-                ArrayList<String> groupIDsInclParents = new ArrayList<String>();
-                ArrayList<String> branchGroups = new ArrayList<String>();
-                for (int i = 0; i < groupIDs.size(); i++) {
-                    try {
-                        // TOOD: Replace this implementation
-                        groupIDsInclParents.add((String) groupIDs.get(i));
-                        branchGroups.add((String) groupIDs.get(i)); // INFO: Add in order to detect loops with a particular branch
-                        getParentGroupIDsImplV2((String) groupIDs.get(i), gm, branchGroups, groupIDsInclParents);
-                        branchGroups.remove((String) groupIDs.get(i)); // INFO: Remove in order to avoid "phantom" loops with regard to multiple branches
-                    } catch(Exception e) {
-                        log.error(e, e);
+                    ArrayList<String> groupIDsInclParents = new ArrayList<String>();
+                    ArrayList<String> branchGroups = new ArrayList<String>();
+                    for (int i = 0; i < groupIDs.size(); i++) {
+                        try {
+                            // TOOD: Replace this implementation
+                            groupIDsInclParents.add((String) groupIDs.get(i));
+                            branchGroups.add((String) groupIDs.get(i)); // INFO: Add in order to detect loops with a particular branch
+                            getParentGroupIDsImplV2((String) groupIDs.get(i), gm, branchGroups, groupIDsInclParents);
+                            branchGroups.remove((String) groupIDs.get(i)); // INFO: Remove in order to avoid "phantom" loops with regard to multiple branches
+                        } catch(Exception e) {
+                            log.error(e, e);
+                        }
                     }
+                    log.debug("Get parent group IDs of group '" + group.getID() + "' including parents of parents: " + groupIDsInclParents.size());
+                    return (String[]) groupIDsInclParents.toArray(new String[groupIDsInclParents.size()]);
+                } else {
+                    log.debug("Get parent group IDs of group '" + group.getID() + "' excluding parents of parents: " + groupIDs.size());
+                    return (String[]) groupIDs.toArray(new String[groupIDs.size()]);
                 }
-                log.debug("Get parent group IDs of group '" + group.getID() + "' including parents of parents: " + groupIDsInclParents.size());
-                return (String[]) groupIDsInclParents.toArray(new String[groupIDsInclParents.size()]);
-            } else {
-                log.debug("Get parent group IDs of group '" + group.getID() + "' excluding parents of parents: " + groupIDs.size());
-                return (String[]) groupIDs.toArray(new String[groupIDs.size()]);
-            }
             } else {
                 log.warn("Group '" + group.getID() + "'  has no parents!");
                 return null;
