@@ -8,7 +8,7 @@ import org.wyona.security.core.api.GroupManager;
 import java.util.ArrayList;
 
 /**
- *
+ * Group utilities
  */
 public class GroupUtil {
 
@@ -20,6 +20,8 @@ public class GroupUtil {
      * @param group Particular group
      * @param gm Group manager to which particular group belongs to
      * @param parentsOfParents Flag whether only direct parents or parents of parents shall be retrieved
+     *
+     * @return IDs of parent groups, whereas return null if there are no parent groups
      */
     public static String[] getParentGroupIDs(Group group, GroupManager gm, boolean parentsOfParents) throws org.wyona.security.core.api.AccessManagementException {
         if (gm != null) {
@@ -54,7 +56,7 @@ public class GroupUtil {
                     return (String[]) groupIDs.toArray(new String[groupIDs.size()]);
                 }
             } else {
-                log.warn("Group '" + group.getID() + "'  has no parents!");
+                log.info("Group '" + group.getID() + "'  has no parents!");
                 return null;
             }
         } else {
