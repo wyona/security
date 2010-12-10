@@ -407,4 +407,16 @@ public class YarepGroup extends YarepItem implements Group {
         }
         save();
     }
+
+    /**
+     * @see org.wyona.security.core.api.Item#delete()
+     */
+    @Override
+    public void delete() throws AccessManagementException {
+        log.warn("TODO: Remove members from this group");
+        // Get members
+        // this.removeMember(member)
+        // Delete group node (see super)
+        super.delete();
+    }
 }
