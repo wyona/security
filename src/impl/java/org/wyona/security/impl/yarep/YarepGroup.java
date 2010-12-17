@@ -413,10 +413,12 @@ public class YarepGroup extends YarepItem implements Group {
      */
     @Override
     public void delete() throws AccessManagementException {
-        log.warn("TODO: Remove members from this group");
-        // Get members
-        // this.removeMember(member)
-        // Delete group node (see super)
+        log.info("Remove members from this group: " + getID());
+        Item[] members = getMembers();
+        for (int i = 0; i < members.length; i++) {
+            Item item = members[i];
+            this.removeMember(item);
+        }
         super.delete();
     }
 }
