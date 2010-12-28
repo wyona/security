@@ -15,6 +15,7 @@ import org.wyona.security.core.api.AccessManagementException;
 
 import org.wyona.yarep.core.Node;
 import org.wyona.yarep.core.Repository;
+import org.wyona.yarep.core.search.Searcher;
 
 /**
  * Yarep users iterator.
@@ -55,6 +56,42 @@ public class YarepUsersIterator extends YarepUserManager implements java.util.It
         try {
             Node usersParentNode = super.getUsersParentNode();
             Node[] userNodes = usersParentNode.getNodes();
+
+            userNodeList = new LinkedList<Node>();
+            for(Node n : userNodes) {
+                if(n.isResource()) {
+                    userNodeList.add(n);
+                }
+            }
+
+            listIterator = userNodeList.listIterator();
+        } catch(Exception e) {
+            String errorMsg = "Could not read users from repository: " + e.getMessage();
+            log.error(errorMsg, e);
+            throw new AccessManagementException(errorMsg, e);
+        }
+    }
+
+    /**
+     * Constructor with search query.
+     */
+    public YarepUsersIterator(IdentityManager identityManager, 
+                              Repository identitiesRepository, 
+                              boolean cacheEnabled, 
+                              boolean resolveGroupsAtCreation,
+                              String query) 
+                              throws AccessManagementException {
+        // Call parent
+        super(identityManager, identitiesRepository, cacheEnabled, resolveGroupsAtCreation);
+        log.info("Load users from repository '" + identitiesRepository.getConfigFile() + "'");
+
+        // TODO: This is inefficient! If Yarep were able to
+        // return an iterator instead of an array, this could
+        // be done in a more effective manner, but until Yarep
+        // gains that capability we're currently stuck like this.
+        try {
+            Searcher s = identitiesRepository.getSearcher();
+            Node[] userNodes = s.search(query);
 
             userNodeList = new LinkedList<Node>();
             for(Node n : userNodes) {
