@@ -112,6 +112,7 @@ public abstract class YarepItem implements Item {
             DefaultConfigurationSerializer serializer = new DefaultConfigurationSerializer();
             Configuration config = createConfiguration();
             serializer.setIndent(true);
+            getNode().setMimeType("application/xml");
             serializer.serialize(getNode().getOutputStream(), config);
         } catch (Exception e) {
             log.error(e.getMessage(), e);
