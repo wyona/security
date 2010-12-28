@@ -113,7 +113,9 @@ public abstract class YarepItem implements Item {
             Configuration config = createConfiguration();
             serializer.setIndent(true);
             getNode().setMimeType("application/xml");
-            serializer.serialize(getNode().getOutputStream(), config);
+            java.io.OutputStream out = getNode().getOutputStream();
+            serializer.serialize(out, config);
+            out.close();
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             throw new AccessManagementException(e.getMessage(), e);
