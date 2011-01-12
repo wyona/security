@@ -9,10 +9,10 @@
       <remoteRepository refid="wyona.remote.repository"/>
       <dependency groupId="log4j" artifactId="log4j" version="1.2.8"/>
       <dependency groupId="wyona-org-commons" artifactId="wyona-org-commons" version="1.0-dev-r48003"/>
-      <dependency groupId="yarep" artifactId="yarep-core" version="1.0-dev-r48144"/>
+      <dependency groupId="yarep" artifactId="yarep-core" version="1.0-dev-r54556"/>
 
       <!-- Runtime libraries -->
-      <dependency groupId="yarep" artifactId="yarep-impl" version="1.0-dev-r48144"/>
+      <dependency groupId="yarep" artifactId="yarep-impl" version="1.0-dev-r54556"/>
       <dependency groupId="avalon-framework" artifactId="avalon-framework-api" version="4.3"/>
       <dependency groupId="avalon-framework" artifactId="avalon-framework-impl" version="4.3"/>
       <dependency groupId="xerces" artifactId="xercesImpl"
