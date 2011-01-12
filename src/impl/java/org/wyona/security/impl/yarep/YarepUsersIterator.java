@@ -131,9 +131,13 @@ public class YarepUsersIterator extends YarepUserManager implements java.util.It
                 return user;
             }
         } catch(Exception e) {
-            // We can't throw an exception here, if this user
-            // is invalid/broken we'll just have to return null.
-            log.error(e.getMessage(), e);
+            // INFO: If this user/node is invalid/broken then we just ignore it and return null.
+            try {
+                log.error("Problem occured with yarep node: " + n.getPath());
+            } catch(Exception nodeException) {
+                log.error(e, e);
+            }
+            log.error(e, e);
         }
 
         return null;
