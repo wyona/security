@@ -217,7 +217,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
             log.debug("Check parent policy: " + parent + " ... (Current path: " + path + ")");
             return authorize(repo, parent, identity, usecase);
         } else {
-            log.warn("Trying to get parent of " + path + " (" + repo + ") failed. Access denied.");
+            log.debug("Trying to get parent of " + path + " (" + repo + ") failed, hence access denied.");
             return false;
         }
     }
