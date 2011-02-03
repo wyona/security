@@ -60,7 +60,7 @@ public class Identity implements java.io.Serializable {
             this.username = user.getID();
             this.alias = alias;
 
-            log.info("Set groupnames via user object for user '" + user.getID() + "' such that also parent groups of groups are loaded!");
+            log.debug("Set groupnames via user object for user '" + user.getID() + "' such that also parent groups of groups are loaded!");
             boolean getAlsoParentsOfGroups = true; // NOTE: And their parents, etc.
 
             String[] groupIDs = user.getGroupIDs(getAlsoParentsOfGroups);
