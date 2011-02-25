@@ -15,7 +15,7 @@ public class GroupUtil {
     private static Logger log = Logger.getLogger(GroupUtil.class);
 
     /**
-     * Get user IDs of a particular group
+     * Get user member IDs of a particular group
      *
      * @param group Particular group
      * @param deep Flag whether only direct user members or members of members shall be retrieved
@@ -41,6 +41,35 @@ public class GroupUtil {
             }
         }
         return (String[]) userIDs.toArray(new String[userIDs.size()]);
+    }
+
+    /**
+     * Get group member IDs of a particular group
+     *
+     * @param group Particular group
+     * @param deep Flag whether only direct group members or members of members shall be retrieved
+     *
+     * @return IDs of group members, whereas return null if there are no group members
+     */
+    public static String[] getGroupIDs(Group group, boolean deep) throws org.wyona.security.core.api.AccessManagementException {
+        org.wyona.security.core.api.Item[] items = group.getMembers();
+        java.util.List groupIDs = new java.util.ArrayList<String>();
+        for (int i = 0; i < items.length; i++) {
+            if (items[i] instanceof org.wyona.security.core.api.Group) {
+                groupIDs.add(items[i].getID());
+            } else if(deep && items[i] instanceof Group) { // TODO: Beware of loops
+                //log.debug("Resolve group: " + items[i].getID());
+                String[] subGroupIDs = getGroupIDs((Group) items[i], true);
+                for (int k = 0; k < subGroupIDs.length; k++) {
+                    if (!groupIDs.contains(subGroupIDs[k])) {
+                        groupIDs.add(subGroupIDs[k]);
+                    }
+                }
+            } else {
+                log.warn("No such instance supported: " + items[i]);
+            }
+        }
+        return (String[]) groupIDs.toArray(new String[groupIDs.size()]);
     }
 
     /**
