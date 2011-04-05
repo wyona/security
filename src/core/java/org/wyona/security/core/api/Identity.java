@@ -99,7 +99,8 @@ public class Identity implements java.io.Serializable {
 */
     
     /**
-     * 
+     * Get group IDs/Names
+     * @return group IDs/Names and null if no groups
      */
     public String[] getGroupnames() {
         // For security reasons a copy instead the reference is being returned
@@ -113,7 +114,7 @@ public class Identity implements java.io.Serializable {
             if (isWorld()) {
                 log.debug("No groups for WORLD!");
             } else {
-                log.warn("No groups for user '" + getUsername() + "'!");
+                log.debug("No groups for user '" + getUsername() + "'!");
             }
             return null;
         }
