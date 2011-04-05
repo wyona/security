@@ -66,7 +66,7 @@ public class GroupUtil {
                     }
                 }
             } else {
-                log.warn("No such instance supported: " + items[i]);
+                log.debug("Does not seem to be a group instance, hence will be ignored: " + items[i]);
             }
         }
         return (String[]) groupIDs.toArray(new String[groupIDs.size()]);
