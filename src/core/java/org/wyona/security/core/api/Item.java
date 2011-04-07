@@ -39,4 +39,29 @@ public interface Item {
      * @throws AccessManagementException
      */
     void save() throws AccessManagementException;
+
+    /**
+     * Get binary property
+     * @param name Property name
+     */
+    //public InputStream getProperty(String name);
+
+    /**
+     * Set binary property
+     * @param name Property name
+     */
+    //public OutputStream setProperty(String name);
+
+    /**
+     * Get property (e.g. timezone of a user)
+     * @param name Property name
+     */
+    //public String getProperty(String name);
+
+    /**
+     * Set property
+     * @param name Property name
+     * @param value Property value
+     */
+    //public void setProperty(String name, String value);
 }
