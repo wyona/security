@@ -195,8 +195,11 @@ public class YarepGroup extends YarepItem implements Group {
                 ((YarepUser) item).addGroup(getID());
                 save();
             } else if (item instanceof Group) {
+                if (wouldCreateGroupLoop(getID(), (Group)item)) {
+                    throw new AccessManagementException("Adding group '" + item.getID() + "' to group '" + getID() + "' would create a loop!");
+                }
                 memberGroupIDs.add(item.getID());
-                ((YarepGroup) item).addParentGroup(getID());
+                ((YarepGroup) item).addParentGroup(getID()); // INFO: Add back/bi-directional link
                 save();
             } else {
                 log.warn("Item '" + item.getID() + "' is neither user nor group: " + item.getClass().getName());
@@ -420,5 +423,29 @@ public class YarepGroup extends YarepItem implements Group {
             this.removeMember(item);
         }
         super.delete();
+    }
+
+    /**
+     * Check whether adding one group as a member to another group would create a loop
+     * @param parentID ID of parent group
+     * @param memberGroup Intended member group which might generate a loop by adding it to the parent group as member
+     * @return true if a loop would be created, false otherwise
+     */
+    private boolean wouldCreateGroupLoop(String parentID, Group memberGroup) throws AccessManagementException {
+        log.info("Make sure no loop is being created!");
+        if (parentID.equals(memberGroup.getID())) {
+            log.warn("Parent group and intended member group are the same: " + parentID);
+            return true;
+        }
+        String[] groupMemberIDs = org.wyona.security.util.GroupUtil.getGroupIDs(memberGroup, true);
+        if (groupMemberIDs != null) {
+            for (int i = 0; i < groupMemberIDs.length; i++) {
+                if (groupMemberIDs[i].equals(parentID)) {
+                    log.warn("Intended member group '" + memberGroup.getID() + "' contains parent group '" + parentID + "' already as sub-group!");
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
