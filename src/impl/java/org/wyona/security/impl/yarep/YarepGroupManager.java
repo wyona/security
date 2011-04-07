@@ -62,19 +62,23 @@ public class YarepGroupManager implements GroupManager {
             Node[] groupNodes = getAllGroupNodes();
             java.util.List<Group> groups = new java.util.ArrayList<Group>();
             for (int i = 0; i < groupNodes.length; i++) {
-                try {
-                    Configuration config = configBuilder.build(groupNodes[i].getInputStream());
-                    if (config.getName().equals(YarepGroup.GROUP_TAG_NAME)) {
-                        Group group = constructGroup(groupNodes[i]);
-                        groups.add(group);
-                    } else {
-                        log.error("Node '" + groupNodes[i].getPath() + "'  does not seem to be a group!");
+                if (groupNodes[i].getName().endsWith("." + SUFFIX)) {
+                    try {
+                        Configuration config = configBuilder.build(groupNodes[i].getInputStream());
+                        if (config.getName().equals(YarepGroup.GROUP_TAG_NAME)) {
+                            Group group = constructGroup(groupNodes[i]);
+                            groups.add(group);
+                        } else {
+                            log.error("Node '" + groupNodes[i].getPath() + "'  does not seem to be a group!");
+                        }
+                    } catch (Exception e) {
+                        String errorMsg = "Could not create group from repository node: " + groupNodes[i].getPath() + ": " + e;
+                        log.error(errorMsg, e);
+                        // NOTE[et]: Do not fail here because other groups may still be ok
+                        //throw new AccessManagementException(errorMsg, e);
                     }
-                } catch (Exception e) {
-                    String errorMsg = "Could not create group from repository node: " + groupNodes[i].getPath() + ": " + e;
-                    log.error(errorMsg, e);
-                    // NOTE[et]: Do not fail here because other groups may still be ok
-                    //throw new AccessManagementException(errorMsg, e);
+                } else {
+                    log.error("Node '" + groupNodes[i].getPath() + "'  does not seem to be a group, because it has not the suffix '" + "." + SUFFIX + "'!");
                 }
             }
             return (Group[])groups.toArray(new Group[groups.size()]);
