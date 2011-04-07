@@ -114,6 +114,15 @@ public interface UserManager {
     boolean existsUser(String id) throws AccessManagementException;
 
     /**
+     * Indicates whether an alias with the given id exists.
+     * 
+     * @param id ID of alias
+     * @return true if an alias with the given id exists.
+     * @throws AccessManagementException
+     */
+    //boolean existsAlias(String id) throws AccessManagementException;
+
+    /**
      * Get the true ID of a user
      * 
      * @param id Either pseudonym or true ID
