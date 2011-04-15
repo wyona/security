@@ -708,6 +708,15 @@ public class YarepUser extends YarepItem implements User {
      * @see org.wyona.security.core.api.User@getAliases()
      */
     public String[] getAliases() {
-        return (String[]) aliasIDs.toArray(new String[aliasIDs.size()]);
+        if (aliasIDs != null) {
+            return (String[]) aliasIDs.toArray(new String[aliasIDs.size()]);
+        } else {
+            try {
+                log.warn("User '" + getID() + "' does not seem to have any aliases yet!");
+            } catch(Exception e) {
+                log.error(e, e);
+            }
+            return null;
+        }
     }
 }
