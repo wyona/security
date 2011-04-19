@@ -340,7 +340,12 @@ public class YarepUser extends YarepItem implements User {
             String[] groupIDs = getGroupIDs(false);
             if (groupIDs != null) {
                 for (int i = 0; i < groupIDs.length; i++) {
-                    groups.add(getGroupManager().getGroup(groupIDs[i]));
+                    Group group = getGroupManager().getGroup(groupIDs[i]);
+                    if (group != null) {
+                        groups.add(group);
+                    } else {
+                        log.warn("User '" + getID() + "' seems to be member of group '" + groupIDs[i] + "', but no such group exists!");
+                    }
                 }
             } else {
                 log.warn("User '" + getID() + "' does not seem to belong to any groups.");
