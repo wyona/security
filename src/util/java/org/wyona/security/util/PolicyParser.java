@@ -56,6 +56,7 @@ public class PolicyParser implements Policy {
      * @param idManager Identity manager in order to resolve dependencies between users and groups
      */
     public Policy parseXML(java.io.InputStream in, IdentityManager idManager) throws Exception {
+
 /* INFO: Example of XML
 <policy xmlns="http://www.wyona.org/security/1.0" use-inherited-policies="true">
   <user id="alice"><right id="r" permission="false">r</right><right id="w" permission="false">w</right></user>
@@ -83,14 +84,20 @@ public class PolicyParser implements Policy {
                     UsecasePolicy up = new UsecasePolicy(rightConfigs[k].getAttribute("id"));
                     String permission = rightConfigs[k].getAttribute("permission");
                     if (idManager != null) {
-                        User id = idManager.getUserManager().getUser(userOrGroupConfig.getAttribute("id"));
-                        Identity identity = new Identity(id, id.getID());
-                        if (identity.getGroupnames() != null) {
-                            log.debug("Number of groups of user '" + identity.getUsername() + "': " + identity.getGroupnames().length);
+                        String userID = userOrGroupConfig.getAttribute("id");
+                        if (idManager.getUserManager().existsUser(userID)) {
+                            User id = idManager.getUserManager().getUser(userID);
+                            Identity identity = new Identity(id, id.getID());
+                            if (identity.getGroupnames() != null) {
+                                log.debug("Number of groups of user '" + identity.getUsername() + "': " + identity.getGroupnames().length);
+                            } else {
+                                log.debug("User '" + identity.getUsername() + "' has no groups!");
+                            }
+                            up.addIdentity(identity, new Boolean(permission).booleanValue());
                         } else {
-                            log.debug("User '" + identity.getUsername() + "' has no groups!");
+                            log.warn("No such user '" + userID + "', but will be added to policy anyway...");
+                            up.addIdentity(new Identity(userID, userID), new Boolean(permission).booleanValue());
                         }
-                        up.addIdentity(identity, new Boolean(permission).booleanValue());
                     } else {
                         log.warn("Groups are not associated with user!");
                         String id = userOrGroupConfig.getAttribute("id");
