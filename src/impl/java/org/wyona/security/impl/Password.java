@@ -20,6 +20,7 @@ public class Password {
     }
 
     /**
+     * @depreacted Use getMD5(String, String) or getSHA256(String, String) instead
      * Returns the MD5 representation of a string.
      * @param plain The plain string.
      * @return A string.
@@ -33,7 +34,7 @@ public class Password {
         }
         return stringify(md.digest(plain.getBytes()));
     }
-    
+
     /**
      * Returns the MD5 representation of a string plain and string salt.
      * @param plain The plain string.
@@ -45,6 +46,23 @@ public class Password {
         String saltNplain = plain+salt;
         try {
             md = MessageDigest.getInstance("MD5");
+        } catch (java.security.NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        }
+        return stringify(md.digest(saltNplain.getBytes()));
+    }
+
+    /**
+     * Returns the SHA-256 representation of a string plain and string salt.
+     * @param plain The plain string.
+     * @param salt The salt string.
+     * @return A string.
+     */
+    public static String getSHA256(String plain, String salt) {
+        MessageDigest md = null;
+        String saltNplain = plain+salt;
+        try {
+            md = MessageDigest.getInstance("SHA-256");
         } catch (java.security.NoSuchAlgorithmException e) {
             throw new RuntimeException(e);
         }
