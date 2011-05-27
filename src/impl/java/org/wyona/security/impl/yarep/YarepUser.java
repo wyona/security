@@ -52,6 +52,8 @@ public class YarepUser extends YarepItem implements User {
     public static final String PASSWORD = "password";
 
     public static final String SALT = "salt";
+
+    public static final String ALGORITHM_ATTR_NAME = "algorithm";
         
     public static final String EXPIRE = "expire";
     
@@ -68,6 +70,7 @@ public class YarepUser extends YarepItem implements User {
     private String language;
 
     private String encryptedPassword;
+    private String encryptionAlgorithm;
 
     private String salt;
     
@@ -120,6 +123,9 @@ public class YarepUser extends YarepItem implements User {
         if(config.getChild(PASSWORD, false) != null){
             // Do not use setter here because it does other things
             this.encryptedPassword = config.getChild(PASSWORD, false).getValue(null);
+            if (encryptedPassword != null) {
+                this.encryptionAlgorithm = config.getChild(PASSWORD, false).getAttribute(ALGORITHM_ATTR_NAME, "MD5");
+            }
         }
         
         if(config.getChild(LANGUAGE, false) != null) {
@@ -234,6 +240,9 @@ public class YarepUser extends YarepItem implements User {
         if(getPassword() != null){
             DefaultConfiguration passwordNode = new DefaultConfiguration(PASSWORD, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             passwordNode.setValue(getPassword());
+            if (encryptionAlgorithm != null) {
+                passwordNode.setAttribute(ALGORITHM_ATTR_NAME, encryptionAlgorithm);
+            }
             config.addChild(passwordNode);
         }
         
@@ -294,7 +303,15 @@ public class YarepUser extends YarepItem implements User {
         if(getSalt() == null) {
             return getPassword().equals(Password.getMD5(plainTextPassword));
         } else {
-            return getPassword().equals(Password.getMD5(plainTextPassword, getSalt()));
+            if (encryptionAlgorithm == null || encryptionAlgorithm.equals("MD5")) {
+                log.warn("User '" + getID() + "' is still using MD5 encrypted password instead SHA-256");
+                return getPassword().equals(Password.getMD5(plainTextPassword, getSalt()));
+            } else if (encryptionAlgorithm.equals("SHA-256")) {
+                return getPassword().equals(Password.getSHA256(plainTextPassword, getSalt()));
+            } else {
+                log.error("No such encryption algorithm implemented: " + encryptionAlgorithm);
+                return false;
+            }
         }
     }
 
@@ -512,7 +529,14 @@ public class YarepUser extends YarepItem implements User {
      */
     public void setPassword(String plainTextPassword) throws AccessManagementException {
         setSalt();
+
+        this.encryptedPassword = Password.getSHA256(plainTextPassword, this.salt);
+        this.encryptionAlgorithm = "SHA-256";
+
+/* Deprecated, because SHA-256 is much more secure than MD5 (also see http://en.wikipedia.org/wiki/Rainbow_table)
         this.encryptedPassword = Password.getMD5(plainTextPassword, this.salt);
+        this.encryptionAlgorithm = "MD5";
+*/
     }
 
     /**
