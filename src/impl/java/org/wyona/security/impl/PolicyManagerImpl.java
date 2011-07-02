@@ -301,7 +301,7 @@ public class PolicyManagerImpl implements PolicyManager {
             if (repo.existsNode(policyPath)) {
                 log.warn("Existing policy will be overwritten: " + policyPath);
             } else {
-                org.wyona.yarep.util.YarepUtil.addNodes(repo, policyPath, org.wyona.yarep.core.NodeType.RESOURCE);
+                YarepUtil.addNodes(repo, policyPath, org.wyona.yarep.core.NodeType.RESOURCE);
                 log.warn("New policy node has been created: " + policyPath);
             }
             org.wyona.yarep.core.Node policyNode = getPoliciesRepository().getNode(policyPath);
