@@ -459,9 +459,9 @@ public class YarepUserManager implements UserManager {
     protected Node getAliasesParentNode() throws NoSuchNodeException, RepositoryException {
         if (this.identitiesRepository.existsNode("/aliases")) {
             return this.identitiesRepository.getNode("/aliases");
+        } else {
+            return org.wyona.yarep.util.YarepUtil.addNodes(this.identitiesRepository, "/aliases", org.wyona.yarep.core.NodeType.COLLECTION);
         }
-        log.warn("No 'aliases' set yet!");
-        return null;
     }
     
     /**
