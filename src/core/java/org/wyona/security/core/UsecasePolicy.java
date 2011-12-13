@@ -319,4 +319,69 @@ public class UsecasePolicy {
         //log.debug("Number of item policies: " + userOrGroupPolicies.size());
         return (ItemPolicy[]) userOrGroupPolicies.toArray(new ItemPolicy[userOrGroupPolicies.size()]);
     }
+
+    /**
+     * @see java.lang.Object#equals(Object)
+     */
+    public boolean equals(Object object) {
+        log.warn("DEBUG: Check whether these two usecase policies '" + getName() + "' are equal...");
+
+        log.warn("TODO: What about world!");
+
+        UsecasePolicy thatUsecasePolicy = (UsecasePolicy) object;
+
+        IdentityPolicy[] ipsOfThis = getIdentityPolicies();
+        for (int i = 0; i < ipsOfThis.length; i++) {
+            Identity userID = ipsOfThis[i].getIdentity();
+            if (thatUsecasePolicy.getIdentityPolicy(userID) == null) {
+                log.warn("That usecase policy does not contain identity policy '" + userID + "' of this usecase policy!");
+                return false;
+            }
+            if (thatUsecasePolicy.getIdentityPolicy(userID).getPermission() != getIdentityPolicy(userID).getPermission()) {
+                log.warn("The identity policy '" + userID + "' of this and that usecase policy do not have the same permission!");
+                return false;
+            }
+        }
+
+        IdentityPolicy[] ipsOfThat = thatUsecasePolicy.getIdentityPolicies();
+        for (int i = 0; i < ipsOfThat.length; i++) {
+            Identity userID = ipsOfThat[i].getIdentity();
+            if (getIdentityPolicy(userID) == null) {
+                log.warn("This usecase policy does not contain identity policy '" + userID + "' of that usecase policy!");
+                return false;
+            }
+            if (thatUsecasePolicy.getIdentityPolicy(userID).getPermission() != getIdentityPolicy(userID).getPermission()) {
+                log.warn("The identity policy '" + userID + "' of this and that usecase policy do not have the same permission!");
+                return false;
+            }
+        }
+
+        GroupPolicy[] gpsOfThis = getGroupPolicies();
+        for (int i = 0; i < gpsOfThis.length; i++) {
+            String groupID = gpsOfThis[i].getId();
+            if (thatUsecasePolicy.getGroupPolicy(groupID) == null) {
+                log.warn("That usecase policy does not contain group policy '" + groupID + "' of this usecase policy!");
+                return false;
+            }
+            if (thatUsecasePolicy.getGroupPolicy(groupID).getPermission() != getGroupPolicy(groupID).getPermission()) {
+                log.warn("The group policy '" + groupID + "' of this and that usecase policy do not have the same permission!");
+                return false;
+            }
+        }
+
+        GroupPolicy[] gpsOfThat = thatUsecasePolicy.getGroupPolicies();
+        for (int i = 0; i < gpsOfThat.length; i++) {
+            String groupID = gpsOfThat[i].getId();
+            if (getGroupPolicy(groupID) == null) {
+                log.warn("This usecase policy does not contain group policy '" + groupID + "' of that usecase policy!");
+                return false;
+            }
+            if (thatUsecasePolicy.getGroupPolicy(groupID).getPermission() != getGroupPolicy(groupID).getPermission()) {
+                log.warn("The group policy '" + groupID + "' of this and that usecase policy do not have the same permission!");
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
