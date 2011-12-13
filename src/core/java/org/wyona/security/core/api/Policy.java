@@ -48,7 +48,7 @@ public interface Policy {
     public String getPath() throws AccessManagementException;
 
     /**
-     * Gets parent policy.
+     * Get parent policy.
      *
      * @throws AccessManagementException
      */
