@@ -73,7 +73,7 @@ public class PolicyImplVersion1 implements Policy {
     }
 
     /**
-     * @see
+     * @see org.wyona.security.core.api.Policy#getPath()
      */
     public String getPath() throws AccessManagementException {
         log.warn("Not implemented yet!");
@@ -81,7 +81,7 @@ public class PolicyImplVersion1 implements Policy {
     }
 
     /**
-     *
+     * @see org.wyona.security.core.api.Policy#getParentPolicy()
      */
     public Policy getParentPolicy() throws AccessManagementException {
         log.warn("Not implemented yet!");
@@ -92,7 +92,7 @@ public class PolicyImplVersion1 implements Policy {
      *
      */
     public String toString() {
-        StringBuffer sb = new StringBuffer("Policy:\n");
+        StringBuilder sb = new StringBuilder("Policy:\n");
         UsecasePolicy[] ups = getUsecasePolicies();
         for (int i = 0; i < ups.length; i++) {
             sb.append("  Usecase: " + ups[i].getName() + "\n");
@@ -207,5 +207,53 @@ public class PolicyImplVersion1 implements Policy {
         }
         return null;
     }
-}
 
+    /**
+     * @see java.lang.Object#equals(Object)
+     */
+    public boolean equals(Object object) {
+        log.warn("Check whether these two policies are equal...");
+        Policy thatPolicy = (Policy) object;
+
+        UsecasePolicy[] upsOfThis = getUsecasePolicies();
+        for (int i = 0; i < upsOfThis.length; i++) {
+            try {
+                if (thatPolicy.getUsecasePolicy(upsOfThis[i].getName()) == null) {
+                    log.warn("That policy does not contain usecase '" + upsOfThis[i].getName() + "' of this policy!");
+                    return false;
+                }
+            } catch(Exception e) {
+                log.warn(e.getMessage());
+                return false;
+            }
+        }
+
+        UsecasePolicy[] upsOfThat = thatPolicy.getUsecasePolicies();
+        for (int i = 0; i < upsOfThat.length; i++) {
+            try {
+                if (getUsecasePolicy(upsOfThat[i].getName()) == null) {
+                    log.warn("This policy does not contain usecase '" + upsOfThat[i].getName() + "' of that policy!");
+                    return false;
+                }
+            } catch(Exception e) {
+                log.warn(e.getMessage());
+                return false;
+            }
+        }
+
+        log.warn("Both policies seem to have same usecase policies, therefore compare these usecase policies individually...");
+
+        for (int i = 0; i < upsOfThis.length; i++) {
+            try {
+                if (!upsOfThis[i].equals(thatPolicy.getUsecasePolicy(upsOfThis[i].getName()))) {
+                    return false;
+                }
+            } catch(Exception e) {
+                log.warn(e.getMessage());
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
