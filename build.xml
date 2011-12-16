@@ -309,4 +309,13 @@
     </javadoc>
   </target>
 
+  <target name="git-clone" description="Git clone master branch" depends="init">
+    <echo>Start cloning source from Git, revision: ${subversion.revision}</echo>
+    <exec executable="git">
+      <arg value="clone"/>
+      <arg value="https://github.com/wyona/security.git"/>
+      <arg value="${build.dir}/git-clone-master-r${subversion.revision}"/>
+    </exec>
+  </target>
+
 </project>
