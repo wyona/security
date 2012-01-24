@@ -120,7 +120,7 @@ public interface UserManager {
      * @return true if an alias with the given id exists.
      * @throws AccessManagementException
      */
-    //boolean existsAlias(String id) throws AccessManagementException;
+    boolean existsAlias(String id) throws AccessManagementException;
 
     /**
      * Get the true ID of a user

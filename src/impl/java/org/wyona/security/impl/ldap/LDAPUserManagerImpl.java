@@ -72,6 +72,14 @@ public class LDAPUserManagerImpl implements UserManager {
     }
 
     /**
+     * @see org.wyona.security.core.api.UserManager#existsAlias(String)
+     */
+    public boolean existsAlias(String username) throws AccessManagementException {
+        log.error("TODO: LDAP Yarep Implementation not finished yet!");
+        return false;
+    }
+
+    /**
      * @see org.wyona.security.core.api.UserManager#createUser(String, String, String, String)
      */
     public User createUser(String id, String name, String email, String password) throws AccessManagementException {

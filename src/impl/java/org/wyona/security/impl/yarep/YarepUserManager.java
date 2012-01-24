@@ -434,6 +434,27 @@ public class YarepUserManager implements UserManager {
     }
 
     /**
+     * @see org.wyona.security.core.api.UserManager#existsAlias(java.lang.String)
+     */
+    public boolean existsAlias(String alias) throws AccessManagementException {
+        try {
+            Node aliasesParentNode = getAliasesParentNode();
+            if (aliasesParentNode != null) {
+                if (aliasesParentNode.hasNode(alias + ".xml")) {
+                    return true;
+                } else {
+                    return false;
+                }
+            } else {
+                log.warn("No aliases directory exists yet. Please consider to introduce one. ID will be returned as true ID.");
+                return false;
+            }
+        } catch(Exception e) {
+            throw new AccessManagementException(e.getMessage(), e);
+        }
+    }
+
+    /**
      * Gets the repository node which is the parent node of all user nodes.
      *
      * @return node which is the parent of all user nodes.
