@@ -439,7 +439,6 @@ public class YarepUser extends YarepItem implements User {
                         groupIDsInclParents.add((String) groupIDs.get(i));
                         branchGroups.add((String) groupIDs.get(i)); // INFO: Add in order to detect loops with a particular branch
                         getParentGroupIDsImplV2((String) groupIDs.get(i), branchGroups, groupIDsInclParents);
-                        //getParentGroupIDsImplV1((String) groupIDs.get(i), groupIDsInclParents);
                         branchGroups.remove((String) groupIDs.get(i)); // INFO: Remove in order to avoid "phantom" loops with regard to multiple branches
                     } catch(Exception e) {
                         log.error(e, e);
