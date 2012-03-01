@@ -85,7 +85,9 @@ public class YarepGroup extends YarepItem implements Group {
             String type = memberNodes[i].getAttribute(MEMBER_TYPE, USER_TYPE);
             if (type.equals(USER_TYPE)) {
                 if (getUserManager() != null) {
+                    log.debug("Check whether user '" + id + "' exists...");
                     if (getUserManager().existsUser(id)) {
+                        log.debug("Append user '" + id + "' to internal member list of group: " + getID());
                         memberUserIDs.add(id);
                     } else {
                         log.warn("No user with id '" + id + "' exists, but is referenced within group '" + getID() + "' (" + getName() + ")");
@@ -155,18 +157,16 @@ public class YarepGroup extends YarepItem implements Group {
         DefaultConfiguration membersNode = new DefaultConfiguration(MEMBERS);
         config.addChild(membersNode);
 
-        Item[] items = getMembers();
-
-        for (int i = 0; i < items.length; i++) {
+        for (int i = 0; i < memberUserIDs.size(); i++) {
             DefaultConfiguration memberNode = new DefaultConfiguration(MEMBER);
-            memberNode.setAttribute(MEMBER_ID, items[i].getID());
-            if (items[i] instanceof Group) {
-                memberNode.setAttribute(MEMBER_TYPE, "group");
-            } else if (items[i] instanceof User) {
-                memberNode.setAttribute(MEMBER_TYPE, "user");
-            } else {
-                log.error("Item is neither user nor group: " + items[i].getID());
-            }
+            memberNode.setAttribute(MEMBER_ID, (String)memberUserIDs.get(i));
+            memberNode.setAttribute(MEMBER_TYPE, "user");
+            membersNode.addChild(memberNode);
+        }
+        for (int i = 0; i < memberGroupIDs.size(); i++) {
+            DefaultConfiguration memberNode = new DefaultConfiguration(MEMBER);
+            memberNode.setAttribute(MEMBER_ID, (String)memberGroupIDs.get(i));
+            memberNode.setAttribute(MEMBER_TYPE, "group");
             membersNode.addChild(memberNode);
         }
 
@@ -191,7 +191,9 @@ public class YarepGroup extends YarepItem implements Group {
     public void addMember(Item item) throws AccessManagementException {
         if (null != item){
             if (item instanceof User) {
+                log.debug("Add user '" + item.getID() + "' to group: " + getID());
                 memberUserIDs.add(item.getID());
+                log.debug("Add group '" + getID() + "' to user: " + item.getID());
                 ((YarepUser) item).addGroup(getID());
                 save();
             } else if (item instanceof Group) {
@@ -382,7 +384,7 @@ public class YarepGroup extends YarepItem implements Group {
      * @param id Parent group ID
      */
     private void addParentGroup(String id) throws AccessManagementException {
-        log.warn("DEBUG: Add parent group '" + id + "' to group: " + getID());
+        log.debug("Add parent group '" + id + "' to group: " + getID());
         if (parentGroupIDs == null) {
             throw new AccessManagementException("Group '" + getID() + "' has parent groups not initialized yet!");
         }
