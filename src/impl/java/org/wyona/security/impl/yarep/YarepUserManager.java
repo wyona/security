@@ -125,7 +125,7 @@ public class YarepUserManager implements UserManager {
      * @throws AccessManagementException
      */
     protected synchronized void loadUserIntoCache(String id) throws AccessManagementException {
-        log.warn("DEBUG: Load user '" + id + "' from persistent repository '" + identitiesRepository.getName() + "' into cache.");
+        log.debug("Load user '" + id + "' from persistent repository '" + identitiesRepository.getName() + "' into cache.");
         if (cachedUsers == null) {
             log.warn("No users yet within memory. Initialize users hash map.");
             cachedUsers = new HashMap();
@@ -165,7 +165,7 @@ public class YarepUserManager implements UserManager {
                 String[] groupIDs = user.getGroupIDs(false);
                 if (groupIDs != null) {
                     for (int i = 0; i < groupIDs.length; i++) {
-                        log.warn("DEBUG: New user '" + id + "'  belongs to group '" + groupIDs[i] + "' (This user probably existed before and groups were not cleaned at the time this user was deleted!)");
+                        log.debug("New user '" + id + "'  belongs to group '" + groupIDs[i] + "' (This user probably existed before and groups were not cleaned at the time this user was deleted!)");
                         user.addGroup(groupIDs[i]);
                     }
                 }
@@ -221,7 +221,7 @@ public class YarepUserManager implements UserManager {
     }
 
     /**
-     * Check if user exists within persistent identities repository
+     * Check whether user exists inside persistent identities repository
      * @param userId True ID of user
      */
     private boolean existsWithinRepository(String userId) {
@@ -234,11 +234,14 @@ public class YarepUserManager implements UserManager {
                 return true;
             }
 
-            if (usersParentNode.hasNode(userId + "." + SUFFIX)) return true;
+            if (usersParentNode.hasNode(userId + "." + SUFFIX)) {
+                log.debug("User node '" + userId + "." + SUFFIX + "' exists inside persistent repository.");
+                return true;
+            }
         } catch (Exception e) {
             log.warn(e.getMessage(), e);
         }
-        log.warn("No such user within persistent repository: " + userId);
+        log.info("No such user '" + userId + "' within persistent repository.");
         return false;
     }
 
@@ -248,6 +251,7 @@ public class YarepUserManager implements UserManager {
     public boolean existsUser(String id) throws AccessManagementException {
         // Check the cache first
         if (!existsWithinCache(id)) {
+            // TODO: What about checking whether id exists as alias?!
             // Also check the repository
             return existsWithinRepository(id);
         }
@@ -518,10 +522,10 @@ public class YarepUserManager implements UserManager {
                         throw new AccessManagementException("Pseudonym '" + pseudo + "' does not match node name '" + alias.getName() + "'.");
                     }
                     String trueId = config.getAttribute("true-name", "NULL");
-                    log.warn(String.format("pseudonym: %s, true-ID: %s", pseudo, trueId));
+                    log.debug(String.format("pseudonym: %s, true-ID: %s", pseudo, trueId));
                     return trueId;
                 } else {
-                    log.warn("No alias found for id '" + id + "', hence return id as true ID");
+                    log.warn("No alias found for id '" + id + "', hence return this id as true ID");
                     return id;
                 }
             } else {
