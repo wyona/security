@@ -109,6 +109,7 @@ public abstract class YarepItem implements Item {
      */
     public void save() throws AccessManagementException {
         try {
+            log.debug("Try to save item '" + getID() + "' inside persistent repository...");
             DefaultConfigurationSerializer serializer = new DefaultConfigurationSerializer();
             Configuration config = createConfiguration();
             serializer.setIndent(true);
