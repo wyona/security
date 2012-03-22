@@ -12,6 +12,8 @@ public class Identity implements java.io.Serializable {
     protected String username;
     protected String[] groupnames;
     private String alias;
+    private String firstname;
+    private String lastname;
 
     private java.util.HashMap customAttributes;
 
@@ -58,6 +60,8 @@ public class Identity implements java.io.Serializable {
     public Identity(User user, String alias) {
         try {
             this.username = user.getID();
+            this.firstname = user.getName();
+            this.lastname = "TODO"; // TODO: The user interface does currently not differentiate between firstname and lastname
             this.alias = alias;
 
             log.debug("Set groupnames via user object for user '" + user.getID() + "' such that also parent groups of groups are loaded!");
@@ -79,10 +83,25 @@ public class Identity implements java.io.Serializable {
     }
 
     /**
-     * Get name of user (true name) or null for World
+     * Get name of user ID
+     * @return true ID or null for World
      */
     public String getUsername() {
         return username;
+    }
+
+    /**
+     * Get firstname
+     */
+    public String getFirstname() {
+        return firstname;
+    }
+
+    /**
+     * Get lastname
+     */
+    public String getLastname() {
+        return lastname;
     }
 
     /**
