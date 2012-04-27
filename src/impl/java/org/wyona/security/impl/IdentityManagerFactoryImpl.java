@@ -15,7 +15,7 @@ public class IdentityManagerFactoryImpl extends IdentityManagerFactory {
     private static Logger log = Logger.getLogger(IdentityManagerFactoryImpl.class);
 
     /**
-     * Get default identity manager implementation
+     * @see org.wyona.security.core.IdentityManagerFactory#newIdentityManager(Repository)
      */
     public IdentityManager newIdentityManager(Repository identitiesRepository) {
         IdentityManager im = null;
@@ -29,10 +29,15 @@ public class IdentityManagerFactoryImpl extends IdentityManagerFactory {
     }
 
     /**
-     *
+     * @see org.wyona.security.core.IdentityManagerFactory#newIdentityManager(org.w3c.dom.Document, javax.xml.transform.URIResolver)
      */
     public IdentityManager newIdentityManager(org.w3c.dom.Document configuration, javax.xml.transform.URIResolver resolver) {
-        log.error("Not implemented yet!");
-        return null;
+        try {
+            boolean load = false;
+            return new org.wyona.security.impl.yarep.YarepIdentityManagerImpl(configuration, resolver, load);
+        } catch (AccessManagementException e) {
+            log.error(e, e);
+            return null;
+        }
     }
 }
