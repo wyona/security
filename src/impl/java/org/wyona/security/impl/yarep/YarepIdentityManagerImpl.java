@@ -11,7 +11,7 @@ import org.wyona.security.core.api.UserManager;
 import org.wyona.yarep.core.Repository;
 
 /**
- *
+ * Identity manager implementation based on Yarep
  */
 public class YarepIdentityManagerImpl implements IdentityManager {
     protected static Logger log = Logger.getLogger(YarepIdentityManagerImpl.class);
@@ -20,11 +20,8 @@ public class YarepIdentityManagerImpl implements IdentityManager {
     protected UserManager userManager;
     protected GroupManager groupManager;
 
-    //TODO: the field should be used somewhere?
-    private static String CONFIG= "ac-identities-yarep.properties";
-
     /**
-     * No initialization, subclasses should use configure()
+     * No initialization, subclasses should do their own initialization
      */
     protected YarepIdentityManagerImpl() {
     }
@@ -35,6 +32,40 @@ public class YarepIdentityManagerImpl implements IdentityManager {
      *  @param load Load users and groups into memory during initialization
      */
     public YarepIdentityManagerImpl(Repository identitiesRepository, boolean load) throws AccessManagementException {
+        init(identitiesRepository, load);
+    }
+    
+    /**
+     * Basic initialization of yarep based identity manager
+     * @param configuration
+     * @param resolver
+     * @param load Load users and groups into memory during initialization
+     */
+    public YarepIdentityManagerImpl(org.w3c.dom.Document configuration, javax.xml.transform.URIResolver resolver, boolean load) throws AccessManagementException {
+        try {
+            String targetEnv = configuration.getDocumentElement().getAttribute("target-environment");
+
+            String repoFileName = org.wyona.commons.xml.XMLHelper.getChildElements(configuration.getDocumentElement(), "repository-config", "http://www.wyona.org/yarep/1.0.0")[0].getTextContent(); // INFO: Get from DOM document configuration <identity-manager-config xmlns="http://www.wyona.org/security/1.0"><yarep:repository-config xmlns:yarep="http://www.wyona.org/yarep/1.0.0">config/ac-identities-repository.xml</yarep:repository-config></identity-manager-config>
+
+            log.warn("Get target environment and repository configuration from identity manager config: " + targetEnv + ", " + repoFileName);
+
+            java.io.File repoConfigFile = new java.io.File(resolver.resolve(repoFileName, null).getSystemId());
+
+            Repository repo = new org.wyona.yarep.core.RepositoryFactory().newRepository("ID_DOES_NOT_MATTER", repoConfigFile); // INFO: The repository ID does not matter as long as the repository factory is not a singleton!
+
+            init(repo, load);
+        } catch(Exception e) {
+            log.error(e, e);
+            throw new AccessManagementException(e);
+        }
+    }
+
+    /**
+     *  Basic initialization
+     *  @param identitiesRepository Peristent repository where users and groups are stored
+     *  @param load Load users and groups into memory during initialization
+     */
+    private void init(Repository identitiesRepository, boolean load) throws AccessManagementException {
         this.identitiesRepository = identitiesRepository;
 
 /*
@@ -56,14 +87,18 @@ public class YarepIdentityManagerImpl implements IdentityManager {
     }
     
     /**
-     *
+     * @deprecated
+     * Configure identity manager
+     * @param configuration XML containing identity manager configuration
      */
+/* WARN: This method is not used anywhere inside the security library, but because third party implementations might override this method (@Override) we might better just set it to deprecated in order to stay backwards compatible
     protected void configure(Configuration config) throws ConfigurationException, AccessManagementException{
         log.warn("Configurable identity managers should override this method!");
     }
+*/
     
     /**
-     * @deprecated
+     * @deprecated Use User.authenticate(String) instead
      */
     public boolean authenticate(String username, String password) throws AuthenticationException {
         try {
@@ -74,12 +109,16 @@ public class YarepIdentityManagerImpl implements IdentityManager {
         }
     }
 
-
+    /**
+     *
+     */
     public GroupManager getGroupManager() {
         return this.groupManager;
     }
 
-
+    /**
+     *
+     */
     public UserManager getUserManager() {
         return this.userManager;
     }
