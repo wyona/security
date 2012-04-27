@@ -46,9 +46,9 @@ public class YarepGroup extends YarepItem implements Group {
     /**
      * Instantiates an existing YarepGroup from a repository node.
      * 
-     * @param userManager
-     * @param groupManager
-     * @param node
+     * @param userManager User manager
+     * @param groupManager Group manager
+     * @param node Yarep node containing group data
      * @throws AccessManagementException
      */
     public YarepGroup(UserManager userManager, GroupManager groupManager, Node node) throws AccessManagementException {
@@ -56,6 +56,8 @@ public class YarepGroup extends YarepItem implements Group {
     }
 
     /**
+     * @param userManager User manager
+     * @param groupManager Group manager
      * @param id Group ID
      * @param name Group name
      */
