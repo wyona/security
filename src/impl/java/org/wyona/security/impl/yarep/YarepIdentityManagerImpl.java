@@ -20,6 +20,8 @@ public class YarepIdentityManagerImpl implements IdentityManager {
     protected UserManager userManager;
     protected GroupManager groupManager;
 
+    private String YAREP_IDENTITY_MANAGER_CONFIG_NS = "http://www.wyona.org/yarep/1.0.0";
+
     /**
      * No initialization, subclasses should do their own initialization
      */
@@ -45,7 +47,7 @@ public class YarepIdentityManagerImpl implements IdentityManager {
         try {
             String targetEnv = configuration.getDocumentElement().getAttribute("target-environment");
 
-            String repoFileName = org.wyona.commons.xml.XMLHelper.getChildElements(configuration.getDocumentElement(), "repository-config", "http://www.wyona.org/yarep/1.0.0")[0].getTextContent(); // INFO: Get from DOM document configuration <identity-manager-config xmlns="http://www.wyona.org/security/1.0"><yarep:repository-config xmlns:yarep="http://www.wyona.org/yarep/1.0.0">config/ac-identities-repository.xml</yarep:repository-config></identity-manager-config>
+            String repoFileName = org.wyona.commons.xml.XMLHelper.getChildElements(configuration.getDocumentElement(), "repository-config", YAREP_IDENTITY_MANAGER_CONFIG_NS)[0].getTextContent(); // INFO: Get from DOM document configuration <identity-manager-config xmlns="http://www.wyona.org/security/1.0"><yarep:repository-config xmlns:yarep="http://www.wyona.org/yarep/1.0.0">config/ac-identities-repository.xml</yarep:repository-config></identity-manager-config>
 
             log.warn("Get target environment and repository configuration from identity manager config: " + targetEnv + ", " + repoFileName);
 
@@ -53,6 +55,10 @@ public class YarepIdentityManagerImpl implements IdentityManager {
 
             Repository repo = new org.wyona.yarep.core.RepositoryFactory().newRepository("ID_DOES_NOT_MATTER", repoConfigFile); // INFO: The repository ID does not matter as long as the repository factory is not a singleton!
 
+            String groupImplClazz = getGroupImplClazz(configuration);
+            if (groupImplClazz != null) {
+                log.warn("DEBUG: Group implementation class configured: " + groupImplClazz);
+            }
             init(repo, load);
         } catch(Exception e) {
             log.error(e, e);
@@ -121,5 +127,19 @@ public class YarepIdentityManagerImpl implements IdentityManager {
      */
     public UserManager getUserManager() {
         return this.userManager;
+    }
+
+    /**
+     * Try to get group implementation class from identity manager configuration, e.g. <identity-manager-config xmlns="http://www.wyona.org/security/1.0"><yarep:repository-config xmlns:yarep="http://www.wyona.org/yarep/1.0.0">config/ac-identities-repository.xml</yarep:repository-config><yarep:group-implementation class="org.wyona.security.impl.yarep.YarepGroupImplV2"/></identity-manager-config>
+     * @param configuration Identity manager configuration
+     */
+    private String getGroupImplClazz(org.w3c.dom.Document configuration) throws Exception {
+        org.w3c.dom.Element[] groupImplElements = org.wyona.commons.xml.XMLHelper.getChildElements(configuration.getDocumentElement(), "group-implementation", YAREP_IDENTITY_MANAGER_CONFIG_NS);
+
+        if (groupImplElements != null && groupImplElements.length == 1) {
+            return groupImplElements[0].getAttribute("class");
+        }
+        log.warn("No group implementation class configured.");
+        return null;
     }
 }
