@@ -16,7 +16,7 @@
 
 package org.wyona.security.core;
 
-import org.apache.log4j.Category;
+import org.apache.log4j.Logger;
 import org.wyona.security.core.api.IdentityManager;
 import org.wyona.yarep.core.Repository;
 
@@ -25,7 +25,7 @@ import org.wyona.yarep.core.Repository;
  */
 public abstract class IdentityManagerFactory {
 
-    private static Category log = Category.getInstance(IdentityManagerFactory.class);
+    private static Logger log = Logger.getLogger(IdentityManagerFactory.class);
     
     /**
      * Obtain a new instance of a IdentityManagerFactory. This method uses the
