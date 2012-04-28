@@ -34,7 +34,7 @@ public class YarepIdentityManagerImpl implements IdentityManager {
      *  @param load Load users and groups into memory during initialization
      */
     public YarepIdentityManagerImpl(Repository identitiesRepository, boolean load) throws AccessManagementException {
-        init(identitiesRepository, load);
+        init(identitiesRepository, load, null);
     }
     
     /**
@@ -59,7 +59,7 @@ public class YarepIdentityManagerImpl implements IdentityManager {
             if (groupImplClazz != null) {
                 log.warn("DEBUG: Group implementation class configured: " + groupImplClazz);
             }
-            init(repo, load);
+            init(repo, load, groupImplClazz);
         } catch(Exception e) {
             log.error(e, e);
             throw new AccessManagementException(e);
@@ -70,8 +70,9 @@ public class YarepIdentityManagerImpl implements IdentityManager {
      *  Basic initialization
      *  @param identitiesRepository Peristent repository where users and groups are stored
      *  @param load Load users and groups into memory during initialization
+     *  @param groupImplClassName Group implementation class name
      */
-    private void init(Repository identitiesRepository, boolean load) throws AccessManagementException {
+    private void init(Repository identitiesRepository, boolean load, String groupImplClassName) throws AccessManagementException {
         this.identitiesRepository = identitiesRepository;
 
 /*
@@ -85,7 +86,7 @@ public class YarepIdentityManagerImpl implements IdentityManager {
         log.warn("Resolving of groups at user creation disabled!");
 
         userManager = new YarepUserManager(this, identitiesRepository, cacheEnabled, resolveGroupsAtCreation);
-        groupManager = new YarepGroupManager(this, identitiesRepository, cacheEnabled);
+        groupManager = new YarepGroupManager(this, identitiesRepository, cacheEnabled, groupImplClassName);
 
         //userManager.getUsers(load);
 
