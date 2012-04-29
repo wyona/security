@@ -21,6 +21,8 @@ public interface Group extends Item {
      */
     Item[] getMembers() throws AccessManagementException;
 
+    // TODO: Because of scalability issues We should introduce an iterator for getting all members
+
     /**
      * Adds a member to this group.
      * The group is not saved automatically.
