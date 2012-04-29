@@ -39,6 +39,8 @@ public class YarepGroupManager implements GroupManager {
     private HashMap cachedGroups;
     //protected HashMap groups;
 
+    private String groupImplClassName = null;
+
     /**
      * Constructor.
      * @param identityManager
@@ -49,6 +51,19 @@ public class YarepGroupManager implements GroupManager {
         this.userManager = identityManager.getUserManager();
         this.identitiesRepository = identitiesRepository;
         this.cacheEnabled = cacheEnabled;
+    }
+
+    /**
+     * Constructor.
+     * @param identityManager
+     * @param identitiesRepository
+     * @param cacheEnabled
+     * @param groupImplClassName Group implementation class name
+     * @throws AccessManagementException
+     */
+    public YarepGroupManager(IdentityManager identityManager, Repository identitiesRepository, boolean cacheEnabled, String groupImplClassName) throws AccessManagementException {
+        this(identityManager, identitiesRepository, cacheEnabled);
+        this.groupImplClassName = groupImplClassName;
     }
 
     /**
@@ -120,6 +135,20 @@ public class YarepGroupManager implements GroupManager {
             throw new AccessManagementException("Group " + id + " already exists.");
         }
         try {
+            if (groupImplClassName != null) {
+                try {
+                    Group group = (Group) Class.forName(groupImplClassName).newInstance();
+                    ((AbstractYarepGroup) group).setID(id);
+                    ((org.wyona.security.core.api.Item) group).setName(name);
+                    ((AbstractYarepGroup) group).setGroupManager(this);
+                    ((AbstractYarepGroup) group).setUserManager(userManager);
+                    // TBD: As an alternative one might want to consider java.lang.reflect.Constructor (see for example newInstance inside src/core/java/org/wyona/yanel/core/map/RealmManager.java)
+                    return group;
+                } catch(Exception e) {
+                    log.error(e, e);
+                    throw new AccessManagementException(e);
+                }
+            }
             Node groupsParentNode = getGroupsParentNode();
             YarepGroup group = new YarepGroup(userManager, this, id, name);
             group.setNode(groupsParentNode.addNode(id + "." + SUFFIX, NodeType.RESOURCE));
@@ -137,10 +166,23 @@ public class YarepGroupManager implements GroupManager {
     }
     
     /**
-     * Override in subclasses
+     * Override in subclasses in order to construct group based on data contained by Yarep node
      * @param node Repository node of group
      */
-    protected Group constructGroup(Node node) throws AccessManagementException{
+    protected Group constructGroup(Node node) throws AccessManagementException {
+        if (groupImplClassName != null) {
+            try {
+                Group group = (Group) Class.forName(groupImplClassName).newInstance();
+                ((AbstractYarepGroup) group).setNode(node);
+                ((AbstractYarepGroup) group).setGroupManager(this);
+                ((AbstractYarepGroup) group).setUserManager(userManager);
+                // TBD: As an alternative one might want to consider java.lang.reflect.Constructor (see for example newInstance inside src/core/java/org/wyona/yanel/core/map/RealmManager.java)
+                return group;
+            } catch(Exception e) {
+                log.error(e, e);
+                throw new AccessManagementException(e);
+            }
+        }
         return new YarepGroup(userManager, this, node);
     }
 
@@ -199,6 +241,7 @@ public class YarepGroupManager implements GroupManager {
 
     /**
      * Get group from repository
+     * @param id Group ID
      */
     private Group getGroupFromPersistentRepository(String id) throws AccessManagementException {
         if (existsWithinRepository(id)) {
