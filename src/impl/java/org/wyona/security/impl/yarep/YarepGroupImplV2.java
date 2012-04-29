@@ -9,9 +9,11 @@ import org.apache.log4j.Logger;
 /**
  * Group implementation based on Yarep, version 2, improving scalability issues of version 1 (YarepGroup.class)
  */
-public class YarepGroupImplV2 implements Group {
+public class YarepGroupImplV2 extends AbstractYarepGroup implements Group {
 
     private static final Logger log = Logger.getLogger(YarepGroupImplV2.class);
+
+    private String name;
     
     /**
      *
@@ -24,23 +26,50 @@ public class YarepGroupImplV2 implements Group {
      * @see org.wyona.security.core.api.Item#getID()
      */
     public String getID() throws AccessManagementException {
-        log.warn("TODO: Finish implementation...");
-        return null;
+        if (id != null) {
+            return id;
+        } else {
+            if (node != null) {
+                try {
+                    log.warn("TODO: Get ID from persistent repository: " + node.getPath());
+                } catch(Exception e) {
+                    log.error(e, e);
+                }
+                return null;
+            } else {
+                log.error("Neither ID nor yarep node available for group!");
+                return null;
+            }
+        }
     }
 
     /**
      * @see org.wyona.security.core.api.Item#getName()
      */
     public String getName() throws AccessManagementException {
-        log.warn("TODO: Finish implementation...");
-        return null;
+        if (name != null) {
+            return name;
+        } else {
+            if (node != null) {
+                try {
+                    log.warn("TODO: Get name from persistent repository: " + node.getPath());
+                } catch(Exception e) {
+                    log.error(e, e);
+                }
+                return null;
+            } else {
+                log.error("Neither name nor yarep node available for group with ID: " + id);
+                return null;
+            }
+        }
     }
 
     /**
      * @see org.wyona.security.core.api.Item#setName(String)
      */
     public void setName(String name) throws AccessManagementException {
-        log.warn("TODO: Finish implementation...");
+        this.name = name;
+        log.warn("TODO: Save persistently...");
     }
 
     /**
