@@ -574,7 +574,7 @@ public class YarepUser extends YarepItem implements User {
     }
 
     /**
-     *
+     * @see org.wyona.security.core.api.User#getHistory()
      */
     public UserHistory getHistory() {
         log.error("TODO: Not implemented yet!");
@@ -582,7 +582,7 @@ public class YarepUser extends YarepItem implements User {
     }
 
     /**
-     *
+     * @see org.wyona.security.core.api.User#setHistory(UserHistory)
      */
     public void setHistory(UserHistory history) {
         log.error("TODO: Not implemented yet!");
