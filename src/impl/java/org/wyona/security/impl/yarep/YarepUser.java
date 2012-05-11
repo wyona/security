@@ -321,7 +321,10 @@ public class YarepUser extends YarepItem implements User {
     protected boolean isExpired() {
         return org.wyona.security.impl.util.UserUtil.isExpired(this);
     }
-    
+ 
+    /**
+     * @see org.wyona.security.core.api.User#getDescription()
+     */
     public String getDescription() {
         return description;
     }
@@ -545,8 +548,11 @@ public class YarepUser extends YarepItem implements User {
         this.salt = Password.getSalt();
 
     }
-    
-    public void setDescription(String description) {
+
+    /**
+     * @see org.wyona.security.core.api.User#setDescription(java.lang.String)
+     */
+    public void setDescription(String description) throws AccessManagementException {
         this.description = description;
     }
 
@@ -560,14 +566,14 @@ public class YarepUser extends YarepItem implements User {
     }
 
     /**
-     *
+     * @see org.wyona.security.core.api.User#getExpirationDate()
      */
     public Date getExpirationDate() {
         return expire;
     }
 
     /**
-     *
+     * @see org.wyona.security.core.api.User#setExpirationDate(Date)
      */
     public void setExpirationDate(Date date) {
         this.expire = date;
