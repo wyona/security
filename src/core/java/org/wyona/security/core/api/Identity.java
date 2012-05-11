@@ -91,10 +91,26 @@ public class Identity implements java.io.Serializable {
     }
 
     /**
+     * Set firstname
+     * @param name Firstname
+     */
+    public void setFirstname(String name) {
+        this.firstname = name;
+    }
+
+    /**
      * Get firstname
      */
     public String getFirstname() {
         return firstname;
+    }
+
+    /**
+     * Set lastname
+     * @param name Lastname
+     */
+    public void setLastname(String name) {
+        this.lastname = name;
     }
 
     /**
