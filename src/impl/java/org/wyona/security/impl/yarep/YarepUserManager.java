@@ -283,7 +283,7 @@ public class YarepUserManager implements UserManager {
                 throw new AccessManagementException(e.getMessage());
             }
         }
-        log.warn("No such user within persistent repository: " + id);
+        log.warn("No such user '" + id + "' inside persistent repository: " + this.identitiesRepository.getName());
         return null;
     }
 
