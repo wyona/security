@@ -197,10 +197,12 @@ public class YarepUserManager implements UserManager {
                 } else {
                     YarepUser user = (YarepUser) getUser(username);
                     user.addAlias(alias);
+
                     Node aliasNode = aliasesParentNode.addNode(alias + ".xml", NodeType.RESOURCE);
                     String content = "<?xml version=\"1.0\"?>\n\n<alias pseudonym=\"" + alias + "\" true-name=\"" + getTrueId(username) + "\"/>";
                     aliasNode.getOutputStream();
                     org.apache.commons.io.IOUtils.copy(new java.io.StringBufferInputStream(content), aliasNode.getOutputStream());
+
                     return getUser(alias);
                 }
             } else {
