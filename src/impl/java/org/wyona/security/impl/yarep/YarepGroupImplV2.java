@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 /**
  * Group implementation based on Yarep, version 2, improving scalability issues of version 1 (YarepGroup.class)
+ * Also see http://www.grantingersoll.com/2007/01/23/processing-a-large-number-of-files-in-java/
  */
 public class YarepGroupImplV2 extends AbstractYarepGroup implements Group {
 
