@@ -527,7 +527,7 @@ public class YarepUserManager implements UserManager {
                     log.debug(String.format("pseudonym: %s, true-ID: %s", pseudo, trueId));
                     return trueId;
                 } else {
-                    log.warn("No alias found for id '" + id + "', hence return this id as true ID");
+                    log.debug("No alias found for id '" + id + "', hence return this id as true ID");
                     return id;
                 }
             } else {
