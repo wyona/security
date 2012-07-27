@@ -1,6 +1,11 @@
 package org.wyona.security.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.wyona.commons.io.Path;
 import org.wyona.commons.io.PathUtil;
@@ -20,11 +25,14 @@ import org.wyona.yarep.core.RepositoryException;
 import org.wyona.yarep.core.RepositoryFactory;
 import org.wyona.yarep.util.RepoPath;
 import org.wyona.yarep.util.YarepUtil;
+import org.xml.sax.SAXException;
 
 import org.apache.log4j.Logger;
 
 import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * Policy manager implementation version 2
@@ -40,21 +48,81 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
 
     private static final String NEWLINE = System.getProperty("line.separator");
 
+    private static final String POLICY_MAP_FILE = "/map.policy-map";
+    private Map<String, String> policy_map;
+
     /**
      *
      */
     public PolicyManagerImplVersion2(Repository policiesRepository) {
         this.policiesRepository = policiesRepository;
         configBuilder = new DefaultConfigurationBuilder();
+        policy_map = new HashMap<String, String>();
+        readPolicyMap(policiesRepository);
     }
     
     /**
      * Get policies repository
      */
-     public Repository getPoliciesRepository() {
-           return policiesRepository;
-     }
+    public Repository getPoliciesRepository() {
+        return policiesRepository;
+    }
          
+    /**
+     * Read policy map.
+     */
+    protected void readPolicyMap(Repository repo) {
+        try {
+        	log.fatal("DEBUG: repoName=" + repo.getName());
+			if(!repo.existsNode(POLICY_MAP_FILE)) {
+				// No policy map file, abort.
+				log.fatal("DEBUG: No policy map file.");
+				return;
+			}
+			log.fatal("DEBUG: Found a policy map file!");
+			
+			Node pm_node = repo.getNode(POLICY_MAP_FILE);
+			InputStream pm_istream = pm_node.getInputStream();
+			DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder(true);
+			Configuration config = builder.build(pm_istream);
+			
+			//Configuration root = config.getChild("policy-map");
+			Configuration[] mappings = config.getChildren("matcher");
+			for(Configuration mapping : mappings) {
+				// TODO: Allow custom matching classes?
+				String pattern = mapping.getAttribute("pattern");
+				String path = mapping.getAttribute("path");
+				log.fatal("DEBUG: Found pattern: " + pattern + " -> " + path);
+				policy_map.put(pattern, path);
+			}
+			log.fatal("DEBUG: Finished parsing policy map!");
+		} catch (RepositoryException e) {
+			log.fatal("Problem with policy repository: " + e.getMessage());
+			log.fatal(e, e);
+		} catch (ConfigurationException e) {
+			log.fatal("Problem with policy map: " + e.getMessage());
+			log.fatal(e, e);
+		} catch (SAXException e) {
+			log.fatal("Problem with policy map: " + e.getMessage());
+			log.fatal(e, e);
+		} catch (IOException e) {
+			log.fatal("Input/output error on disk? Got: " + e.getMessage());
+			log.fatal(e, e);
+		}
+    }
+    
+    /**
+     * Match a path against the policy map.
+     */
+    protected String getMappedPath(String path) {
+    	for(Map.Entry<String, String> mapping : policy_map.entrySet()) {
+    		if(FilenameUtils.wildcardMatch(path, mapping.getKey())) {
+    			return mapping.getValue();
+    		}
+    	}
+    	
+    	return null;
+    }
      
     /**
      * @deprecated Use authorize(String, Identity, Usecase) instead
@@ -227,6 +295,12 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      */
     private String getPolicyPath(String path) {
         // Remove trailing slash except for ROOT ...
+    	String mapped = this.getMappedPath(path);
+    	if(mapped != null) {
+    		log.fatal("DEBUG: Mapped path: " + path + " -> " + mapped);
+    		return mapped;
+    	}
+    	
         if (path.length() > 1 && path.charAt(path.length() - 1) == '/') {
             return path.substring(0, path.length() - 1) + ".policy";
         }
