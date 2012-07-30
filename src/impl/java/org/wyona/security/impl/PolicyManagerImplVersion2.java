@@ -73,13 +73,12 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      */
     protected void readPolicyMap(Repository repo) {
         try {
-        	log.fatal("DEBUG: repoName=" + repo.getName());
 			if(!repo.existsNode(POLICY_MAP_FILE)) {
 				// No policy map file, abort.
-				log.fatal("DEBUG: No policy map file.");
+				log.info("No policy map file in repo: " + repo.getName());
 				return;
 			}
-			log.fatal("DEBUG: Found a policy map file!");
+			log.info("Found a policy map file in repo: " + repo.getName());
 			
 			Node pm_node = repo.getNode(POLICY_MAP_FILE);
 			InputStream pm_istream = pm_node.getInputStream();
@@ -92,10 +91,8 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
 				// TODO: Allow custom matching classes?
 				String pattern = mapping.getAttribute("pattern");
 				String path = mapping.getAttribute("path");
-				log.fatal("DEBUG: Found pattern: " + pattern + " -> " + path);
 				policy_map.put(pattern, path);
 			}
-			log.fatal("DEBUG: Finished parsing policy map!");
 		} catch (RepositoryException e) {
 			log.fatal("Problem with policy repository: " + e.getMessage());
 			log.fatal(e, e);
@@ -295,15 +292,16 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      */
     private String getPolicyPath(String path) {
         // Remove trailing slash except for ROOT ...
+    	if (path.length() > 1 && path.charAt(path.length() - 1) == '/') {
+    		path = path.substring(0, path.length() - 1);
+    	}
+    	
     	String mapped = this.getMappedPath(path);
     	if(mapped != null) {
-    		log.fatal("DEBUG: Mapped path: " + path + " -> " + mapped);
+    		log.debug("Mapped path: " + path + " -> " + mapped);
     		return mapped;
     	}
     	
-        if (path.length() > 1 && path.charAt(path.length() - 1) == '/') {
-            return path.substring(0, path.length() - 1) + ".policy";
-        }
         return path + ".policy";
     }
 
@@ -341,7 +339,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
         try {
             Repository repo = getPoliciesRepository();
             String policyPath = getPolicyPath(path);
-            log.warn("DEBUG: Set policy: " + policyPath);
+            log.debug("Set policy: " + policyPath);
             Node node;
             if (!repo.existsNode(policyPath)) {
                 log.warn("Create new policy: " + policyPath);              
@@ -352,7 +350,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
             }
 
             String parentPath = PathUtil.getParent(path);
-            log.warn("DEBUG: Parent path: " + parentPath);
+            log.debug("Parent path: " + parentPath);
             if (parentPath == null) {
                 log.warn("Seems like root policy is set (because parent path is null). Path: " + path);
             }
@@ -411,7 +409,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                                     sb.append("    <world permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
                                 } else {
                                     if (parentPath != null) {
-                                        log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(parentPath, identity, new Usecase(up[i].getName())));
+                                        log.debug("Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(parentPath, identity, new Usecase(up[i].getName())));
                                         sb.append(NEWLINE);
                                         sb.append("    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
 
