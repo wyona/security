@@ -292,7 +292,7 @@ public class YarepUser extends YarepItem implements User {
      * @see org.wyona.security.core.api.User#authenticate(java.lang.String)
      */
     @SuppressWarnings("deprecation")
-	public boolean authenticate(String plainTextPassword) throws ExpiredIdentityException, AccessManagementException {
+    public boolean authenticate(String plainTextPassword) throws ExpiredIdentityException, AccessManagementException {
         if(isExpired()){
             SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_FORMAT);
             throw new ExpiredIdentityException("Identity expired on " + sdf.format(getExpirationDate()));
@@ -303,30 +303,30 @@ public class YarepUser extends YarepItem implements User {
         String hash = getPassword();
         String salt = getSalt();
         
-    	if (hashingAlgorithm == null || hashingAlgorithm.equals("MD5")) {
-    		// Deprecated MD5 hashing detected.
-    		log.warn("Detected deprecated hashing algorithm for user: " + id);
+        if (hashingAlgorithm == null || hashingAlgorithm.equals("MD5")) {
+            // Deprecated MD5 hashing detected.
+            log.warn("Detected deprecated hashing algorithm for user: " + id);
 
-    		if(salt == null) {
-    			result = hash.equals(Password.getMD5(plainTextPassword)); 
-    		} else {
-    			result = hash.equals(Password.getMD5(plainTextPassword, salt));
-    		}
-    		
-    		upgradeHash(plainTextPassword);
+            if(salt == null) {
+                result = hash.equals(Password.getMD5(plainTextPassword)); 
+            } else {
+                result = hash.equals(Password.getMD5(plainTextPassword, salt));
+            }
+            
+            upgradeHash(plainTextPassword);
         } else if (hashingAlgorithm.equals("SHA-256")) {
-        	// Deprecated SHA-256 hashing detected.
-        	log.warn("Detected deprecated hashing algorithm for user: " + id);
-        	
-        	if(salt == null) salt = "";
+            // Deprecated SHA-256 hashing detected.
+            log.warn("Detected deprecated hashing algorithm for user: " + id);
+            
+            if(salt == null) salt = "";
             result = getPassword().equals(Password.getSHA256(plainTextPassword, getSalt()));
             
             upgradeHash(plainTextPassword);
         } else if(hashingAlgorithm.equals("bcrypt")) {
-        	// Proper bcrypt hashing detected :-)
-        	result = Password.verifyBCrypt(plainTextPassword, hash);
-    	} else {
-    		// Unkown hashing algorithm, abort.
+            // Proper bcrypt hashing detected :-)
+            result = Password.verifyBCrypt(plainTextPassword, hash);
+        } else {
+            // Unkown hashing algorithm, abort.
             log.error("No such hashing algorithm known: " + hashingAlgorithm);
             result = false;
         }
@@ -341,10 +341,10 @@ public class YarepUser extends YarepItem implements User {
      * to the user also automatically causes the hash to be upgraded.
      */
     public void upgradeHash(String plainTextPassword) {
-    	hashingAlgorithm = "bcrypt";
-    	hashedPassword = Password.getBCrypt(plainTextPassword);
-    	// BCrypt doesn't need the salt field, so we clear it.
-    	salt = "";
+        hashingAlgorithm = "bcrypt";
+        hashedPassword = Password.getBCrypt(plainTextPassword);
+        // BCrypt doesn't need the salt field, so we clear it.
+        salt = "";
     }
 
     /**
@@ -564,11 +564,6 @@ public class YarepUser extends YarepItem implements User {
     public void setPassword(String plainTextPassword) throws AccessManagementException {
         this.hashedPassword = Password.getBCrypt(plainTextPassword);
         this.hashingAlgorithm = "bcrypt";
-
-/* Deprecated, because SHA-256 is much more secure than MD5 (also see http://en.wikipedia.org/wiki/Rainbow_table)
-        this.encryptedPassword = Password.getMD5(plainTextPassword, this.salt);
-        this.encryptionAlgorithm = "MD5";
-*/
     }
 
     /**
@@ -577,9 +572,9 @@ public class YarepUser extends YarepItem implements User {
      */
     public void setSalt() throws AccessManagementException {
         // Deprecated: Salting is now directly built into the hashing
-    	// algorithm and does not need to be handled separately. The function
-    	// still needs to be around to satisfy the API however.
-    	this.salt = "";
+        // algorithm and does not need to be handled separately. The function
+        // still needs to be around to satisfy the API however.
+        this.salt = "";
     }
 
     /**
