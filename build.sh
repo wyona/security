@@ -21,7 +21,7 @@ fi
 # ----- Set Environment Variables
 ORIGINAL_ANT_HOME=$ANT_HOME
 unset ANT_HOME
-ANT_HOME=$PWD/tools/apache-ant
+export ANT_HOME=$PWD/tools/apache-ant
 #echo $ANT_HOME
 OUR_ANT="ant -lib tools/apache-ant_extras"
 
@@ -35,7 +35,7 @@ $OUR_ANT -version
 $OUR_ANT -f build.xml $@
 
 # ----- Reset Environment Variables
-ANT_HOME=$ORIGINAL_ANT_HOME
+export ANT_HOME=$ORIGINAL_ANT_HOME
 #echo $ANT_HOME
 PATH=$ORIGINAL_PATH
 #echo $PATH
