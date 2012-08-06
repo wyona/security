@@ -77,6 +77,8 @@ public class YarepUser extends YarepItem implements User {
 
     private ArrayList<String> _groupIDs;
     private ArrayList<String> aliasIDs;
+    
+    private boolean upgraded = false;
 
     /**
      * Instantiates an existing YarepUser from a repository node.
@@ -86,8 +88,13 @@ public class YarepUser extends YarepItem implements User {
      * @param node
      */
     public YarepUser(UserManager userManager, GroupManager groupManager, Node node) throws AccessManagementException {
-        super(userManager, groupManager, node); // INFO: This will call configure()
-        //log.debug("User has been initialized.");
+    	// INFO: This will call configure()
+        super(userManager, groupManager, node);
+        
+        // Check if we need to upgrade the password hash
+        if(hashingAlgorithm != null && !hashingAlgorithm.startsWith("bcrypt")) {
+        	upgradeDoubleHash(this.hashedPassword, this.hashingAlgorithm);
+        }
     }
     
     /**
@@ -303,7 +310,7 @@ public class YarepUser extends YarepItem implements User {
         String hash = getPassword();
         String salt = getSalt();
         
-        if (hashingAlgorithm == null || hashingAlgorithm.equals("MD5")) {
+        if(hashingAlgorithm == null || hashingAlgorithm.equals("MD5")) {
             // Deprecated MD5 hashing detected.
             log.warn("Detected deprecated hashing algorithm for user: " + id);
 
@@ -313,21 +320,36 @@ public class YarepUser extends YarepItem implements User {
                 result = hash.equals(Password.getMD5(plainTextPassword, salt));
             }
             
-            upgradeHash(plainTextPassword);
-        } else if (hashingAlgorithm.equals("SHA-256")) {
+            upgradePlainHash(plainTextPassword);
+        } else if(hashingAlgorithm.equals("bcrypt-MD5")) {
+        	// Bcrypt-hashed md5-hash detected
+            log.warn("Detected deprecated hashing algorithm for user: " + id);
+
+            String md5;
+            if(salt == null) {
+                md5 = Password.getMD5(plainTextPassword);
+            } else {
+                md5 = Password.getMD5(plainTextPassword, salt);
+            }
+            result = Password.verifyBCrypt(md5, hash);
+            
+            upgradePlainHash(plainTextPassword);        	
+        } else if(hashingAlgorithm.equals("SHA-256")) {
             // Deprecated SHA-256 hashing detected.
             log.warn("Detected deprecated hashing algorithm for user: " + id);
             
             if(salt == null) salt = "";
             result = hash.equals(Password.getSHA256(plainTextPassword, getSalt()));
             
-            upgradeHash(plainTextPassword);
-        } else if(hashingAlgorithm.equals("bcrypt-sha256")) {
+            upgradePlainHash(plainTextPassword);
+        } else if(hashingAlgorithm.equals("bcrypt-SHA-256")) {
         	// Bcrypt-hashed sha256-hash detected
+        	log.warn("Detected deprecated hashing algorithm for user: " + id);
+        	
         	String sha256 = Password.getSHA256(plainTextPassword, getSalt());
         	result = Password.verifyBCrypt(sha256, hash);
         			
-        	upgradeHash(plainTextPassword);
+        	upgradePlainHash(plainTextPassword);
         } else if(hashingAlgorithm.equals("bcrypt")) {
             // Proper bcrypt hashing detected :-)
             result = Password.verifyBCrypt(plainTextPassword, hash);
@@ -341,16 +363,36 @@ public class YarepUser extends YarepItem implements User {
     }
     
     /**
-     * Upgrade a deprecated hash.
+     * Upgrade a deprecated hash with the plain-text password.
      * Note: This only takes effect after the user is actually stored back
      * to disk again. However, this way we can make sure that any modification
      * to the user also automatically causes the hash to be upgraded.
      */
-    public void upgradeHash(String plainTextPassword) {
+    private void upgradePlainHash(String plainTextPassword) {
         hashingAlgorithm = "bcrypt";
         hashedPassword = Password.getBCrypt(plainTextPassword);
+        upgraded = true;
         // BCrypt doesn't need the salt field, so we clear it.
         salt = "";
+    }
+    
+    /**
+     * Upgrade a deprecated hash by re-hashing an old hash.
+     * Note: This only takes effect after the user is actually stored back
+     * to disk again. However, this way we can make sure that any modification
+     * to the user also automatically causes the hash to be upgraded.
+     */
+    private void upgradeDoubleHash(String hashedPassword, String oldAlgorithm) {
+        hashingAlgorithm = "bcrypt-" + oldAlgorithm;
+        hashedPassword = Password.getBCrypt(hashedPassword);
+        upgraded = true;
+    }
+    
+    /**
+     * Check if user has been (in some way) upgraded.
+     */
+    public boolean isUpgraded() {
+    	return upgraded;
     }
 
     /**
