@@ -319,9 +319,15 @@ public class YarepUser extends YarepItem implements User {
             log.warn("Detected deprecated hashing algorithm for user: " + id);
             
             if(salt == null) salt = "";
-            result = getPassword().equals(Password.getSHA256(plainTextPassword, getSalt()));
+            result = hash.equals(Password.getSHA256(plainTextPassword, getSalt()));
             
             upgradeHash(plainTextPassword);
+        } else if(hashingAlgorithm.equals("bcrypt-sha256")) {
+        	// Bcrypt-hashed sha256-hash detected
+        	String sha256 = Password.getSHA256(plainTextPassword, getSalt());
+        	result = Password.verifyBCrypt(sha256, hash);
+        			
+        	upgradeHash(plainTextPassword);
         } else if(hashingAlgorithm.equals("bcrypt")) {
             // Proper bcrypt hashing detected :-)
             result = Password.verifyBCrypt(plainTextPassword, hash);
