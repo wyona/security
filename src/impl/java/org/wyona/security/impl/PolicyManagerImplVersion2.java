@@ -1,6 +1,11 @@
 package org.wyona.security.impl;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.Hashtable;
+import java.util.Map;
 
 import org.wyona.commons.io.Path;
 import org.wyona.commons.io.PathUtil;
@@ -20,11 +25,14 @@ import org.wyona.yarep.core.RepositoryException;
 import org.wyona.yarep.core.RepositoryFactory;
 import org.wyona.yarep.util.RepoPath;
 import org.wyona.yarep.util.YarepUtil;
+import org.xml.sax.SAXException;
 
 import org.apache.log4j.Logger;
 
 import org.apache.avalon.framework.configuration.Configuration;
+import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.io.FilenameUtils;
 
 /**
  * Policy manager implementation version 2
@@ -40,28 +48,86 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
 
     private static final String NEWLINE = System.getProperty("line.separator");
 
+    private static final String POLICY_MAP_FILE = "/policy-map.xml";
+    private Map<String, String> policy_map;
+
     /**
-     *
+     * @param policiesRepository Repository containing access policies
      */
     public PolicyManagerImplVersion2(Repository policiesRepository) {
         this.policiesRepository = policiesRepository;
         configBuilder = new DefaultConfigurationBuilder();
+        policy_map = new HashMap<String, String>();
+        readPolicyMap(policiesRepository); // INFO: For peformance reasons we read the policy map at the startup of the policy manager, but which means changes at run-time won't be working.
     }
     
     /**
      * Get policies repository
      */
-     public Repository getPoliciesRepository() {
-           return policiesRepository;
-     }
+    public Repository getPoliciesRepository() {
+        return policiesRepository;
+    }
          
+    /**
+     * Read policy map.
+     * @param repo Repository containing policy map
+     */
+    protected void readPolicyMap(Repository repo) {
+        try {
+            if(!repo.existsNode(POLICY_MAP_FILE)) {
+                // INFO: No policy map file, abort.
+                log.info("No policy map '" + POLICY_MAP_FILE + "' file in repo: " + repo.getName());
+                return;
+            }
+            log.info("Found a policy map file in repo: " + repo.getName());
+			
+            Node pm_node = repo.getNode(POLICY_MAP_FILE);
+            InputStream pm_istream = pm_node.getInputStream();
+            DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder(true);
+            Configuration config = builder.build(pm_istream);
+			
+            //Configuration root = config.getChild("policy-map");
+            Configuration[] mappings = config.getChildren("matcher");
+            for(Configuration mapping : mappings) {
+                // TODO: Allow custom matching classes?
+                String pattern = mapping.getAttribute("pattern");
+                String path = mapping.getAttribute("path");
+                policy_map.put(pattern, path);
+            }
+        } catch (RepositoryException e) {
+            log.fatal("Problem with policy repository: " + e.getMessage());
+            log.fatal(e, e);
+        } catch (ConfigurationException e) {
+            log.fatal("Problem with policy map: " + e.getMessage());
+            log.fatal(e, e);
+        } catch (SAXException e) {
+            log.fatal("Problem with policy map: " + e.getMessage());
+            log.fatal(e, e);
+        } catch (IOException e) {
+            log.fatal("Input/output error on disk? Got: " + e.getMessage());
+            log.fatal(e, e);
+        }
+    }
+    
+    /**
+     * Match a path against the policy map.
+     * @param path Path to be matched
+     * @return Policy path if requested path is matching, otherwise return null
+     */
+    private String getMappedPath(String path) {
+        for(Map.Entry<String, String> mapping : policy_map.entrySet()) {
+            if(FilenameUtils.wildcardMatch(path, mapping.getKey())) {
+                return mapping.getValue();
+            }
+        }
+        return null;
+    }
      
     /**
      * @deprecated Use authorize(String, Identity, Usecase) instead
      */
     public boolean authorize(Path path, Identity identity, Role role) throws AuthorizationException {
         return authorize(path.toString(), identity, role);
-       
     }
 
     /**
@@ -226,10 +292,17 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      * Append '.policy' to path as suffix
      */
     private String getPolicyPath(String path) {
-        // Remove trailing slash except for ROOT ...
+        // INFO: Remove trailing slash except for ROOT ...
         if (path.length() > 1 && path.charAt(path.length() - 1) == '/') {
-            return path.substring(0, path.length() - 1) + ".policy";
+            path = path.substring(0, path.length() - 1);
         }
+    	
+        String mapped = this.getMappedPath(path);
+        if(mapped != null) {
+            log.debug("Mapped path: " + path + " -> " + mapped);
+            return mapped;
+        }
+    	
         return path + ".policy";
     }
 
@@ -267,7 +340,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
         try {
             Repository repo = getPoliciesRepository();
             String policyPath = getPolicyPath(path);
-            log.warn("DEBUG: Set policy: " + policyPath);
+            log.debug("Set policy: " + policyPath);
             Node node;
             if (!repo.existsNode(policyPath)) {
                 log.warn("Create new policy: " + policyPath);              
@@ -278,7 +351,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
             }
 
             String parentPath = PathUtil.getParent(path);
-            log.warn("DEBUG: Parent path: " + parentPath);
+            log.debug("Parent path: " + parentPath);
             if (parentPath == null) {
                 log.warn("Seems like root policy is set (because parent path is null). Path: " + path);
             }
@@ -337,7 +410,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                                     sb.append("    <world permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
                                 } else {
                                     if (parentPath != null) {
-                                        log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(parentPath, identity, new Usecase(up[i].getName())));
+                                        log.debug("Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(parentPath, identity, new Usecase(up[i].getName())));
                                         sb.append(NEWLINE);
                                         sb.append("    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
 
