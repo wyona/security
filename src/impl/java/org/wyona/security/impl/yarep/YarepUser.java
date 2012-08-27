@@ -19,7 +19,6 @@ import org.wyona.security.core.UserHistory;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
 import org.wyona.security.core.api.GroupManager;
-import org.wyona.security.core.api.Item;
 import org.wyona.security.core.api.UserManager;
 import org.wyona.security.core.api.User;
 import org.wyona.security.impl.Password;
@@ -34,8 +33,6 @@ public class YarepUser extends YarepItem implements User {
     private static Logger log = Logger.getLogger(YarepUser.class);
 
     public static final String USER = "user";
-
-    private boolean fixGroupIndex = true;
 
     public static final String ALIASES_TAG_NAME = "aliases";
     public static final String ALIAS_TAG_NAME = "alias";
@@ -54,9 +51,9 @@ public class YarepUser extends YarepItem implements User {
     public static final String SALT = "salt";
 
     public static final String ALGORITHM_ATTR_NAME = "algorithm";
-        
+
     public static final String EXPIRE = "expire";
-    
+
     public static final String DESCRIPTION = "description";
 
     /**
@@ -64,22 +61,24 @@ public class YarepUser extends YarepItem implements User {
      */
     public static final String DATE_FORMAT = "yyyy-MM-dd";
     public static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
-    
+
     private String email;
 
     private String language;
 
-    private String encryptedPassword;
-    private String encryptionAlgorithm;
+    private String hashedPassword;
+    private String hashingAlgorithm;
 
     private String salt;
-    
+
     private String description;
-    
+
     private Date expire;
 
-    private ArrayList _groupIDs;
-    private ArrayList aliasIDs;
+    private ArrayList<String> _groupIDs;
+    private ArrayList<String> aliasIDs;
+
+    private boolean upgraded = false;
 
     /**
      * Instantiates an existing YarepUser from a repository node.
@@ -89,10 +88,15 @@ public class YarepUser extends YarepItem implements User {
      * @param node
      */
     public YarepUser(UserManager userManager, GroupManager groupManager, Node node) throws AccessManagementException {
-        super(userManager, groupManager, node); // INFO: This will call configure()
-        //log.debug("User has been initialized.");
+    	// INFO: This will call configure()
+        super(userManager, groupManager, node);
+
+        // Check if we need to upgrade the password hash
+        if(hashingAlgorithm != null && !hashingAlgorithm.startsWith("bcrypt")) {
+        	upgradeDoubleHash(this.hashedPassword, this.hashingAlgorithm);
+        }
     }
-    
+
     /**
      * Creates a new YarepUser with a given id and name (not persistent)
      *
@@ -114,38 +118,38 @@ public class YarepUser extends YarepItem implements User {
         //log.debug("Read user profile: " + getID());
 
         setName(config.getChild(NAME, false).getValue(null));
-        
+
         // Optional fields
         if(config.getChild(EMAIL, false) != null){
             setEmail(config.getChild(EMAIL, false).getValue(null));
         }
-        
+
         if(config.getChild(PASSWORD, false) != null){
             // Do not use setter here because it does other things
-            this.encryptedPassword = config.getChild(PASSWORD, false).getValue(null);
-            if (encryptedPassword != null) {
-                this.encryptionAlgorithm = config.getChild(PASSWORD, false).getAttribute(ALGORITHM_ATTR_NAME, "MD5");
+            this.hashedPassword = config.getChild(PASSWORD, false).getValue(null);
+            if (hashedPassword != null) {
+                this.hashingAlgorithm = config.getChild(PASSWORD, false).getAttribute(ALGORITHM_ATTR_NAME, "MD5");
             }
         }
-        
+
         if(config.getChild(LANGUAGE, false) != null) {
             setLanguage(config.getChild(LANGUAGE, false).getValue(null));
         }
-        
+
         if(config.getChild(SALT,false) != null) {
             this.salt = config.getChild(SALT, false).getValue(null);
         }
-        
+
         if(config.getChild(DESCRIPTION, false) != null) {
             setDescription(config.getChild(DESCRIPTION, false).getValue(null));
         }
-        
+
         if(config.getChild(EXPIRE, false) != null){
             SimpleDateFormat sdf1 = new SimpleDateFormat(DATE_TIME_FORMAT);
             SimpleDateFormat sdf2 = new SimpleDateFormat(DATE_FORMAT);
                 String dateAsString = config.getChild(EXPIRE, false).getValue(null);
                 Date expire = null;
-                
+
                 if(null != dateAsString){
                     try {
                         expire = sdf2.parse(dateAsString);
@@ -171,7 +175,7 @@ public class YarepUser extends YarepItem implements User {
 
         Configuration aliasesNode = config.getChild(ALIASES_TAG_NAME, false);
         if (aliasesNode != null) {
-            aliasIDs = new ArrayList();
+            aliasIDs = new ArrayList<String>();
             Configuration[] aliasNodes = aliasesNode.getChildren(ALIAS_TAG_NAME);
             if (aliasNodes != null && aliasNodes.length > 0) {
                 for (int i = 0; i < aliasNodes.length; i++) {
@@ -186,7 +190,7 @@ public class YarepUser extends YarepItem implements User {
 
         Configuration groupsNode = config.getChild(GROUPS_TAG_NAME, false);
         if (groupsNode != null) {
-            _groupIDs = new ArrayList();
+            _groupIDs = new ArrayList<String>();
             Configuration[] groupNodes = groupsNode.getChildren(GROUP_TAG_NAME);
             if (groupNodes != null && groupNodes.length > 0) {
                 for (int i = 0; i < groupNodes.length; i++) {
@@ -201,7 +205,7 @@ public class YarepUser extends YarepItem implements User {
             if (true) {
                 log.warn("Fix group index ...");
                 String[] gids = getGroupIDs(false);
-                _groupIDs = new ArrayList();
+                _groupIDs = new ArrayList<String>();
                 for (int i = 0; i < gids.length; i++) {
                     _groupIDs.add(gids[i]);
                 }
@@ -220,44 +224,44 @@ public class YarepUser extends YarepItem implements User {
 
         DefaultConfiguration config = new DefaultConfiguration(USER, BUILDER_LOC, NAMESPACE_URI, PREFIX);
         config.setAttribute(ID, getID());
-        
+
         DefaultConfiguration nameNode = new DefaultConfiguration(NAME, BUILDER_LOC, NAMESPACE_URI, PREFIX);
         nameNode.setValue(getName());
         config.addChild(nameNode);
-        
+
         if(getEmail() != null){
             DefaultConfiguration emailNode = new DefaultConfiguration(EMAIL, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             emailNode.setValue(getEmail());
             config.addChild(emailNode);
         }
-        
+
         if(getLanguage() != null){
             DefaultConfiguration languageNode = new DefaultConfiguration(LANGUAGE, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             languageNode.setValue(getLanguage());
             config.addChild(languageNode);
         }
-        
+
         if(getPassword() != null){
             DefaultConfiguration passwordNode = new DefaultConfiguration(PASSWORD, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             passwordNode.setValue(getPassword());
-            if (encryptionAlgorithm != null) {
-                passwordNode.setAttribute(ALGORITHM_ATTR_NAME, encryptionAlgorithm);
+            if (hashingAlgorithm != null) {
+                passwordNode.setAttribute(ALGORITHM_ATTR_NAME, hashingAlgorithm);
             }
             config.addChild(passwordNode);
         }
-        
+
         if(getDescription() != null){
             DefaultConfiguration descriptionNode = new DefaultConfiguration(DESCRIPTION, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             descriptionNode.setValue(getDescription());
             config.addChild(descriptionNode);
         }
-        
+
         if(getExpirationDate() != null){
             DefaultConfiguration expireNode = new DefaultConfiguration(EXPIRE, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             expireNode.setValue(new SimpleDateFormat(DATE_TIME_FORMAT).format(getExpirationDate()));
             config.addChild(expireNode);
         }
-        
+
         if(getSalt() != null) {
             DefaultConfiguration saltNode = new DefaultConfiguration(SALT, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             saltNode.setValue(getSalt());
@@ -273,7 +277,7 @@ public class YarepUser extends YarepItem implements User {
                 aliasesNode.addChild(aliasNode);
             }
         } else {
-            aliasIDs = new ArrayList();
+            aliasIDs = new ArrayList<String>();
         }
 
         DefaultConfiguration groupsNode = new DefaultConfiguration(GROUPS_TAG_NAME, BUILDER_LOC, NAMESPACE_URI, PREFIX);
@@ -285,7 +289,7 @@ public class YarepUser extends YarepItem implements User {
                 groupsNode.addChild(groupNode);
             }
         } else {
-            _groupIDs = new ArrayList();
+            _groupIDs = new ArrayList<String>();
         }
 
         return config;
@@ -294,25 +298,101 @@ public class YarepUser extends YarepItem implements User {
     /**
      * @see org.wyona.security.core.api.User#authenticate(java.lang.String)
      */
+    @SuppressWarnings("deprecation")
     public boolean authenticate(String plainTextPassword) throws ExpiredIdentityException, AccessManagementException {
         if(isExpired()){
             SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_FORMAT);
-            throw new ExpiredIdentityException("Identity expired on "+sdf.format(getExpirationDate()));
+            throw new ExpiredIdentityException("Identity expired on " + sdf.format(getExpirationDate()));
         }
-        
-        if(getSalt() == null) {
-            return getPassword().equals(Password.getMD5(plainTextPassword));
-        } else {
-            if (encryptionAlgorithm == null || encryptionAlgorithm.equals("MD5")) {
-                log.warn("User '" + getID() + "' is still using MD5 encrypted password instead SHA-256");
-                return getPassword().equals(Password.getMD5(plainTextPassword, getSalt()));
-            } else if (encryptionAlgorithm.equals("SHA-256")) {
-                return getPassword().equals(Password.getSHA256(plainTextPassword, getSalt()));
+
+        boolean result = false;
+        String id = getID();
+        String hash = getPassword();
+        String salt = getSalt();
+
+        if(hashingAlgorithm == null || hashingAlgorithm.equals("MD5")) {
+            // Deprecated MD5 hashing detected.
+            log.warn("Detected deprecated hashing algorithm for user: " + id);
+
+            if(salt == null) {
+                result = hash.equals(Password.getMD5(plainTextPassword));
             } else {
-                log.error("No such encryption algorithm implemented: " + encryptionAlgorithm);
-                return false;
+                result = hash.equals(Password.getMD5(plainTextPassword, salt));
             }
+
+            upgradePlainHash(plainTextPassword);
+        } else if(hashingAlgorithm.equals("bcrypt-MD5")) {
+        	// Bcrypt-hashed md5-hash detected
+            log.warn("Detected deprecated hashing algorithm for user: " + id);
+
+            String md5;
+            if(salt == null) {
+                md5 = Password.getMD5(plainTextPassword);
+            } else {
+                md5 = Password.getMD5(plainTextPassword, salt);
+            }
+            result = Password.verifyBCrypt(md5, hash);
+
+            upgradePlainHash(plainTextPassword);
+        } else if(hashingAlgorithm.equals("SHA-256")) {
+            // Deprecated SHA-256 hashing detected.
+            log.warn("Detected deprecated hashing algorithm for user: " + id);
+
+            if(salt == null) salt = "";
+            result = hash.equals(Password.getSHA256(plainTextPassword, getSalt()));
+
+            upgradePlainHash(plainTextPassword);
+        } else if(hashingAlgorithm.equals("bcrypt-SHA-256")) {
+        	// Bcrypt-hashed sha256-hash detected
+        	log.warn("Detected deprecated hashing algorithm for user: " + id);
+
+        	String sha256 = Password.getSHA256(plainTextPassword, getSalt());
+        	result = Password.verifyBCrypt(sha256, hash);
+
+        	upgradePlainHash(plainTextPassword);
+        } else if(hashingAlgorithm.equals("bcrypt")) {
+            // Proper bcrypt hashing detected :-)
+            result = Password.verifyBCrypt(plainTextPassword, hash);
+        } else {
+            // Unkown hashing algorithm, abort.
+            log.error("No such hashing algorithm known: " + hashingAlgorithm);
+            result = false;
         }
+
+        return result;
+    }
+
+    /**
+     * Upgrade a deprecated hash with the plain-text password.
+     * Note: This only takes effect after the user is actually stored back
+     * to disk again. However, this way we can make sure that any modification
+     * to the user also automatically causes the hash to be upgraded.
+     */
+    private void upgradePlainHash(String plainTextPassword) {
+        this.hashingAlgorithm = "bcrypt";
+        this.hashedPassword = Password.getBCrypt(plainTextPassword);
+        this.upgraded = true;
+        // BCrypt doesn't need the salt field, so we clear it.
+        this.salt = "";
+    }
+
+    /**
+     * Upgrade a deprecated hash by re-hashing an old hash.
+     * Note: This only takes effect after the user is actually stored back
+     * to disk again. However, this way we can make sure that any modification
+     * to the user also automatically causes the hash to be upgraded.
+     */
+    private void upgradeDoubleHash(String hashedPassword, String oldAlgorithm) {
+        this.hashingAlgorithm = "bcrypt-" + oldAlgorithm;
+        this.hashedPassword = Password.getBCrypt(hashedPassword);
+        this.upgraded = true;
+    }
+
+    /**
+     * Check if user has been (in some way) upgraded.
+     */
+    public boolean isUpgraded() {
+    	return upgraded;
     }
 
     /**
@@ -321,7 +401,7 @@ public class YarepUser extends YarepItem implements User {
     protected boolean isExpired() {
         return org.wyona.security.impl.util.UserUtil.isExpired(this);
     }
- 
+
     /**
      * @see org.wyona.security.core.api.User#getDescription()
      */
@@ -355,7 +435,7 @@ public class YarepUser extends YarepItem implements User {
      */
     public Group[] getGroups() throws AccessManagementException {
         if(log.isDebugEnabled()) log.debug("Get groups for user: " + getID() + ", " + getName());
-        ArrayList groups = new ArrayList();
+        ArrayList<Group> groups = new ArrayList<Group>();
         if (getGroupManager() != null) {
             String[] groupIDs = getGroupIDs(false);
             if (groupIDs != null) {
@@ -382,8 +462,8 @@ public class YarepUser extends YarepItem implements User {
             log.info("Resolve parent groups for user '" + getID() + "' ...");
             String[] groupIDs = getGroupIDs(false);
 
-            Vector branchGroups = new Vector();
-            Vector groupsInclSubGroups = new Vector();
+            Vector<String> branchGroups = new Vector<String>();
+            Vector<Group> groupsInclSubGroups = new Vector<Group>();
             for (int i = 0; i < groupIDs.length; i++) {
                 try {
                     groupsInclSubGroups.add(getGroupManager().getGroup(groupIDs[i]));
@@ -465,7 +545,7 @@ public class YarepUser extends YarepItem implements User {
      * @param branchGroups Groups which have already been found within this branch
      * @param groupsInclSubGroups Groups which have already been found
      */
-    private void getParentGroups(String groupID, Vector branchGroups, Vector groupsInclSubGroups) throws Exception {
+    private void getParentGroups(String groupID, Vector<String> branchGroups, Vector<Group> groupsInclSubGroups) throws Exception {
         Group[] parentGroups = getGroupManager().getGroup(groupID).getParents();
         if (parentGroups != null && parentGroups.length > 0) {
             if (log.isDebugEnabled()) log.debug("Parent groups found of group '" + groupID + "'");
@@ -530,23 +610,19 @@ public class YarepUser extends YarepItem implements User {
      * @see org.wyona.security.core.api.User#setPassword(java.lang.String)
      */
     public void setPassword(String plainTextPassword) throws AccessManagementException {
-        setSalt();
-
-        this.encryptedPassword = Password.getSHA256(plainTextPassword, this.salt);
-        this.encryptionAlgorithm = "SHA-256";
-
-/* Deprecated, because SHA-256 is much more secure than MD5 (also see http://en.wikipedia.org/wiki/Rainbow_table)
-        this.encryptedPassword = Password.getMD5(plainTextPassword, this.salt);
-        this.encryptionAlgorithm = "MD5";
-*/
+        this.hashedPassword = Password.getBCrypt(plainTextPassword);
+        this.hashingAlgorithm = "bcrypt";
     }
 
     /**
      * @see org.wyona.security.core.api.User#setSalt()
+     * @deprecated Salting is now done using bcrypt, which has it built-in.
      */
     public void setSalt() throws AccessManagementException {
-        this.salt = Password.getSalt();
-
+        // Deprecated: Salting is now directly built into the hashing
+        // algorithm and does not need to be handled separately. The function
+        // still needs to be around to satisfy the API however.
+        this.salt = "";
     }
 
     /**
@@ -562,7 +638,7 @@ public class YarepUser extends YarepItem implements User {
      * @throws AccessManagementException
      */
     protected String getPassword() throws AccessManagementException {
-        return this.encryptedPassword;
+        return this.hashedPassword;
     }
 
     /**
@@ -593,7 +669,7 @@ public class YarepUser extends YarepItem implements User {
     public void setHistory(UserHistory history) {
         log.error("TODO: Not implemented yet!");
     }
-    
+
     /**
      * Two users are equal if they have the same id.
      */
@@ -673,7 +749,7 @@ public class YarepUser extends YarepItem implements User {
         log.info("Add user '" + getID() + "' to group: " + id);
         if (_groupIDs == null) {
             log.warn("User '" + getID() + "' has groups not initialized yet, hence will be initialized!");
-            _groupIDs = new ArrayList();
+            _groupIDs = new ArrayList<String>();
         }
         if (_groupIDs.indexOf(id) < 0) {
             _groupIDs.add(id);
@@ -692,7 +768,7 @@ public class YarepUser extends YarepItem implements User {
 
         if (aliasIDs == null) {
             log.warn("User '" + getID() + "' has aliases not initialized yet, hence will be initialized!");
-            aliasIDs = new ArrayList();
+            aliasIDs = new ArrayList<String>();
         }
         if (aliasIDs.indexOf(id) < 0) {
             aliasIDs.add(id);

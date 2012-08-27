@@ -71,7 +71,7 @@ public class YarepGroupManager implements GroupManager {
      * @throws AccessManagementException
      */
     private Group[] loadGroupsFromRepository() throws AccessManagementException {
-        log.warn("DEBUG: Load groups from repository '" + identitiesRepository.getName() + "'");
+        log.debug("Load groups from repository '" + identitiesRepository.getName() + "'");
         try {
             DefaultConfigurationBuilder configBuilder = new DefaultConfigurationBuilder(true);
             Node[] groupNodes = getAllGroupNodes();
@@ -304,7 +304,7 @@ public class YarepGroupManager implements GroupManager {
      * @throws AccessManagementException
      */
     protected synchronized void loadGroupIntoCache(String id) throws AccessManagementException {
-        log.warn("DEBUG: Load group '" + id + "' from persistent repository '" + identitiesRepository.getName() + "' into cache.");
+        log.debug("Load group '" + id + "' from persistent repository '" + identitiesRepository.getName() + "' into cache.");
         if (cachedGroups == null) {
             log.warn("No groups yet within memory. Initialize groups hash map.");
             cachedGroups = new HashMap();

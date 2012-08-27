@@ -496,7 +496,13 @@ public class YarepUserManager implements UserManager {
      * @param node Repository node of user
      */
     protected User constructUser(IdentityManager identityManager, Node node) throws AccessManagementException{
-        return new YarepUser(this, identityManager.getGroupManager(), node);
+        YarepUser user = new YarepUser(this, identityManager.getGroupManager(), node);
+        
+        if(user.isUpgraded()) {
+        	user.save();
+        }
+        
+        return user;
     }
 
     /**

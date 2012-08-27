@@ -3,27 +3,31 @@ package org.wyona.security.impl;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 
+import org.mindrot.jbcrypt.BCrypt;
+
 /**
- * Encrypt plain text password
- * Example: "message digest" becomes "f96b697d7cb7938d525a2f31aaf161d0" (hexadecimal notation (32 characters))
+ * Hash a plain text password.
+ * Supported algorithms are md5 (deprecated), sha256 (deprecated), and bcrypt.
  */
 public class Password {
 
     /**
-     * Encrypt plain text password
+     * Hash a string using the md5 hashing algorithm.
      *
-     * @param plain plain text password
-     * @return encrypted password
+     * @param plain The plain string.
+     * @return The hash, as a hexadecimal string.
+     * @deprecated Use getHash(String) instead!
      */
     public static String encrypt(String plain) {
         return getMD5(plain);
     }
 
     /**
-     * @depreacted Use getMD5(String, String) or getSHA256(String, String) instead
-     * Returns the MD5 representation of a string.
+     * Hash a string using the md5 hashing algorithm.
+     * 
      * @param plain The plain string.
-     * @return A string.
+     * @return The hash, as a hexadecimal string.
+     * @deprecated Use getBCrypt(String) instead!
      */
     public static String getMD5(String plain) {
         MessageDigest md = null;
@@ -36,10 +40,11 @@ public class Password {
     }
 
     /**
-     * Returns the MD5 representation of a string plain and string salt.
+     * Hash a string using the md5 hashing algorithm, with salting.
+     * 
      * @param plain The plain string.
-     * @param salt The salt string.
-     * @return A string.
+     * @return The hash, as a hexadecimal string.
+     * @deprecated Use getBCrypt(String) instead!
      */
     public static String getMD5(String plain, String salt) {
         MessageDigest md = null;
@@ -53,10 +58,11 @@ public class Password {
     }
 
     /**
-     * Returns the SHA-256 representation of a string plain and string salt.
+     * Hash a string using the sha255 hashing algorithm, with salting.
+     * 
      * @param plain The plain string.
-     * @param salt The salt string.
-     * @return A string.
+     * @return The hash, as a hexadecimal string.
+     * @deprecated Use getBCrypt(String) instead!
      */
     public static String getSHA256(String plain, String salt) {
         MessageDigest md = null;
@@ -70,8 +76,30 @@ public class Password {
     }
     
     /**
-     * Generate random salt
-     * @return The salt string
+     * Hash a string using the bcrypt hashing algorithm.
+     * 
+     * @param plain The plain string.
+     * @return The hash, hashed by bcrypt.
+     */
+    public static String getBCrypt(String plain) {
+    	return BCrypt.hashpw(plain, BCrypt.gensalt(12));
+    }
+    
+    /**
+     * Verify a candidate password against a hash.
+     * 
+     * @param plain The plain input string.
+     * @param hashed The hash of the password.
+     * @return True if hash matches, false otherwise.
+     */
+    public static boolean verifyBCrypt(String plain, String hash) {
+    	return BCrypt.checkpw(plain, hash);
+    }
+    
+    /**
+     * Generate random salt.
+     * @return The salt, as a string.
+     * @deprecated Use getBCrypt(String) instead!
      */
     public static String getSalt() {
         byte[] bSalt = null;
@@ -90,7 +118,7 @@ public class Password {
     /**
      * Converts a byte buffer to a string.
      * @param buf The buffer.
-     * @return A string.
+     * @return String representation of buffer (hexadecimal).
      */
     private static String stringify(byte[] buf) {
         StringBuffer sb = new StringBuffer(2 * buf.length);
