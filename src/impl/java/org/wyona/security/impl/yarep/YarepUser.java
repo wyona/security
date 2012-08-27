@@ -51,9 +51,9 @@ public class YarepUser extends YarepItem implements User {
     public static final String SALT = "salt";
 
     public static final String ALGORITHM_ATTR_NAME = "algorithm";
-        
+
     public static final String EXPIRE = "expire";
-    
+
     public static final String DESCRIPTION = "description";
 
     /**
@@ -61,7 +61,7 @@ public class YarepUser extends YarepItem implements User {
      */
     public static final String DATE_FORMAT = "yyyy-MM-dd";
     public static final String DATE_TIME_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
-    
+
     private String email;
 
     private String language;
@@ -70,14 +70,14 @@ public class YarepUser extends YarepItem implements User {
     private String hashingAlgorithm;
 
     private String salt;
-    
+
     private String description;
-    
+
     private Date expire;
 
     private ArrayList<String> _groupIDs;
     private ArrayList<String> aliasIDs;
-    
+
     private boolean upgraded = false;
 
     /**
@@ -90,13 +90,13 @@ public class YarepUser extends YarepItem implements User {
     public YarepUser(UserManager userManager, GroupManager groupManager, Node node) throws AccessManagementException {
     	// INFO: This will call configure()
         super(userManager, groupManager, node);
-        
+
         // Check if we need to upgrade the password hash
         if(hashingAlgorithm != null && !hashingAlgorithm.startsWith("bcrypt")) {
         	upgradeDoubleHash(this.hashedPassword, this.hashingAlgorithm);
         }
     }
-    
+
     /**
      * Creates a new YarepUser with a given id and name (not persistent)
      *
@@ -118,12 +118,12 @@ public class YarepUser extends YarepItem implements User {
         //log.debug("Read user profile: " + getID());
 
         setName(config.getChild(NAME, false).getValue(null));
-        
+
         // Optional fields
         if(config.getChild(EMAIL, false) != null){
             setEmail(config.getChild(EMAIL, false).getValue(null));
         }
-        
+
         if(config.getChild(PASSWORD, false) != null){
             // Do not use setter here because it does other things
             this.hashedPassword = config.getChild(PASSWORD, false).getValue(null);
@@ -131,25 +131,25 @@ public class YarepUser extends YarepItem implements User {
                 this.hashingAlgorithm = config.getChild(PASSWORD, false).getAttribute(ALGORITHM_ATTR_NAME, "MD5");
             }
         }
-        
+
         if(config.getChild(LANGUAGE, false) != null) {
             setLanguage(config.getChild(LANGUAGE, false).getValue(null));
         }
-        
+
         if(config.getChild(SALT,false) != null) {
             this.salt = config.getChild(SALT, false).getValue(null);
         }
-        
+
         if(config.getChild(DESCRIPTION, false) != null) {
             setDescription(config.getChild(DESCRIPTION, false).getValue(null));
         }
-        
+
         if(config.getChild(EXPIRE, false) != null){
             SimpleDateFormat sdf1 = new SimpleDateFormat(DATE_TIME_FORMAT);
             SimpleDateFormat sdf2 = new SimpleDateFormat(DATE_FORMAT);
                 String dateAsString = config.getChild(EXPIRE, false).getValue(null);
                 Date expire = null;
-                
+
                 if(null != dateAsString){
                     try {
                         expire = sdf2.parse(dateAsString);
@@ -224,23 +224,23 @@ public class YarepUser extends YarepItem implements User {
 
         DefaultConfiguration config = new DefaultConfiguration(USER, BUILDER_LOC, NAMESPACE_URI, PREFIX);
         config.setAttribute(ID, getID());
-        
+
         DefaultConfiguration nameNode = new DefaultConfiguration(NAME, BUILDER_LOC, NAMESPACE_URI, PREFIX);
         nameNode.setValue(getName());
         config.addChild(nameNode);
-        
+
         if(getEmail() != null){
             DefaultConfiguration emailNode = new DefaultConfiguration(EMAIL, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             emailNode.setValue(getEmail());
             config.addChild(emailNode);
         }
-        
+
         if(getLanguage() != null){
             DefaultConfiguration languageNode = new DefaultConfiguration(LANGUAGE, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             languageNode.setValue(getLanguage());
             config.addChild(languageNode);
         }
-        
+
         if(getPassword() != null){
             DefaultConfiguration passwordNode = new DefaultConfiguration(PASSWORD, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             passwordNode.setValue(getPassword());
@@ -249,19 +249,19 @@ public class YarepUser extends YarepItem implements User {
             }
             config.addChild(passwordNode);
         }
-        
+
         if(getDescription() != null){
             DefaultConfiguration descriptionNode = new DefaultConfiguration(DESCRIPTION, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             descriptionNode.setValue(getDescription());
             config.addChild(descriptionNode);
         }
-        
+
         if(getExpirationDate() != null){
             DefaultConfiguration expireNode = new DefaultConfiguration(EXPIRE, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             expireNode.setValue(new SimpleDateFormat(DATE_TIME_FORMAT).format(getExpirationDate()));
             config.addChild(expireNode);
         }
-        
+
         if(getSalt() != null) {
             DefaultConfiguration saltNode = new DefaultConfiguration(SALT, BUILDER_LOC, NAMESPACE_URI, PREFIX);
             saltNode.setValue(getSalt());
@@ -304,22 +304,22 @@ public class YarepUser extends YarepItem implements User {
             SimpleDateFormat sdf = new SimpleDateFormat(DATE_TIME_FORMAT);
             throw new ExpiredIdentityException("Identity expired on " + sdf.format(getExpirationDate()));
         }
-        
+
         boolean result = false;
         String id = getID();
         String hash = getPassword();
         String salt = getSalt();
-        
+
         if(hashingAlgorithm == null || hashingAlgorithm.equals("MD5")) {
             // Deprecated MD5 hashing detected.
             log.warn("Detected deprecated hashing algorithm for user: " + id);
 
             if(salt == null) {
-                result = hash.equals(Password.getMD5(plainTextPassword)); 
+                result = hash.equals(Password.getMD5(plainTextPassword));
             } else {
                 result = hash.equals(Password.getMD5(plainTextPassword, salt));
             }
-            
+
             upgradePlainHash(plainTextPassword);
         } else if(hashingAlgorithm.equals("bcrypt-MD5")) {
         	// Bcrypt-hashed md5-hash detected
@@ -332,23 +332,23 @@ public class YarepUser extends YarepItem implements User {
                 md5 = Password.getMD5(plainTextPassword, salt);
             }
             result = Password.verifyBCrypt(md5, hash);
-            
-            upgradePlainHash(plainTextPassword);        	
+
+            upgradePlainHash(plainTextPassword);
         } else if(hashingAlgorithm.equals("SHA-256")) {
             // Deprecated SHA-256 hashing detected.
             log.warn("Detected deprecated hashing algorithm for user: " + id);
-            
+
             if(salt == null) salt = "";
             result = hash.equals(Password.getSHA256(plainTextPassword, getSalt()));
-            
+
             upgradePlainHash(plainTextPassword);
         } else if(hashingAlgorithm.equals("bcrypt-SHA-256")) {
         	// Bcrypt-hashed sha256-hash detected
         	log.warn("Detected deprecated hashing algorithm for user: " + id);
-        	
+
         	String sha256 = Password.getSHA256(plainTextPassword, getSalt());
         	result = Password.verifyBCrypt(sha256, hash);
-        			
+
         	upgradePlainHash(plainTextPassword);
         } else if(hashingAlgorithm.equals("bcrypt")) {
             // Proper bcrypt hashing detected :-)
@@ -358,10 +358,10 @@ public class YarepUser extends YarepItem implements User {
             log.error("No such hashing algorithm known: " + hashingAlgorithm);
             result = false;
         }
-        
+
         return result;
     }
-    
+
     /**
      * Upgrade a deprecated hash with the plain-text password.
      * Note: This only takes effect after the user is actually stored back
@@ -369,13 +369,13 @@ public class YarepUser extends YarepItem implements User {
      * to the user also automatically causes the hash to be upgraded.
      */
     private void upgradePlainHash(String plainTextPassword) {
-        hashingAlgorithm = "bcrypt";
-        hashedPassword = Password.getBCrypt(plainTextPassword);
-        upgraded = true;
+        this.hashingAlgorithm = "bcrypt";
+        this.hashedPassword = Password.getBCrypt(plainTextPassword);
+        this.upgraded = true;
         // BCrypt doesn't need the salt field, so we clear it.
-        salt = "";
+        this.salt = "";
     }
-    
+
     /**
      * Upgrade a deprecated hash by re-hashing an old hash.
      * Note: This only takes effect after the user is actually stored back
@@ -383,11 +383,11 @@ public class YarepUser extends YarepItem implements User {
      * to the user also automatically causes the hash to be upgraded.
      */
     private void upgradeDoubleHash(String hashedPassword, String oldAlgorithm) {
-        hashingAlgorithm = "bcrypt-" + oldAlgorithm;
-        hashedPassword = Password.getBCrypt(hashedPassword);
-        upgraded = true;
+        this.hashingAlgorithm = "bcrypt-" + oldAlgorithm;
+        this.hashedPassword = Password.getBCrypt(hashedPassword);
+        this.upgraded = true;
     }
-    
+
     /**
      * Check if user has been (in some way) upgraded.
      */
@@ -401,7 +401,7 @@ public class YarepUser extends YarepItem implements User {
     protected boolean isExpired() {
         return org.wyona.security.impl.util.UserUtil.isExpired(this);
     }
- 
+
     /**
      * @see org.wyona.security.core.api.User#getDescription()
      */
@@ -669,7 +669,7 @@ public class YarepUser extends YarepItem implements User {
     public void setHistory(UserHistory history) {
         log.error("TODO: Not implemented yet!");
     }
-    
+
     /**
      * Two users are equal if they have the same id.
      */
