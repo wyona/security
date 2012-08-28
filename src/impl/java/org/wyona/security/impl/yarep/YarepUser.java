@@ -88,12 +88,12 @@ public class YarepUser extends YarepItem implements User {
      * @param node
      */
     public YarepUser(UserManager userManager, GroupManager groupManager, Node node) throws AccessManagementException {
-    	// INFO: This will call configure()
+        // INFO: This will call configure()
         super(userManager, groupManager, node);
 
         // Check if we need to upgrade the password hash
         if(hashingAlgorithm != null && !hashingAlgorithm.startsWith("bcrypt")) {
-        	upgradeDoubleHash(this.hashedPassword, this.hashingAlgorithm);
+            upgradeDoubleHash(this.hashedPassword, this.hashingAlgorithm);
         }
     }
 
@@ -322,8 +322,8 @@ public class YarepUser extends YarepItem implements User {
 
             upgradePlainHash(plainTextPassword);
         } else if(hashingAlgorithm.equals("bcrypt-MD5")) {
-        	// Bcrypt-hashed md5-hash detected
-            log.warn("Detected deprecated hashing algorithm for user: " + id);
+            // Bcrypt-hashed md5-hash detected
+            log.warn("Detected double hash algorithm for user: " + id);
 
             String md5;
             if(salt == null) {
@@ -339,17 +339,18 @@ public class YarepUser extends YarepItem implements User {
             log.warn("Detected deprecated hashing algorithm for user: " + id);
 
             if(salt == null) salt = "";
-            result = hash.equals(Password.getSHA256(plainTextPassword, getSalt()));
+            result = hash.equals(Password.getSHA256(plainTextPassword, salt));
 
             upgradePlainHash(plainTextPassword);
         } else if(hashingAlgorithm.equals("bcrypt-SHA-256")) {
-        	// Bcrypt-hashed sha256-hash detected
-        	log.warn("Detected deprecated hashing algorithm for user: " + id);
+            // Bcrypt-hashed sha256-hash detected
+            log.warn("Detected double hash algorithm for user: " + id);
 
-        	String sha256 = Password.getSHA256(plainTextPassword, getSalt());
-        	result = Password.verifyBCrypt(sha256, hash);
+            if(salt == null) salt = "";
+            String sha256 = Password.getSHA256(plainTextPassword, salt);
+            result = Password.verifyBCrypt(sha256, hash);
 
-        	upgradePlainHash(plainTextPassword);
+            upgradePlainHash(plainTextPassword);
         } else if(hashingAlgorithm.equals("bcrypt")) {
             // Proper bcrypt hashing detected :-)
             result = Password.verifyBCrypt(plainTextPassword, hash);
@@ -392,7 +393,7 @@ public class YarepUser extends YarepItem implements User {
      * Check if user has been (in some way) upgraded.
      */
     public boolean isUpgraded() {
-    	return upgraded;
+        return upgraded;
     }
 
     /**
