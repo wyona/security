@@ -27,7 +27,8 @@ import org.wyona.yarep.util.RepoPath;
 import org.wyona.yarep.util.YarepUtil;
 import org.xml.sax.SAXException;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -39,7 +40,7 @@ import org.apache.commons.io.FilenameUtils;
  */
 public class PolicyManagerImplVersion2 implements PolicyManager {
 
-    private static Logger log = Logger.getLogger(PolicyManagerImplVersion2.class);
+    private static Logger log = LogManager.getLogger(PolicyManagerImplVersion2.class);
 
     private Repository policiesRepository;
     private DefaultConfigurationBuilder configBuilder;
@@ -111,15 +112,25 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
     
     /**
      * Match a path against the policy map.
-     * @param path Path to be matched
+     * @param path Path to be matched, e.g. '/projects/yanel/changes/master/c-c172df5f.html'
+     * @param queryString Query string, e.g. 'update-result-of-test=5f119d82' ('/projects/yanel/changes/master/c-c172df5f.html?update-result-of-test=5f119d82')
      * @return Policy path if requested path is matching, otherwise return null
      */
-    private String getMappedPath(String path) {
+    private String getMappedPath(String path, String queryString) {
+        // TODO: Check last modified of policy map node
+
+        if (queryString != null) {
+            path = path + "?" + queryString;
+        }
         for(Map.Entry<String, String> mapping : policy_map.entrySet()) {
             if(FilenameUtils.wildcardMatch(path, mapping.getKey())) {
+                //log.debug("DEBUG: Path '" + path + "' matched inside policy map onto policy path '" + mapping.getValue() + "'.");
                 return mapping.getValue();
             }
         }
+
+        //log.debug("Path '" + path + "' did not match inside policy map.");
+
         return null;
     }
      
@@ -145,18 +156,25 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
         log.error("Not implemented yet!");
         return false;
     }
-   
+
     /**
      * @see org.wyona.security.core.api.PolicyManager#authorize(String, Identity, Usecase)
      */
     public boolean authorize(String path, Identity identity, Usecase usecase) throws AuthorizationException {
+        return authorize(path, null, identity, usecase);
+    }
+
+    /**
+     * @see org.wyona.security.core.api.PolicyManager#authorize(String, String, Identity, Usecase)
+     */
+    public boolean authorize(String path, String queryString, Identity identity, Usecase usecase) throws AuthorizationException {
         if(path == null || identity == null || usecase == null) {
             log.error("Path or identity or usecase is null! [" + path + ", " + identity + ", " + usecase + "]");
             throw new AuthorizationException("Path or identity or usecase is null! [" + path + ", " + identity + ", " + usecase + "]");
         }
 
         try {
-            return authorize(getPoliciesRepository(), path, identity, usecase);
+            return authorize(getPoliciesRepository(), path, queryString, identity, usecase);
         } catch(Exception e) {
             log.error(e.getMessage(), e);
             throw new AuthorizationException("Error authorizing " + getPoliciesRepository().getID() + ", " + path + ", " + identity + ", " + usecase, e);
@@ -165,8 +183,10 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
 
     /**
      * @param repo Access control policy repository
+     * @param path Requested path
+     * @param queryString Query string associated with requested path
      */
-    private boolean authorize(Repository repo, String path, Identity identity, Usecase usecase) throws Exception {
+    private boolean authorize(Repository repo, String path, String queryString, Identity identity, Usecase usecase) throws Exception {
         if(repo == null) {
             log.error("Repo is null!");
             throw new Exception("Repo is null!");
@@ -181,7 +201,8 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
             throw new Exception("Usecase is null!");
         }
 
-        String yarepPath = getPolicyPath(path); 
+        //log.debug("Get policy path for requested path '" + path + "' and query string '" + queryString + "' ...");
+        String yarepPath = getPolicyPath(path, queryString); 
         log.debug("Policy Yarep Path: " + yarepPath + ", Original Path: " + path + ", Repo: " + repo);
         if (repo.existsNode(yarepPath)) {
             try {
@@ -281,7 +302,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
         if (parent != null) {
             // Check policy of parent in order to inherit credentials ...
             log.debug("Check parent policy: " + parent + " ... (Current path: " + path + ")");
-            return authorize(repo, parent, identity, usecase);
+            return authorize(repo, parent, null, identity, usecase);
         } else {
             log.debug("Trying to get parent of " + path + " (" + repo + ") failed, hence access denied.");
             return false;
@@ -290,14 +311,18 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
 
     /**
      * Append '.policy' to path as suffix
+     * @param path Path for which we are looking for a policy
+     * @param queryString Query string associated with requested path
+     * @return policy path
      */
-    private String getPolicyPath(String path) {
+    private String getPolicyPath(String path, String queryString) {
+        //log.debug("Get policy path for requested path '" + path + "' ...");
         // INFO: Remove trailing slash except for ROOT ...
         if (path.length() > 1 && path.charAt(path.length() - 1) == '/') {
             path = path.substring(0, path.length() - 1);
         }
     	
-        String mapped = this.getMappedPath(path);
+        String mapped = getMappedPath(path, queryString);
         if(mapped != null) {
             log.debug("Mapped path: " + path + " -> " + mapped);
             return mapped;
@@ -310,12 +335,13 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      * @see org.wyona.security.core.api.PolicyManager#getPolicy(String, boolean)
      */
     public Policy getPolicy(String path, boolean aggregate) throws AuthorizationException {
+        //log.debug("Get policy for requested path '" + path + "' ...");
         try {
             if (aggregate) {
                 return org.wyona.security.impl.util.PolicyAggregator.aggregatePolicy(path, this);
             } else {
-                if (getPoliciesRepository().existsNode(getPolicyPath(path))) {
-                    return new PolicyImplV2(getPoliciesRepository().getNode(getPolicyPath(path)).getInputStream());
+                if (getPoliciesRepository().existsNode(getPolicyPath(path, null))) {
+                    return new PolicyImplV2(getPoliciesRepository().getNode(getPolicyPath(path, null)).getInputStream());
                 } else {
                     if (!path.equals("/")) {
                         log.warn("No policy found for '" + path + "' (Policies Repository: " + getPoliciesRepository().getName() + "). Check for parent '" + PathUtil.getParent(path) + "'.");
@@ -339,7 +365,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
     public void setPolicy(String path, Policy policy) throws java.lang.UnsupportedOperationException {
         try {
             Repository repo = getPoliciesRepository();
-            String policyPath = getPolicyPath(path);
+            String policyPath = getPolicyPath(path, null);
             log.debug("Set policy: " + policyPath);
             Node node;
             if (!repo.existsNode(policyPath)) {
@@ -483,7 +509,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
                                     sb.append("    <world permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
                                 } else {
                                     if (parentPath != null) {
-                                        log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(parentPath, identity, new Usecase(up[i].getName())));
+                                        //log.warn("DEBUG: Identity: " + identity + ", Usecase: " + up[i].getName() + ", Permission: " + this.authorize(parentPath, identity, new Usecase(up[i].getName())));
                                         sb.append(NEWLINE);
                                         sb.append("    <user id=\"" + identity.getUsername() + "\" permission=\"" + this.authorize(parentPath, identity, new Usecase(up[i].getName())) + "\"/>");
 
@@ -608,9 +634,12 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
         }
     }
 
+    /**
+     *
+     */
     public void removePolicy(String path) throws AuthorizationException {
         Repository repo = getPoliciesRepository();
-        String policyPath = getPolicyPath(path);
+        String policyPath = getPolicyPath(path, null);
         try {
             if (repo.existsNode(policyPath)) {
                 repo.getNode(policyPath).delete();
