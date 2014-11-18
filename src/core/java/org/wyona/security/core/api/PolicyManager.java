@@ -18,7 +18,17 @@ public interface PolicyManager {
      * @deprecated Use {@link authorize(String , Identity , Usecase)} instead.
      */
     public boolean authorize(String path, Identity identity, Role role) throws AuthorizationException;
-    
+
+    /**
+     * Check whether a particular identity is authorized to execute a specific usecase for a specific path/URL and query string
+     * @param path Requested path
+     * @param queryString Query string attached to original request
+     * @param identity User requesting path
+     * @param usecase Usecase associated with requested path
+     * @return true when authorized and false otherwise
+     */
+    public boolean authorize(String path, String queryString, Identity identity, Usecase usecase) throws AuthorizationException;
+
     /**
      * Check whether a particular identity is authorized to execute a specific usecase for a specific path/URL
      * @param identity User
@@ -26,7 +36,7 @@ public interface PolicyManager {
     public boolean authorize(String path, Identity identity, Usecase usecase) throws AuthorizationException;
     
     /**
-     *
+     * @param policy TODO
      */
     public boolean authorize(Policy policy, Identity identity, Usecase usecase) throws AuthorizationException;
    
