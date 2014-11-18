@@ -58,7 +58,7 @@ public interface UserManager {
      * Gets the user with the given id, whereas provides a parameter to tell the implementation to refresh a possible cached entry
      * 
      * @param id True ID of user
-     * @param refresh
+     * @param refresh TODO
      * @return user or null if no user with the given id exists 
      * @throws AccessManagementException
      */
