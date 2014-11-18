@@ -51,6 +51,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
 
     private static final String POLICY_MAP_FILE = "/policy-map.xml";
     private Map<String, String> policy_map;
+    private java.util.Date policyMapLastModified;
 
     /**
      * @param policiesRepository Repository containing access policies
@@ -83,6 +84,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
             log.info("Found a policy map file in repo: " + repo.getName());
 			
             Node pm_node = repo.getNode(POLICY_MAP_FILE);
+            policyMapLastModified = new java.util.Date(pm_node.getLastModified());
             InputStream pm_istream = pm_node.getInputStream();
             DefaultConfigurationBuilder builder = new DefaultConfigurationBuilder(true);
             Configuration config = builder.build(pm_istream);
@@ -117,7 +119,7 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      * @return Policy path if requested path is matching, otherwise return null
      */
     private String getMappedPath(String path, String queryString) {
-        // TODO: Check last modified of policy map node
+        // TODO: Check last modified of policy map node and compare with policyMapLastModified
 
         if (queryString != null) {
             path = path + "?" + queryString;
