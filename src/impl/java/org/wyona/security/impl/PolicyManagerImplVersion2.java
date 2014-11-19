@@ -119,7 +119,17 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
      * @return Policy path if requested path is matching, otherwise return null
      */
     private String getMappedPath(String path, String queryString) {
-        // TODO: Check last modified of policy map node and compare with policyMapLastModified
+        // INFO: Check last modified of policy map node and compare with policyMapLastModified
+        try {
+            Node pm_node = policiesRepository.getNode(POLICY_MAP_FILE);
+            if (new java.util.Date(pm_node.getLastModified()).after(policyMapLastModified)) {
+                log.warn("TODO: Reload policy map, because it has been modified '" + new java.util.Date(pm_node.getLastModified()) + "' since it has been loaded the last time '" + policyMapLastModified + "'!");
+            } else {
+                //log.debug("Policy map has not been modified since it has been loaded the last time '" + policyMapLastModified + "'.");
+            }
+        } catch(Exception e) {
+            log.error(e, e);
+        }
 
         if (queryString != null) {
             path = path + "?" + queryString;
