@@ -26,6 +26,11 @@ import org.wyona.security.impl.Password;
 
 import org.wyona.yarep.core.Node;
 
+import org.wyona.commons.xml.XMLHelper;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 /**
  * User implementation based on Yarep
  */
@@ -58,6 +63,7 @@ public class YarepUser extends YarepItem implements User {
     public static final String DESCRIPTION = "description";
 
     private static final String HISTORIES_BASE_NODE_NAME = "histories";
+    private static final String HISTORY_XML_DOC_NODE_NAME = "history.xml";
 
     /**
      * Date format used for the expired value
@@ -368,9 +374,9 @@ public class YarepUser extends YarepItem implements User {
             history = new UserHistory();
         }
         if (result) {
-            history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(new Date(), "login", "login successful"));
+            history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(new Date(), "login", "authentication successful"));
         } else {
-            history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(new Date(), "login", "login failed"));
+            history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(new Date(), "login", "authentication failed"));
         }
         setHistory(history);
 
@@ -687,9 +693,29 @@ public class YarepUser extends YarepItem implements User {
             try {
                 Node historyNode = getHistoryNode();
                 log.warn("DEBUG: History node: " + historyNode.getPath());
-                for (org.wyona.security.core.UserHistory.HistoryEntry entry: entries) {
-                    log.warn("TODO: Save history entry: " + entry);
+
+                Document doc = null;
+                Node xmlDocNode = null;
+                if (historyNode.hasNode(HISTORY_XML_DOC_NODE_NAME)) {
+                    xmlDocNode = historyNode.getNode(HISTORY_XML_DOC_NODE_NAME);
+                    doc = XMLHelper.readDocument(xmlDocNode.getInputStream());
+                } else {
+                    xmlDocNode = historyNode.addNode(HISTORY_XML_DOC_NODE_NAME, org.wyona.yarep.core.NodeType.RESOURCE);
+                    doc = XMLHelper.createDocument("http://www.wyona.org/security/user/history/1.0.0", "user-history");
                 }
+                Element rootEl = doc.getDocumentElement();
+
+                for (org.wyona.security.core.UserHistory.HistoryEntry entry: entries) {
+                    log.warn("DEBUG: Save history entry: " + entry);
+                    Element entryEl = (Element) rootEl.appendChild(doc.createElement("event"));
+                    entryEl.setAttribute("date", "" + entry.getDate().getTime());
+                    entryEl.setAttribute("usecase", entry.getUsecase());
+                    entryEl.setAttribute("description", entry.getDescription());
+                }
+
+                java.io.OutputStream out = xmlDocNode.getOutputStream();
+                XMLHelper.writeDocument(doc, out);
+                out.close();
             } catch(Exception e) {
                 log.error(e, e);
             }
