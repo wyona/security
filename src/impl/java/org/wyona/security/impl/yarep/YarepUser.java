@@ -60,6 +60,11 @@ public class YarepUser extends YarepItem implements User {
 
     public static final String EXPIRE = "expire";
 
+    private static final String DATE_ATTR = "date";
+    private static final String USECASE_ATTR = "usecase";
+    private static final String DESCRIPTION_ATTR = "description";
+    private static final String EVENT_TAG_NAME = "event";
+
     public static final String DESCRIPTION = "description";
 
     private static final String HISTORIES_BASE_NODE_NAME = "histories";
@@ -374,9 +379,9 @@ public class YarepUser extends YarepItem implements User {
             history = new UserHistory();
         }
         if (result) {
-            history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(new Date(), "login", "authentication successful"));
+            history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(new Date(), "login", "successful"));
         } else {
-            history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(new Date(), "login", "authentication failed"));
+            history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(new Date(), "login", "failed"));
         }
         setHistory(history);
 
@@ -681,7 +686,31 @@ public class YarepUser extends YarepItem implements User {
      */
     public UserHistory getHistory() {
         log.error("TODO: Not implemented yet!");
-        return null;
+        try {
+            Node historyNode = getHistoryNode();
+            log.warn("DEBUG: History node: " + historyNode.getPath());
+
+            Document doc = null;
+            Node xmlDocNode = null;
+            if (historyNode.hasNode(HISTORY_XML_DOC_NODE_NAME)) {
+                xmlDocNode = historyNode.getNode(HISTORY_XML_DOC_NODE_NAME);
+                doc = XMLHelper.readDocument(xmlDocNode.getInputStream());
+                UserHistory history = new UserHistory();
+                Element[] entryEls = XMLHelper.getChildElements(doc.getDocumentElement(), EVENT_TAG_NAME, null);
+                for (int i = 0; i < entryEls.length; i++) {
+                    Date date = new Date(entryEls[i].getAttribute(DATE_ATTR));
+                    String usecase = entryEls[i].getAttribute(USECASE_ATTR);
+                    String desc = entryEls[i].getAttribute(DESCRIPTION_ATTR);
+                    history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(date, usecase, desc));
+                }
+                return history;
+            } else {
+                return null;
+            }
+        } catch(Exception e) {
+            log.error(e, e);
+            return null;
+        }
     }
 
     /**
@@ -707,10 +736,10 @@ public class YarepUser extends YarepItem implements User {
 
                 for (org.wyona.security.core.UserHistory.HistoryEntry entry: entries) {
                     log.warn("DEBUG: Save history entry: " + entry);
-                    Element entryEl = (Element) rootEl.appendChild(doc.createElement("event"));
-                    entryEl.setAttribute("date", "" + entry.getDate().getTime());
-                    entryEl.setAttribute("usecase", entry.getUsecase());
-                    entryEl.setAttribute("description", entry.getDescription());
+                    Element entryEl = (Element) rootEl.appendChild(doc.createElement(EVENT_TAG_NAME));
+                    entryEl.setAttribute(DATE_ATTR, "" + entry.getDate().getTime());
+                    entryEl.setAttribute(USECASE_ATTR, entry.getUsecase());
+                    entryEl.setAttribute(DESCRIPTION_ATTR, entry.getDescription());
                 }
 
                 java.io.OutputStream out = xmlDocNode.getOutputStream();
