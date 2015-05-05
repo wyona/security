@@ -5,7 +5,8 @@ import java.util.HashMap;
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
@@ -26,7 +27,7 @@ import org.wyona.yarep.core.RepositoryException;
  * configuration. 
  */
 public class YarepGroupManager implements GroupManager {
-    private static Logger log = Logger.getLogger(YarepGroupManager.class);
+    private static Logger log = LogManager.getLogger(YarepGroupManager.class);
     
     protected static final String GROUPS_PARENT_PATH = "/groups";
     private String SUFFIX = "xml";
