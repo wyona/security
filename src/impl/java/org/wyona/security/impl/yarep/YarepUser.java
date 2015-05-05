@@ -685,7 +685,6 @@ public class YarepUser extends YarepItem implements User {
      * @see org.wyona.security.core.api.User#getHistory()
      */
     public UserHistory getHistory() {
-        log.error("TODO: Not implemented yet!");
         try {
             Node historyNode = getHistoryNode();
             log.warn("DEBUG: History node: " + historyNode.getPath());
@@ -698,7 +697,7 @@ public class YarepUser extends YarepItem implements User {
                 UserHistory history = new UserHistory();
                 Element[] entryEls = XMLHelper.getChildElements(doc.getDocumentElement(), EVENT_TAG_NAME, null);
                 for (int i = 0; i < entryEls.length; i++) {
-                    Date date = new Date(entryEls[i].getAttribute(DATE_ATTR));
+                    Date date = new Date(new Long(entryEls[i].getAttribute(DATE_ATTR)).longValue());
                     String usecase = entryEls[i].getAttribute(USECASE_ATTR);
                     String desc = entryEls[i].getAttribute(DESCRIPTION_ATTR);
                     history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(date, usecase, desc));
@@ -723,6 +722,7 @@ public class YarepUser extends YarepItem implements User {
                 Node historyNode = getHistoryNode();
                 log.warn("DEBUG: History node: " + historyNode.getPath());
 
+                int DEFAULT_SIZE = 3;
                 Document doc = null;
                 Node xmlDocNode = null;
                 if (historyNode.hasNode(HISTORY_XML_DOC_NODE_NAME)) {
@@ -733,13 +733,23 @@ public class YarepUser extends YarepItem implements User {
                     doc = XMLHelper.createDocument("http://www.wyona.org/security/user/history/1.0.0", "user-history");
                 }
                 Element rootEl = doc.getDocumentElement();
+                if (!rootEl.hasAttribute("max-size")) {
+                    rootEl.setAttribute("max-size", "" + DEFAULT_SIZE);
+                }
 
+                int maxSize = new Integer(rootEl.getAttribute("max-size")).intValue();
+                int counter = 0;
                 for (org.wyona.security.core.UserHistory.HistoryEntry entry: entries) {
-                    log.warn("DEBUG: Save history entry: " + entry);
-                    Element entryEl = (Element) rootEl.appendChild(doc.createElement(EVENT_TAG_NAME));
-                    entryEl.setAttribute(DATE_ATTR, "" + entry.getDate().getTime());
-                    entryEl.setAttribute(USECASE_ATTR, entry.getUsecase());
-                    entryEl.setAttribute(DESCRIPTION_ATTR, entry.getDescription());
+                    counter++;
+                    if (entries.size() - counter < maxSize) {
+                        log.warn("DEBUG: Save history entry: " + entry);
+                        Element entryEl = (Element) rootEl.appendChild(doc.createElement(EVENT_TAG_NAME));
+                        entryEl.setAttribute(DATE_ATTR, "" + entry.getDate().getTime());
+                        entryEl.setAttribute(USECASE_ATTR, entry.getUsecase());
+                        entryEl.setAttribute(DESCRIPTION_ATTR, entry.getDescription());
+                    } else {
+                        log.warn("DEBUG: Drop history entry: " + entry);
+                    }
                 }
 
                 java.io.OutputStream out = xmlDocNode.getOutputStream();
