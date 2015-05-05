@@ -361,6 +361,17 @@ public class YarepUser extends YarepItem implements User {
             result = false;
         }
 
+        UserHistory history = getHistory();
+        if (history == null) {
+            history = new UserHistory();
+        }
+        if (result) {
+            history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(new Date(), "login", "login successful"));
+        } else {
+            history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(new Date(), "login", "login failed"));
+        }
+        setHistory(history);
+
         return result;
     }
 
@@ -669,7 +680,14 @@ public class YarepUser extends YarepItem implements User {
      * @see org.wyona.security.core.api.User#setHistory(UserHistory)
      */
     public void setHistory(UserHistory history) {
-        log.error("TODO: Not implemented yet!");
+        if (history != null) {
+            java.util.List<org.wyona.security.core.UserHistory.HistoryEntry> entries = history.getHistory();
+            for (org.wyona.security.core.UserHistory.HistoryEntry entry: entries) {
+                log.warn("TODO: Save history entry: " + entry);
+            }
+        } else {
+            log.error("History argument is null!");
+        }
     }
 
     /**
