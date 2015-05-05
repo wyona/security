@@ -2,7 +2,10 @@ package org.wyona.security.impl.yarep;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.wyona.security.core.AuthenticationException;
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.GroupManager;
@@ -14,7 +17,7 @@ import org.wyona.yarep.core.Repository;
  * Identity manager implementation based on Yarep
  */
 public class YarepIdentityManagerImpl implements IdentityManager {
-    protected static Logger log = Logger.getLogger(YarepIdentityManagerImpl.class);
+    protected static Logger log = LogManager.getLogger(YarepIdentityManagerImpl.class);
 
     protected Repository identitiesRepository;
     protected UserManager userManager;
