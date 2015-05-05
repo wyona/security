@@ -4,7 +4,10 @@ import java.util.HashMap;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
 import org.wyona.security.core.api.IdentityManager;
@@ -24,7 +27,7 @@ import org.wyona.yarep.core.RepositoryException;
  * compatibility.
  */
 public class YarepUserManager implements UserManager {
-    protected static Logger log = Logger.getLogger(YarepUserManager.class);
+    protected static Logger log = LogManager.getLogger(YarepUserManager.class);
     
     private Repository identitiesRepository;
 
