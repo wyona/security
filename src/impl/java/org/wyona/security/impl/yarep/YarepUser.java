@@ -12,7 +12,8 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import org.wyona.security.core.ExpiredIdentityException;
 import org.wyona.security.core.UserHistory;
@@ -30,7 +31,7 @@ import org.wyona.yarep.core.Node;
  */
 public class YarepUser extends YarepItem implements User {
 
-    private static Logger log = Logger.getLogger(YarepUser.class);
+    private static Logger log = LogManager.getLogger(YarepUser.class);
 
     public static final String USER = "user";
 
