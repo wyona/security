@@ -57,6 +57,8 @@ public class YarepUser extends YarepItem implements User {
 
     public static final String DESCRIPTION = "description";
 
+    private static final String HISTORIES_BASE_NODE_NAME = "histories";
+
     /**
      * Date format used for the expired value
      */
@@ -86,7 +88,7 @@ public class YarepUser extends YarepItem implements User {
      *
      * @param userManager
      * @param groupManager
-     * @param node
+     * @param node Yarep node containing user information, e.g. hashed password
      */
     public YarepUser(UserManager userManager, GroupManager groupManager, Node node) throws AccessManagementException {
         // INFO: This will call configure()
@@ -682,12 +684,44 @@ public class YarepUser extends YarepItem implements User {
     public void setHistory(UserHistory history) {
         if (history != null) {
             java.util.List<org.wyona.security.core.UserHistory.HistoryEntry> entries = history.getHistory();
-            for (org.wyona.security.core.UserHistory.HistoryEntry entry: entries) {
-                log.warn("TODO: Save history entry: " + entry);
+            try {
+                Node historyNode = getHistoryNode();
+                log.warn("DEBUG: History node: " + historyNode.getPath());
+                for (org.wyona.security.core.UserHistory.HistoryEntry entry: entries) {
+                    log.warn("TODO: Save history entry: " + entry);
+                }
+            } catch(Exception e) {
+                log.error(e, e);
             }
         } else {
             log.error("History argument is null!");
         }
+    }
+
+    /**
+     * Get history node of this particular user, e.g. '/histories/1412880733771'
+     */
+    private Node getHistoryNode() throws Exception {
+        Node userNode = getNode();
+        Node usersNode = userNode.getParent();
+        Node rootNode = usersNode.getParent();
+
+        Node historiesNode = null;
+        if (rootNode.hasNode(HISTORIES_BASE_NODE_NAME)) {
+            historiesNode = rootNode.getNode(HISTORIES_BASE_NODE_NAME);
+        } else {
+            historiesNode = rootNode.addNode(HISTORIES_BASE_NODE_NAME, org.wyona.yarep.core.NodeType.COLLECTION);
+        }
+
+        Node historyNode = null;
+        String nameWithoutSuffix = org.wyona.commons.io.PathUtil.getNameWithoutSuffix(userNode.getName());
+        if (historiesNode.hasNode(nameWithoutSuffix)) {
+            historyNode = historiesNode.getNode(nameWithoutSuffix);
+        } else {
+            historyNode = historiesNode.addNode(nameWithoutSuffix, org.wyona.yarep.core.NodeType.COLLECTION);
+        }
+
+        return historyNode;
     }
 
     /**
