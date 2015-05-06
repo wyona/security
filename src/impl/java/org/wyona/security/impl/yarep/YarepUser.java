@@ -722,7 +722,7 @@ public class YarepUser extends YarepItem implements User {
                 Node historyNode = getHistoryNode();
                 log.warn("DEBUG: History node: " + historyNode.getPath());
 
-                int DEFAULT_SIZE = 3;
+                int DEFAULT_SIZE = 10;
                 int maxSize = DEFAULT_SIZE;
                 Node xmlDocNode = null;
                 if (historyNode.hasNode(HISTORY_XML_DOC_NODE_NAME)) {
