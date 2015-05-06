@@ -723,21 +723,18 @@ public class YarepUser extends YarepItem implements User {
                 log.warn("DEBUG: History node: " + historyNode.getPath());
 
                 int DEFAULT_SIZE = 3;
-                Document doc = null;
+                int maxSize = DEFAULT_SIZE;
                 Node xmlDocNode = null;
                 if (historyNode.hasNode(HISTORY_XML_DOC_NODE_NAME)) {
                     xmlDocNode = historyNode.getNode(HISTORY_XML_DOC_NODE_NAME);
-                    doc = XMLHelper.readDocument(xmlDocNode.getInputStream());
+                    maxSize = new Integer(XMLHelper.readDocument(xmlDocNode.getInputStream()).getDocumentElement().getAttribute("max-size")).intValue();
                 } else {
                     xmlDocNode = historyNode.addNode(HISTORY_XML_DOC_NODE_NAME, org.wyona.yarep.core.NodeType.RESOURCE);
-                    doc = XMLHelper.createDocument("http://www.wyona.org/security/user/history/1.0.0", "user-history");
                 }
+                Document doc = XMLHelper.createDocument("http://www.wyona.org/security/user/history/1.0.0", "user-history");
                 Element rootEl = doc.getDocumentElement();
-                if (!rootEl.hasAttribute("max-size")) {
-                    rootEl.setAttribute("max-size", "" + DEFAULT_SIZE);
-                }
+                rootEl.setAttribute("max-size", "" + maxSize);
 
-                int maxSize = new Integer(rootEl.getAttribute("max-size")).intValue();
                 int counter = 0;
                 for (org.wyona.security.core.UserHistory.HistoryEntry entry: entries) {
                     counter++;
