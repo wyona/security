@@ -427,10 +427,31 @@ public class YarepUserManager implements UserManager {
             Node aliasesParentNode = getAliasesParentNode();
             if (aliasesParentNode != null) {
                 if (aliasesParentNode.hasNode(alias + ".xml")) {
-                    ((YarepUser) getUser(getTrueId(alias))).removeAlias(alias);
-                    Node aliasNode = aliasesParentNode.getNode(alias + ".xml");
-                    aliasNode.delete();
-                    log.warn("TODO: Check if this is the last alias of a specific username!");
+                    YarepUser user = (YarepUser) getUser(getTrueId(alias));
+
+                    String[] aliases = user.getAliases();
+                    if (aliases != null) {
+                        log.debug("Check whether '" + alias + "' is the last alias of a specific username!");
+                        if (aliases.length == 1) {
+                            if (aliases[0].equals(alias)) {
+                                log.warn("Alias '" + alias + "' is the only alias of user '" + user.getID() + "'!");
+                            } else {
+                                log.warn("Alias '" + aliases[0] + "' is the only alias of user '" + user.getID() + "', but does not match with '" + alias + "', the one to be removed!");
+                            }
+                        } else {
+                            log.info("User '" + user.getID() + "' has " + aliases.length + " aliases.");
+                            for (int i = 0; i < aliases.length; i++) {
+                                log.debug("Alias: " + aliases[i]);
+                            }
+                        }
+
+                        user.removeAlias(alias);
+
+                        Node aliasNode = aliasesParentNode.getNode(alias + ".xml");
+                        aliasNode.delete();
+                    } else {
+                        log.warn("User '" + user.getID() + "' has no aliases!");
+                    }
                 } else {
                     log.warn("No alias found for id '" + alias + "'!");
                 }
