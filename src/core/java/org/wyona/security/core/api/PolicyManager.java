@@ -68,7 +68,7 @@ public interface PolicyManager {
     
     /**
      * Removes the policy from the given path.
-     * @param path
+     * @param path Path associated with policy
      * @throws AuthorizationException
      */
     public void removePolicy(String path) throws AuthorizationException;
