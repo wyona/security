@@ -41,6 +41,8 @@ public class YarepUserManager implements UserManager {
     private String SUFFIX = "xml";
     private String DEPRECATED_SUFFIX = "iml";
 
+    private static final String PSEUDONYM = "pseudonym";
+
     /**
      * Constructor.
      *
@@ -160,6 +162,8 @@ public class YarepUserManager implements UserManager {
             }
             if (password != null) {
                 user.setPassword(password);
+            } else {
+                log.warn("No password set for new user '" + id + "' (" + name + "), maybe user was pre-authenticated.");
             }
 
             user.setNode(usersParentNode.addNode(id + "." + SUFFIX, NodeType.RESOURCE));
@@ -202,7 +206,7 @@ public class YarepUserManager implements UserManager {
                     user.addAlias(alias);
 
                     Node aliasNode = aliasesParentNode.addNode(alias + ".xml", NodeType.RESOURCE);
-                    String content = "<?xml version=\"1.0\"?>\n\n<alias pseudonym=\"" + alias + "\" true-name=\"" + getTrueId(username) + "\"/>";
+                    String content = "<?xml version=\"1.0\"?>\n\n<alias " + PSEUDONYM + "=\"" + alias + "\" true-name=\"" + getTrueId(username) + "\"/>";
                     aliasNode.getOutputStream();
                     org.apache.commons.io.IOUtils.copy(new java.io.StringBufferInputStream(content), aliasNode.getOutputStream());
 
@@ -545,16 +549,16 @@ public class YarepUserManager implements UserManager {
             if (aliasesParentNode != null) {
                 log.debug("Get true ID from alias '" + id + "'...");
                 if (aliasesParentNode.hasNode(id + ".xml")) {
-                    Node alias = aliasesParentNode.getNode(id + ".xml");
+                    Node aliasNode = aliasesParentNode.getNode(id + ".xml");
                     DefaultConfigurationBuilder configBuilder = new DefaultConfigurationBuilder(true);
-                    Configuration config = configBuilder.build(alias.getInputStream());
+                    Configuration config = configBuilder.build(aliasNode.getInputStream());
 
-                    String pseudo = config.getAttribute("pseudonym", "NULL");
-                    if (!pseudo.equals(id)) {
-                        throw new AccessManagementException("Pseudonym '" + pseudo + "' does not match node name '" + alias.getName() + "'.");
+                    String pseudo = config.getAttribute(PSEUDONYM, "NULL");
+                    if (!pseudo.toLowerCase().equals(id.toLowerCase())) {
+                        throw new AccessManagementException("Pseudonym attribute '" + pseudo + "' of node '" + aliasNode.getName() + "' does not match Id '" + id + "'.");
                     }
                     String trueId = config.getAttribute("true-name", "NULL");
-                    log.debug(String.format("pseudonym: %s, true-ID: %s", pseudo, trueId));
+                    log.debug(String.format("Pseudonym: %s, true-ID: %s", pseudo, trueId));
                     return trueId;
                 } else {
                     log.debug("No alias found for id '" + id + "', hence return this id as true ID");
