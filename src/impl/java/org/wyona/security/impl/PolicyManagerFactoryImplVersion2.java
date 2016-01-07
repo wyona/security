@@ -7,7 +7,8 @@ import org.wyona.security.core.api.PolicyManager;
 import org.wyona.yarep.core.Repository;
 import org.wyona.yarep.core.RepositoryFactory;
 
-import org.apache.log4j.Category;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.io.File;
 
@@ -16,7 +17,7 @@ import java.io.File;
  */
 public class PolicyManagerFactoryImplVersion2 extends PolicyManagerFactory {
 
-    private static Category log = Category.getInstance(PolicyManagerFactoryImplVersion2.class);
+    private static Logger log = LogManager.getLogger(PolicyManagerFactoryImplVersion2.class);
 
     /**
      *
