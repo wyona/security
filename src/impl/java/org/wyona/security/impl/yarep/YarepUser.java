@@ -375,9 +375,6 @@ public class YarepUser extends YarepItem implements User {
         }
 
         UserHistory history = getHistory();
-        if (history == null) {
-            history = new UserHistory();
-        }
         if (result) {
             history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(new Date(), "login", "successful"));
         } else {
@@ -704,11 +701,11 @@ public class YarepUser extends YarepItem implements User {
                 }
                 return history;
             } else {
-                return null;
+                return new UserHistory();
             }
         } catch(Exception e) {
             log.error(e, e);
-            return null;
+            return new UserHistory();
         }
     }
 
