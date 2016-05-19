@@ -699,7 +699,7 @@ public class YarepUser extends YarepItem implements User {
         log.debug("Get parent group IDs for particular group: " + groupID);
 
         GroupManager gm = getGroupManager();
-        if (gm != null) {
+        if (gm != null && gm.getGroup(groupID)!=null) {
             Group[] parentGroups = gm.getGroup(groupID).getParents();
             if (parentGroups != null) {
                 for (int i = 0; i < parentGroups.length; i++) {
