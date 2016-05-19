@@ -96,6 +96,10 @@ public class YarepUsersIterator extends YarepUserManager implements java.util.It
             Searcher s = identitiesRepository.getSearcher();
             Node[] userNodes = s.search(query);
 
+            if (userNodes.length <= 0) {
+                log.warn("No users found for query '" + query + "'!");
+            }
+
             userNodeList = new LinkedList<Node>();
             for(Node n : userNodes) {
                 if(n.isResource()) {
