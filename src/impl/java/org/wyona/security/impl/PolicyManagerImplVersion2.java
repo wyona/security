@@ -323,9 +323,9 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
 
     /**
      * Append '.policy' to path as suffix
-     * @param path Path for which we are looking for a policy
+     * @param path Path for which we are looking for a policy, e.g. "/en/projects/yanel/invite-user.html"
      * @param queryString Query string associated with requested path
-     * @return policy path
+     * @return policy path, e.g. "/en/projects/yanel/invite-user.html.policy"
      */
     private String getPolicyPath(String path, String queryString) {
         //log.debug("Get policy path for requested path '" + path + "' ...");
@@ -333,7 +333,8 @@ public class PolicyManagerImplVersion2 implements PolicyManager {
         if (path.length() > 1 && path.charAt(path.length() - 1) == '/') {
             path = path.substring(0, path.length() - 1);
         }
-    	
+ 
+        // TODO: Make order configurable, such that we can also check first whether individual policy exists (e.g. "/en/projects/yanel/invite-user.html.policy") and if not, then check policy map
         String mapped = getMappedPath(path, queryString);
         if(mapped != null) {
             log.debug("Mapped path: " + path + " -> " + mapped);
