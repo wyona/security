@@ -811,8 +811,9 @@ public class YarepUser extends YarepItem implements User {
         log.debug("Get parent group IDs for particular group: " + groupID);
 
         GroupManager gm = getGroupManager();
-        if (gm != null && gm.getGroup(groupID)!=null) {
-            Group[] parentGroups = gm.getGroup(groupID).getParents();
+        if (gm != null) {
+            if (gm.getGroup(groupID) != null) {
+                Group[] parentGroups = gm.getGroup(groupID).getParents();
             if (parentGroups != null) {
                 for (int i = 0; i < parentGroups.length; i++) {
                     String parentGroupID = parentGroups[i].getID();
@@ -848,6 +849,9 @@ public class YarepUser extends YarepItem implements User {
                 }
             } else {
                 log.debug("Group '" + groupID + "' does not seem to have parent groups.");
+            }
+            } else {
+                log.error("No such group '" + groupID + "'!");
             }
         } else {
             log.error("Group manager is null!");
