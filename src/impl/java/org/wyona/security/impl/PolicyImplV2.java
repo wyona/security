@@ -1,6 +1,5 @@
 package org.wyona.security.impl;
 
-import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Policy;
 
 import org.apache.log4j.Logger;

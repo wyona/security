@@ -12,7 +12,8 @@ import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import org.wyona.security.core.ExpiredIdentityException;
 import org.wyona.security.core.UserHistory;
@@ -25,12 +26,17 @@ import org.wyona.security.impl.Password;
 
 import org.wyona.yarep.core.Node;
 
+import org.wyona.commons.xml.XMLHelper;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 /**
  * User implementation based on Yarep
  */
 public class YarepUser extends YarepItem implements User {
 
-    private static Logger log = Logger.getLogger(YarepUser.class);
+    private static Logger log = LogManager.getLogger(YarepUser.class);
 
     public static final String USER = "user";
 
@@ -54,7 +60,15 @@ public class YarepUser extends YarepItem implements User {
 
     public static final String EXPIRE = "expire";
 
+    private static final String DATE_ATTR = "date";
+    private static final String USECASE_ATTR = "usecase";
+    private static final String DESCRIPTION_ATTR = "description";
+    private static final String EVENT_TAG_NAME = "event";
+
     public static final String DESCRIPTION = "description";
+
+    private static final String HISTORIES_BASE_NODE_NAME = "histories";
+    private static final String HISTORY_XML_DOC_NODE_NAME = "history.xml";
 
     /**
      * Date format used for the expired value
@@ -85,7 +99,7 @@ public class YarepUser extends YarepItem implements User {
      *
      * @param userManager
      * @param groupManager
-     * @param node
+     * @param node Yarep node containing user information, e.g. hashed password
      */
     public YarepUser(UserManager userManager, GroupManager groupManager, Node node) throws AccessManagementException {
         // INFO: This will call configure()
@@ -359,6 +373,14 @@ public class YarepUser extends YarepItem implements User {
             log.error("No such hashing algorithm known: " + hashingAlgorithm);
             result = false;
         }
+
+        UserHistory history = getHistory();
+        if (result) {
+            history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(new Date(), "login", "successful"));
+        } else {
+            history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(new Date(), "login", "failed"));
+        }
+        setHistory(history);
 
         return result;
     }
@@ -660,15 +682,105 @@ public class YarepUser extends YarepItem implements User {
      * @see org.wyona.security.core.api.User#getHistory()
      */
     public UserHistory getHistory() {
-        log.error("TODO: Not implemented yet!");
-        return null;
+        try {
+            Node historyNode = getHistoryNode();
+            log.warn("DEBUG: History node: " + historyNode.getPath());
+
+            Document doc = null;
+            Node xmlDocNode = null;
+            if (historyNode.hasNode(HISTORY_XML_DOC_NODE_NAME)) {
+                xmlDocNode = historyNode.getNode(HISTORY_XML_DOC_NODE_NAME);
+                doc = XMLHelper.readDocument(xmlDocNode.getInputStream());
+                UserHistory history = new UserHistory();
+                Element[] entryEls = XMLHelper.getChildElements(doc.getDocumentElement(), EVENT_TAG_NAME, null);
+                for (int i = 0; i < entryEls.length; i++) {
+                    Date date = new Date(new Long(entryEls[i].getAttribute(DATE_ATTR)).longValue());
+                    String usecase = entryEls[i].getAttribute(USECASE_ATTR);
+                    String desc = entryEls[i].getAttribute(DESCRIPTION_ATTR);
+                    history.addEntry(new org.wyona.security.core.UserHistory().new HistoryEntry(date, usecase, desc));
+                }
+                return history;
+            } else {
+                return new UserHistory();
+            }
+        } catch(Exception e) {
+            log.error(e, e);
+            return new UserHistory();
+        }
     }
 
     /**
      * @see org.wyona.security.core.api.User#setHistory(UserHistory)
      */
     public void setHistory(UserHistory history) {
-        log.error("TODO: Not implemented yet!");
+        if (history != null) {
+            java.util.List<org.wyona.security.core.UserHistory.HistoryEntry> entries = history.getHistory();
+            try {
+                Node historyNode = getHistoryNode();
+                log.warn("DEBUG: History node: " + historyNode.getPath());
+
+                int DEFAULT_SIZE = 10;
+                int maxSize = DEFAULT_SIZE;
+                Node xmlDocNode = null;
+                if (historyNode.hasNode(HISTORY_XML_DOC_NODE_NAME)) {
+                    xmlDocNode = historyNode.getNode(HISTORY_XML_DOC_NODE_NAME);
+                    maxSize = new Integer(XMLHelper.readDocument(xmlDocNode.getInputStream()).getDocumentElement().getAttribute("max-size")).intValue();
+                } else {
+                    xmlDocNode = historyNode.addNode(HISTORY_XML_DOC_NODE_NAME, org.wyona.yarep.core.NodeType.RESOURCE);
+                }
+                Document doc = XMLHelper.createDocument("http://www.wyona.org/security/user/history/1.0.0", "user-history");
+                Element rootEl = doc.getDocumentElement();
+                rootEl.setAttribute("max-size", "" + maxSize);
+
+                int counter = 0;
+                for (org.wyona.security.core.UserHistory.HistoryEntry entry: entries) {
+                    counter++;
+                    if (entries.size() - counter < maxSize) {
+                        log.warn("DEBUG: Save history entry: " + entry);
+                        Element entryEl = (Element) rootEl.appendChild(doc.createElement(EVENT_TAG_NAME));
+                        entryEl.setAttribute(DATE_ATTR, "" + entry.getDate().getTime());
+                        entryEl.setAttribute(USECASE_ATTR, entry.getUsecase());
+                        entryEl.setAttribute(DESCRIPTION_ATTR, entry.getDescription());
+                    } else {
+                        log.warn("DEBUG: Drop history entry: " + entry);
+                    }
+                }
+
+                java.io.OutputStream out = xmlDocNode.getOutputStream();
+                XMLHelper.writeDocument(doc, out);
+                out.close();
+            } catch(Exception e) {
+                log.error(e, e);
+            }
+        } else {
+            log.error("History argument is null!");
+        }
+    }
+
+    /**
+     * Get history node of this particular user, e.g. '/histories/1412880733771'
+     */
+    private Node getHistoryNode() throws Exception {
+        Node userNode = getNode();
+        Node usersNode = userNode.getParent();
+        Node rootNode = usersNode.getParent();
+
+        Node historiesNode = null;
+        if (rootNode.hasNode(HISTORIES_BASE_NODE_NAME)) {
+            historiesNode = rootNode.getNode(HISTORIES_BASE_NODE_NAME);
+        } else {
+            historiesNode = rootNode.addNode(HISTORIES_BASE_NODE_NAME, org.wyona.yarep.core.NodeType.COLLECTION);
+        }
+
+        Node historyNode = null;
+        String nameWithoutSuffix = org.wyona.commons.io.PathUtil.getNameWithoutSuffix(userNode.getName());
+        if (historiesNode.hasNode(nameWithoutSuffix)) {
+            historyNode = historiesNode.getNode(nameWithoutSuffix);
+        } else {
+            historyNode = historiesNode.addNode(nameWithoutSuffix, org.wyona.yarep.core.NodeType.COLLECTION);
+        }
+
+        return historyNode;
     }
 
     /**

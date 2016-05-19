@@ -384,4 +384,11 @@ public class UsecasePolicy {
 
         return true;
     }
+
+    /**
+     * @see java.lang.Object#toString()
+     */
+    public String toString() {
+        return getName();
+    }
 }

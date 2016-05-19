@@ -33,12 +33,12 @@ public class UserHistory {
         private Date date;
 
         /**
-         * The usecase / action
+         * The usecase / action, e.g. 'login'
          */
         private String usecase;
 
         /**
-         * The description of the history entry
+         * The description of the history entry, e.g. 'authentication failed'
          */
         private String description;
 
@@ -53,6 +53,27 @@ public class UserHistory {
             this.date = date;
             this.usecase = usecase;
             this.description = description;
+        }
+
+        /**
+         *
+         */
+        public String getDescription() {
+            return description;
+        }
+
+        /**
+         *
+         */
+        public String getUsecase() {
+            return usecase;
+        }
+
+        /**
+         *
+         */
+        public Date getDate() {
+            return date;
         }
 
         /**

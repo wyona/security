@@ -4,7 +4,10 @@ import java.util.HashMap;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
-import org.apache.log4j.Logger;
+
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
 import org.wyona.security.core.api.IdentityManager;
@@ -24,7 +27,7 @@ import org.wyona.yarep.core.RepositoryException;
  * compatibility.
  */
 public class YarepUserManager implements UserManager {
-    protected static Logger log = Logger.getLogger(YarepUserManager.class);
+    protected static Logger log = LogManager.getLogger(YarepUserManager.class);
     
     private Repository identitiesRepository;
 
@@ -37,6 +40,8 @@ public class YarepUserManager implements UserManager {
 
     private String SUFFIX = "xml";
     private String DEPRECATED_SUFFIX = "iml";
+
+    private static final String PSEUDONYM = "pseudonym";
 
     /**
      * Constructor.
@@ -157,6 +162,8 @@ public class YarepUserManager implements UserManager {
             }
             if (password != null) {
                 user.setPassword(password);
+            } else {
+                log.warn("No password set for new user '" + id + "' (" + name + "), maybe user was pre-authenticated.");
             }
 
             user.setNode(usersParentNode.addNode(id + "." + SUFFIX, NodeType.RESOURCE));
@@ -199,7 +206,7 @@ public class YarepUserManager implements UserManager {
                     user.addAlias(alias);
 
                     Node aliasNode = aliasesParentNode.addNode(alias + ".xml", NodeType.RESOURCE);
-                    String content = "<?xml version=\"1.0\"?>\n\n<alias pseudonym=\"" + alias + "\" true-name=\"" + getTrueId(username) + "\"/>";
+                    String content = "<?xml version=\"1.0\"?>\n\n<alias " + PSEUDONYM + "=\"" + alias + "\" true-name=\"" + getTrueId(username) + "\"/>";
                     aliasNode.getOutputStream();
                     org.apache.commons.io.IOUtils.copy(new java.io.StringBufferInputStream(content), aliasNode.getOutputStream());
 
@@ -424,10 +431,31 @@ public class YarepUserManager implements UserManager {
             Node aliasesParentNode = getAliasesParentNode();
             if (aliasesParentNode != null) {
                 if (aliasesParentNode.hasNode(alias + ".xml")) {
-                    ((YarepUser) getUser(getTrueId(alias))).removeAlias(alias);
-                    Node aliasNode = aliasesParentNode.getNode(alias + ".xml");
-                    aliasNode.delete();
-                    log.warn("TODO: Check if this is the last alias of a specific username!");
+                    YarepUser user = (YarepUser) getUser(getTrueId(alias));
+
+                    String[] aliases = user.getAliases();
+                    if (aliases != null) {
+                        log.debug("Check whether '" + alias + "' is the last alias of a specific username!");
+                        if (aliases.length == 1) {
+                            if (aliases[0].equals(alias)) {
+                                log.warn("Alias '" + alias + "' is the only alias of user '" + user.getID() + "'!");
+                            } else {
+                                log.warn("Alias '" + aliases[0] + "' is the only alias of user '" + user.getID() + "', but does not match with '" + alias + "', the one to be removed!");
+                            }
+                        } else {
+                            log.info("User '" + user.getID() + "' has " + aliases.length + " aliases.");
+                            for (int i = 0; i < aliases.length; i++) {
+                                log.debug("Alias: " + aliases[i]);
+                            }
+                        }
+
+                        user.removeAlias(alias);
+
+                        Node aliasNode = aliasesParentNode.getNode(alias + ".xml");
+                        aliasNode.delete();
+                    } else {
+                        log.warn("User '" + user.getID() + "' has no aliases!");
+                    }
                 } else {
                     log.warn("No alias found for id '" + alias + "'!");
                 }
@@ -521,16 +549,16 @@ public class YarepUserManager implements UserManager {
             if (aliasesParentNode != null) {
                 log.debug("Get true ID from alias '" + id + "'...");
                 if (aliasesParentNode.hasNode(id + ".xml")) {
-                    Node alias = aliasesParentNode.getNode(id + ".xml");
+                    Node aliasNode = aliasesParentNode.getNode(id + ".xml");
                     DefaultConfigurationBuilder configBuilder = new DefaultConfigurationBuilder(true);
-                    Configuration config = configBuilder.build(alias.getInputStream());
+                    Configuration config = configBuilder.build(aliasNode.getInputStream());
 
-                    String pseudo = config.getAttribute("pseudonym", "NULL");
-                    if (!pseudo.equals(id)) {
-                        throw new AccessManagementException("Pseudonym '" + pseudo + "' does not match node name '" + alias.getName() + "'.");
+                    String pseudo = config.getAttribute(PSEUDONYM, "NULL");
+                    if (!pseudo.toLowerCase().equals(id.toLowerCase())) {
+                        throw new AccessManagementException("Pseudonym attribute '" + pseudo + "' of node '" + aliasNode.getName() + "' does not match Id '" + id + "'.");
                     }
                     String trueId = config.getAttribute("true-name", "NULL");
-                    log.debug(String.format("pseudonym: %s, true-ID: %s", pseudo, trueId));
+                    log.debug(String.format("Pseudonym: %s, true-ID: %s", pseudo, trueId));
                     return trueId;
                 } else {
                     log.debug("No alias found for id '" + id + "', hence return this id as true ID");

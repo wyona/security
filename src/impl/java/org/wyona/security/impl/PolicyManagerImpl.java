@@ -20,7 +20,8 @@ import org.wyona.yarep.core.RepositoryFactory;
 import org.wyona.yarep.util.RepoPath;
 import org.wyona.yarep.util.YarepUtil;
 
-import org.apache.log4j.Category;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
@@ -30,7 +31,7 @@ import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
  */
 public class PolicyManagerImpl implements PolicyManager {
 
-    private static Category log = Category.getInstance(PolicyManagerImpl.class);
+    private static Logger log = LogManager.getLogger(PolicyManagerImpl.class);
 
     private Repository policiesRepository;
     private DefaultConfigurationBuilder configBuilder;
@@ -66,7 +67,15 @@ public class PolicyManagerImpl implements PolicyManager {
     }
 
     /**
-     *
+     * @see org.wyona.security.core.api.PolicyManager#(String, String, Identity, Usecase)
+     */
+    public boolean authorize(String path, String queryString, Identity identity, Usecase usecase) throws AuthorizationException {
+        log.warn("QueryString not supported, please use PolicyManagerImplVersion2.");
+        return authorize(path, identity, usecase);
+    }
+
+    /**
+     * @see org.wyona.security.core.api.PolicyManager#(String, Identity, Usecase)
      */
     public boolean authorize(String path, Identity identity, Usecase usecase) throws AuthorizationException {
         Role role = new Role(usecase.getName());

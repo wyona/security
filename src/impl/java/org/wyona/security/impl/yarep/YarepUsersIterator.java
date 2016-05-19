@@ -1,6 +1,8 @@
 package org.wyona.security.impl.yarep;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 
@@ -28,7 +30,8 @@ import org.wyona.yarep.core.search.Searcher;
  */
 public class YarepUsersIterator extends YarepUserManager implements java.util.Iterator {
     // Constants
-    private static Logger log = Logger.getLogger(YarepUsersIterator.class);
+    private static Logger log = LogManager.getLogger(YarepUsersIterator.class);
+
     private static DefaultConfigurationBuilder configBuilder = new DefaultConfigurationBuilder(true);
 
     // Variables
@@ -92,6 +95,10 @@ public class YarepUsersIterator extends YarepUserManager implements java.util.It
         try {
             Searcher s = identitiesRepository.getSearcher();
             Node[] userNodes = s.search(query);
+
+            if (userNodes.length <= 0) {
+                log.warn("No users found for query '" + query + "'!");
+            }
 
             userNodeList = new LinkedList<Node>();
             for(Node n : userNodes) {
