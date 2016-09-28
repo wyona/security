@@ -8,14 +8,15 @@ import java.util.Vector;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * Uscase policy containing
  */
 public class UsecasePolicy {
 
-    private static Logger log = Logger.getLogger(UsecasePolicy.class);
+    private static Logger log = LogManager.getLogger(UsecasePolicy.class);
 
     private String name;
 
