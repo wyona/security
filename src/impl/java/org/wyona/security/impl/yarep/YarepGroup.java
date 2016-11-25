@@ -284,12 +284,14 @@ public class YarepGroup extends YarepItem implements Group {
         if (null != item) {
             if (item instanceof User) {
                 memberUserIDs.remove(item.getID());
+                save();
                 ((YarepUser) item).removeGroup(getID());
-                log.warn("User has been removed: " + item.getID());
+                log.warn("DEBUG: User '" + item.getID() + "' has been removed from group '" + getID() + "'.");
             } else if (item instanceof Group) {
                 memberGroupIDs.remove(item.getID());
+                save();
                 ((YarepGroup) item).removeParentGroup(getID());
-                log.warn("Group has been removed: " + item.getID());
+                log.warn("DEBUG: Group '" + item.getID() + "' has been removed from group '" + getID() + "'.");
             } else {
                 log.warn("Item '" + item.getID() + "' is neither user nor group: " + item.getClass().getName());
             }
