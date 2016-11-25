@@ -4,7 +4,8 @@ import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
 import org.wyona.security.core.api.Item;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 /**
  * Group implementation based on Yarep, version 2, improving scalability issues of version 1 (YarepGroup.class)
@@ -12,7 +13,7 @@ import org.apache.log4j.Logger;
  */
 public class YarepGroupImplV2 extends AbstractYarepGroup implements Group {
 
-    private static final Logger log = Logger.getLogger(YarepGroupImplV2.class);
+    private static final Logger log = LogManager.getLogger(YarepGroupImplV2.class);
 
     private String name;
     
