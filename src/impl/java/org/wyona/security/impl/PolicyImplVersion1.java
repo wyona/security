@@ -8,7 +8,8 @@ import org.wyona.security.core.api.Group;
 import org.wyona.security.core.api.Identity;
 import org.wyona.security.core.api.Policy;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.ConfigurationException;
@@ -21,7 +22,7 @@ import java.util.Vector;
  */
 public class PolicyImplVersion1 implements Policy {
 
-    private static Logger log = Logger.getLogger(PolicyImplVersion1.class);
+    private static Logger log = LogManager.getLogger(PolicyImplVersion1.class);
     protected DefaultConfigurationBuilder builder = null;
     protected Vector usecasePolicies = null;
     protected boolean useInheritedPolicies = true;
