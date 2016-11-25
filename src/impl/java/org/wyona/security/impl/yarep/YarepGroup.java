@@ -8,7 +8,8 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfiguration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.Group;
@@ -23,7 +24,7 @@ import org.wyona.yarep.core.Node;
  * Group implementation based on Yarep
  */
 public class YarepGroup extends YarepItem implements Group {
-    protected static final Logger log = Logger.getLogger(YarepGroup.class);
+    protected static final Logger log = LogManager.getLogger(YarepGroup.class);
     
     private java.util.List<String> memberUserIDs;
     private java.util.List<String> memberGroupIDs;
@@ -196,7 +197,13 @@ public class YarepGroup extends YarepItem implements Group {
                 log.debug("Add user '" + item.getID() + "' to group: " + getID());
                 memberUserIDs.add(item.getID());
                 log.debug("Add group '" + getID() + "' to user: " + item.getID());
-                ((YarepUser) item).addGroup(getID());
+            
+                try {
+                    ((YarepUser) item).addGroup(getID());
+                } catch (ClassCastException e) {
+                    log.error(e, e);
+                    throw new AccessManagementException("Item '" + item.getClass().getName() + "' is not instance of YarepUser, hence group '" + getID() + "' won't be added to item '" + item.getID() + "'!");
+                }
                 save();
             } else if (item instanceof Group) {
                 if (wouldCreateGroupLoop(getID(), (Group)item)) {
