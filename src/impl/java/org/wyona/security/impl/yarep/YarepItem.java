@@ -5,7 +5,8 @@ import org.apache.avalon.framework.configuration.ConfigurationException;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
 import org.apache.avalon.framework.configuration.DefaultConfigurationSerializer;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import org.wyona.security.core.api.AccessManagementException;
 import org.wyona.security.core.api.GroupManager;
@@ -24,7 +25,7 @@ public abstract class YarepItem implements Item {
     private UserManager userManager;
     private GroupManager groupManager;
 
-    private static Logger log = Logger.getLogger(YarepItem.class);
+    private static Logger log = LogManager.getLogger(YarepItem.class);
     
     protected static final String NAME = "name";
 
