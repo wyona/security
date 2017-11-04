@@ -163,7 +163,7 @@ public class YarepUserManager implements UserManager {
             if (password != null) {
                 user.setPassword(password);
             } else {
-                log.warn("No password set for new user '" + id + "' (" + name + "), maybe user was pre-authenticated.");
+                log.warn("No password set for new user '" + id + "' (" + name + "), maybe user was pre-authenticated (e.g. using OpenID).");
             }
 
             user.setNode(usersParentNode.addNode(id + "." + SUFFIX, NodeType.RESOURCE));
@@ -210,7 +210,7 @@ public class YarepUserManager implements UserManager {
                     aliasNode.getOutputStream();
                     org.apache.commons.io.IOUtils.copy(new java.io.StringBufferInputStream(content), aliasNode.getOutputStream());
 
-                    return getUser(alias);
+                    return getUser(getTrueId(alias));
                 }
             } else {
                 log.warn("No aliases directory exists yet. Please consider to introduce one. ID will be returned as true ID.");
