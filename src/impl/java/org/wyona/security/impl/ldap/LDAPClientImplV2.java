@@ -88,6 +88,18 @@ public class LDAPClientImplV2 implements LDAPClient {
                         String userId = values.next().toString();
                         //log.warn("DEBUG: Value: " + userId);
                         users.add(userId);
+
+                        Attribute mailAttribute = result.getAttributes().get("mail");
+                        if (mailAttribute != null) {
+                            NamingEnumeration mailValues = mailAttribute.getAll();
+                            while(mailValues.hasMore()) {
+                                String email = mailValues.next().toString();
+                                log.warn("DEBUG: Email of user '" + userId + "': " + email);
+                                //users.add(userId);
+                            }
+                        } else {
+                            log.warn("Search result has no 'mail' attribute: " + result);
+                        }
                     }
                 } else {
                     log.warn("Search result has no 'uid' attribute: " + result);
