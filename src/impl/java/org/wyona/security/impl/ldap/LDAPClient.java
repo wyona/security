@@ -27,4 +27,10 @@ public interface LDAPClient {
      * Get all usernames
      */
     public String[] getAllUsernames() throws Exception;
+
+    /**
+     * Get all usernames
+     * @param contextName Name of context, e.g. "uid=tesla,dc=example,dc=com"
+     */
+    public String[] getAllUsernames(String contextName) throws Exception;
 }

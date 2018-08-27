@@ -46,11 +46,18 @@ public class LDAPClientImpl implements LDAPClient {
      * @see org.wyona.security.impl.ldap.LDAPClient#getAllUsernames()
      */
     public String[] getAllUsernames() throws Exception {
+        // Search (dc: domain component, ou: organisational unit, cn: common name, uid, User id (See LDAP attribute abbreviations))
+        return getAllUsernames("cn=eld,ou=Systems,dc=naz,dc=ch"); // TODO: Replace hardcoded name of context
+    }
+
+    /**
+     * @see org.wyona.security.impl.ldap.LDAPClient#getAllUsernames(String)
+     */
+    public String[] getAllUsernames(String contextName) throws Exception {
         // Create connection
         InitialLdapContext ldapContext = getInitialLdapContext();
 
-        // Search (dc: domain component, ou: organisational unit, cn: common name, uid, User id (See LDAP attribute abbreviations))
-        NamingEnumeration results = ldapContext.search(new CompositeName("cn=eld,ou=Systems,dc=naz,dc=ch"), "(objectClass=accessRole)", null); // TODO: Make filter configurable
+        NamingEnumeration results = ldapContext.search(new CompositeName(contextName), "(objectClass=accessRole)", null); // TODO: Make matching attributes configurable
 
         // Analyze results
         java.util.List<String> users = new java.util.ArrayList<String>();

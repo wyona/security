@@ -46,13 +46,20 @@ public class LDAPClientImplV2 implements LDAPClient {
      * @see org.wyona.security.impl.ldap.LDAPClient#getAllUsernames()
      */
     public String[] getAllUsernames() throws Exception {
+        return getAllUsernames("ou=system");
+    }
+
+    /**
+     * @see org.wyona.security.impl.ldap.LDAPClient#getAllUsernames(String)
+     */
+    public String[] getAllUsernames(String contextName) throws Exception {
         // Create connection
         InitialLdapContext ldapContext = getInitialLdapContext();
 
         // Search
-        //NamingEnumeration results = ldapContext.search(new CompositeName("ou=system"), "(cn=system*)", null); // TODO: Make filter configurable
-        NamingEnumeration results = ldapContext.search(new CompositeName("ou=system"), "(objectClass=*)", null); // TODO: Make filter configurable
-        //NamingEnumeration results = ldapContext.search(new CompositeName("ou=system"), "(objectClass=person)", null); // TODO: Make filter configurable
+        //NamingEnumeration results = ldapContext.search(new CompositeName(contextName), "(cn=system*)", null); // TODO: Make filter configurable
+        NamingEnumeration results = ldapContext.search(new CompositeName(contextName), "(objectClass=*)", null); // TODO: Make filter configurable
+        //NamingEnumeration results = ldapContext.search(new CompositeName(contextName), "(objectClass=person)", null); // TODO: Make filter configurable
 
         // Analyze results
         java.util.List<String> users = new java.util.ArrayList<String>();
