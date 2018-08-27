@@ -31,6 +31,7 @@ public interface LDAPClient {
     /**
      * Get all usernames
      * @param contextName Name of context, e.g. "uid=tesla,dc=example,dc=com"
+     * @param matchingAttributes The attributes to search for, e.g. "(objectClass=*)"
      */
-    public String[] getAllUsernames(String contextName) throws Exception;
+    public String[] getAllUsernames(String contextName, String matchingAttributes) throws Exception;
 }
