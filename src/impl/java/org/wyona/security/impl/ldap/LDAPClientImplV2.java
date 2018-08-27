@@ -137,6 +137,7 @@ public class LDAPClientImplV2 implements LDAPClient {
             throw new Exception("No security authentication mechanism configured!");
         }
 
+        // INFO: https://docs.oracle.com/javase/jndi/tutorial/ldap/security/ssl.html Either set SECURITY_PROTOCOL to 'ssl' or use ldaps URL
         if (securityProtocol != null) {
             ldapProps.put(Context.SECURITY_PROTOCOL, securityProtocol);
         } else {
