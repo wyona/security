@@ -3,6 +3,18 @@
     README
     ======
 
+    See all targets:
+    ----------------
+
+    "./build.sh -p"
+
+
+    Compile and deploy libraries locally:
+    -------------------------------------
+
+    "./build.sh install-jars"
+
+
     Running the tests:
     ------------------
 
