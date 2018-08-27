@@ -24,6 +24,13 @@ public interface LDAPClient {
     public void setSecurityProtocol(String protocol) throws Exception;
 
     /**
+     * Set credentials
+     * @param userDN The full user DN (distinguished name, e.g "uid=schroedinger,dc=example,dc=com"
+     * @param password Password associated with username
+     */
+    public void setCredentials(String userDB, String password) throws Exception;
+
+    /**
      * Get all usernames
      */
     public String[] getAllUsernames() throws Exception;

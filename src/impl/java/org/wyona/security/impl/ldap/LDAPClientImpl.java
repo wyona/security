@@ -43,6 +43,13 @@ public class LDAPClientImpl implements LDAPClient {
     }
 
     /**
+     * @see org.wyona.security.impl.ldap.LDAPClient#setCredentials(String, String)
+     */
+    public void setCredentials(String userDN, String password) {
+        log.warn("Setting and using credentials not implemented yet! See LDAPClientImplV2");
+    }
+
+    /**
      * @see org.wyona.security.impl.ldap.LDAPClient#getAllUsernames()
      */
     public String[] getAllUsernames() throws Exception {

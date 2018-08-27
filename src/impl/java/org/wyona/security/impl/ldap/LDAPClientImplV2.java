@@ -21,6 +21,9 @@ public class LDAPClientImplV2 implements LDAPClient {
     private String authenticationMechanism;
     private String securityProtocol;
 
+    private String userDN;
+    private String password;
+
     /**
      * @see org.wyona.security.impl.ldap.LDAPClient#setProviderURL(String)
      */
@@ -40,6 +43,14 @@ public class LDAPClientImplV2 implements LDAPClient {
      */
     public void setSecurityProtocol(String p) throws Exception {
         this.securityProtocol = p;
+    }
+
+    /**
+     * @see org.wyona.security.impl.ldap.LDAPClient#setCredentials(String, String)
+     */
+    public void setCredentials(String userDN, String password) {
+        this.userDN = userDN;
+        this.password = password;
     }
 
     /**
@@ -103,6 +114,13 @@ public class LDAPClientImplV2 implements LDAPClient {
         }
         if  (authenticationMechanism != null) {
             ldapProps.put(Context.SECURITY_AUTHENTICATION, authenticationMechanism);
+
+            // INFO: See https://docs.oracle.com/javase/jndi/tutorial/ldap/security/ldap.html
+            if (userDN != null) {
+                log.info("Set credentials to authenticate ...");
+                ldapProps.setProperty(Context.SECURITY_PRINCIPAL, userDN);
+                ldapProps.put(Context.SECURITY_CREDENTIALS, password);
+            }
         } else {
             throw new Exception("No security authentication mechanism configured!");
         }
