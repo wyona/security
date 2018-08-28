@@ -109,7 +109,7 @@ public class LDAPClientImplV2 implements LDAPClient {
                             NamingEnumeration mailValues = mailAttribute.getAll();
                             while(mailValues.hasMore()) {
                                 String email = mailValues.next().toString();
-                                log.warn("DEBUG: Email of user '" + userId + "': " + email);
+                                //log.warn("DEBUG: Email of user '" + userId + "': " + email);
                                 user.setEmail(email);
                             }
                         } else {
