@@ -66,6 +66,20 @@ public class LDAPClientImplV2 implements LDAPClient {
      * @see org.wyona.security.impl.ldap.LDAPClient#getAllUsernames(String, String)
      */
     public String[] getAllUsernames(String contextName, String matchingAttributes) throws Exception {
+        User[] users = getAllUsers(contextName, matchingAttributes);
+
+        java.util.List<String> userNames = new java.util.ArrayList<String>();
+        for (int i = 0; i < users.length; i++) {
+            userNames.add(users[i].getUID());
+        }
+
+        return userNames.toArray(new String[userNames.size()]);
+    }
+
+    /**
+     * Get all users
+     */
+    public User[] getAllUsers(String contextName, String matchingAttributes) throws Exception {
         // Create connection
         InitialLdapContext ldapContext = getInitialLdapContext();
 
@@ -73,7 +87,7 @@ public class LDAPClientImplV2 implements LDAPClient {
         NamingEnumeration results = ldapContext.search(new CompositeName(contextName), matchingAttributes, null);
 
         // Analyze results
-        java.util.List<String> users = new java.util.ArrayList<String>();
+        java.util.List<User> users = new java.util.ArrayList<User>();
         if (!results.hasMore()) {
             log.warn("No users found!");
         }
@@ -87,7 +101,8 @@ public class LDAPClientImplV2 implements LDAPClient {
                     while(values.hasMore()) {
                         String userId = values.next().toString();
                         //log.warn("DEBUG: Value: " + userId);
-                        users.add(userId);
+                        User user = new User(userId);
+                        users.add(user);
 
                         Attribute mailAttribute = result.getAttributes().get("mail");
                         if (mailAttribute != null) {
@@ -95,7 +110,7 @@ public class LDAPClientImplV2 implements LDAPClient {
                             while(mailValues.hasMore()) {
                                 String email = mailValues.next().toString();
                                 log.warn("DEBUG: Email of user '" + userId + "': " + email);
-                                //users.add(userId);
+                                user.setEmail(email);
                             }
                         } else {
                             log.warn("Search result has no 'mail' attribute: " + result);
@@ -109,7 +124,7 @@ public class LDAPClientImplV2 implements LDAPClient {
             }
         }
         ldapContext.close();
-        return users.toArray(new String[users.size()]);
+        return users.toArray(new User[users.size()]);
     }
 
     /**
