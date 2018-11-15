@@ -1,6 +1,7 @@
 package org.wyona.security.impl.ldap;
 
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
 
 import java.util.Properties;
 import javax.naming.CompositeName;
@@ -15,7 +16,7 @@ import javax.naming.ldap.InitialLdapContext;
  */
 public class LDAPClientImplV2 implements LDAPClient {
 
-    private static Logger log = Logger.getLogger(LDAPClientImplV2.class);
+    private static Logger log = LogManager.getLogger(LDAPClientImplV2.class);
 
     private String url;
     private String authenticationMechanism;
@@ -66,7 +67,7 @@ public class LDAPClientImplV2 implements LDAPClient {
      * @see org.wyona.security.impl.ldap.LDAPClient#getAllUsernames(String, String)
      */
     public String[] getAllUsernames(String contextName, String matchingAttributes) throws Exception {
-        User[] users = getAllUsers(contextName, matchingAttributes);
+        User[] users = getAllUsers(contextName, matchingAttributes, "uid");
 
         java.util.List<String> userNames = new java.util.ArrayList<String>();
         for (int i = 0; i < users.length; i++) {
@@ -78,8 +79,9 @@ public class LDAPClientImplV2 implements LDAPClient {
 
     /**
      * Get all users
+     * @param idAttributeName Unique Id attribute name, e.g. 'uid' or 'Initials'
      */
-    public User[] getAllUsers(String contextName, String matchingAttributes) throws Exception {
+    public User[] getAllUsers(String contextName, String matchingAttributes, String idAttributeName) throws Exception {
         // Create connection
         InitialLdapContext ldapContext = getInitialLdapContext();
 
@@ -95,7 +97,7 @@ public class LDAPClientImplV2 implements LDAPClient {
             //log.warn("DEBUG: Result:");
             SearchResult result = (SearchResult) results.next();
             if (result.getAttributes().size() > 0) {
-                Attribute uidAttribute = result.getAttributes().get("uid");
+                Attribute uidAttribute = result.getAttributes().get(idAttributeName);
                 if (uidAttribute != null) {
                     NamingEnumeration values = uidAttribute.getAll();
                     while(values.hasMore()) {
@@ -117,7 +119,7 @@ public class LDAPClientImplV2 implements LDAPClient {
                         }
                     }
                 } else {
-                    log.warn("Search result has no 'uid' attribute: " + result);
+                    log.warn("Search result has no unique Id attribute '" + idAttributeName + "': " + result);
                 }
             } else {
                 log.warn("Search result has not attributes: " + result);
